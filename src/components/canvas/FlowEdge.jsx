@@ -1,9 +1,8 @@
 import React from 'react';
 import { BaseEdge, getSmoothStepPath, EdgeLabelRenderer } from '@xyflow/react';
-import { validateConveyor } from '../../engine/logistics';
+import { validateLogistics } from '../../engine/logistics';
 import items from '../../database/items.json';
 import { getAssetUrl } from '../../database/assets';
-
 
 export default function FlowEdge({
   id,
@@ -33,22 +32,35 @@ export default function FlowEdge({
   });
 
   const rate = data?.rate || 0;
-  const validation = validateConveyor(rate);
   const item = items[data?.itemId];
+  const isFluid = item?.type === 'fluid';
+  const validation = validateLogistics(rate, isFluid);
   
-  let edgeColor = '#4a5568'; // фоновый
+  let edgeColor = isFluid ? '#3b82f6' : '#4a5568';
   let edgeWidth = 2;
   let edgeFilter = 'none';
 
   if (rate > 0) {
-    edgeColor = '#fa9549'; // конструкторский оранжевый
-    if (rate > 270) {
-      edgeWidth = 2.5;
-      edgeFilter = 'drop-shadow(0 0 5px rgba(250, 149, 73, 0.4))'; // свечение для высокоскоростных
-    }
-    if (validation.alert && rate > 1200) {
-      edgeColor = '#ef4444';
-      edgeFilter = 'drop-shadow(0 0 5px rgba(239, 68, 68, 0.6))';
+    if (isFluid) {
+      edgeColor = '#3b82f6';
+      if (rate > 300) {
+        edgeWidth = 2.5;
+        edgeFilter = 'drop-shadow(0 0 5px rgba(59, 130, 246, 0.4))';
+      }
+      if (validation.alert) {
+        edgeColor = '#ef4444';
+        edgeFilter = 'drop-shadow(0 0 5px rgba(239, 68, 68, 0.6))';
+      }
+    } else {
+      edgeColor = '#fa9549'; 
+      if (rate > 270) {
+        edgeWidth = 2.5;
+        edgeFilter = 'drop-shadow(0 0 5px rgba(250, 149, 73, 0.4))'; 
+      }
+      if (validation.alert && rate > 1200) {
+        edgeColor = '#ef4444';
+        edgeFilter = 'drop-shadow(0 0 5px rgba(239, 68, 68, 0.6))';
+      }
     }
   }
 

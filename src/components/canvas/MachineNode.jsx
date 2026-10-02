@@ -118,7 +118,7 @@ export default function СтанокNode({ data }) {
 
     return (
       <div className="bg-[#14171d] border border-[#2a2e39] rounded-md shadow-lg p-2 min-w-[150px] text-center text-[#e1e1e6] relative z-10">
-        <div className="text-xs text-gray-400 mb-1">Добыча (Сырье)</div>
+        <div className="text-xs text-gray-400 mb-1">{item ? item.name : 'Добыча'}</div>
         <div className="flex items-center justify-center gap-2">
           {item && <img src={getAssetUrl(item.icon)} alt={item.name} className="w-6 h-6" />}
           <span className="font-bold text-[#f97316]">{data.rate.toFixed(1)} / min</span>
