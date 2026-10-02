@@ -4,6 +4,8 @@ import recipesDB from '../../database/recipes.json';
 import itemsDB from '../../database/items.json';
 import buildingsDB from '../../database/buildings.json';
 import { calculatePower } from '../../engine/overclock';
+import { getAssetUrl } from '../../database/assets';
+
 
 // Recursive Tree Node Component
 function TreeNode({ nodeData, level = 0 }) {
@@ -35,7 +37,7 @@ function TreeNode({ nodeData, level = 0 }) {
         </div>
         
         {/* Item Icon */}
-        {item && <img src={item.icon} alt={item.name} className="w-5 h-5" />}
+        {item && <img src={getAssetUrl(item.icon)} alt={item.name} className="w-5 h-5" />}
         
         {/* Main Text */}
         <span className="text-[#e1e1e6] font-bold">
@@ -51,7 +53,7 @@ function TreeNode({ nodeData, level = 0 }) {
         {building && (
           <div className="flex items-center gap-1 text-gray-300">
             <span className="font-bold">{nodeData.machineCount.toFixed(2)}x</span>
-            <img src={building.icon} alt={building.name} className="w-4 h-4 rounded grayscale opacity-70" />
+            <img src={getAssetUrl(building.icon)} alt={building.name} className="w-4 h-4 rounded grayscale opacity-70" />
             <span>{building.name}</span>
             <span className="text-[#a855f7] ml-1">({nodeData.powerMW.toFixed(1)} MW)</span>
           </div>

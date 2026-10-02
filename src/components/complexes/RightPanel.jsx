@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { useFactoryStore } from '../../store/useFactoryStore';
 import items from '../../database/items.json';
 import recipesDB from '../../database/recipes.json';
+import { getAssetUrl } from '../../database/assets';
+
 
 function ItemSelect({ value, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +43,7 @@ function ItemSelect({ value, onChange }) {
         onClick={openDropdown}
       >
         {selectedItem && selectedItem.icon ? (
-          <img src={selectedItem.icon} alt={selectedItem.name} className="w-5 h-5 object-contain" onError={(e) => e.target.style.display='none'} />
+          <img src={getAssetUrl(selectedItem.icon)} alt={selectedItem.name} className="w-5 h-5 object-contain" onError={(e) => e.target.style.display='none'} />
         ) : (
           <div className="w-5 h-5 bg-gray-700 rounded-sm"></div>
         )}
@@ -64,7 +66,7 @@ function ItemSelect({ value, onChange }) {
                 onClick={() => { onChange(k); setIsOpen(false); }}
               >
                 {item.icon ? (
-                  <img src={item.icon} alt={item.name} className="w-5 h-5 object-contain" onError={(e) => e.target.style.display='none'} />
+                  <img src={getAssetUrl(item.icon)} alt={item.name} className="w-5 h-5 object-contain" onError={(e) => e.target.style.display='none'} />
                 ) : (
                   <div className="w-5 h-5 bg-gray-700 rounded-sm"></div>
                 )}
@@ -87,7 +89,7 @@ function RecipeEquation({ recipe, accentColor = '#f97316' }) {
         <React.Fragment key={inp.itemId}>
           {idx > 0 && <span className="text-gray-500 font-bold">+</span>}
           <div className="flex items-center gap-1 text-gray-300 bg-[#1a1d24] px-1 py-0.5 rounded" title={items[inp.itemId]?.name}>
-            <img src={items[inp.itemId]?.icon} className="w-4 h-4 object-contain" onError={(e) => e.target.style.display='none'} />
+            <img src={getAssetUrl(items[inp.itemId]?.icon)} className="w-4 h-4 object-contain" onError={(e) => e.target.style.display='none'} />
             <span className="font-medium">{inp.rate}</span>
           </div>
         </React.Fragment>
@@ -97,7 +99,7 @@ function RecipeEquation({ recipe, accentColor = '#f97316' }) {
         <React.Fragment key={out.itemId}>
           {idx > 0 && <span className="text-gray-500 font-bold">+</span>}
           <div className="flex items-center gap-1 text-gray-300 bg-[#1a1d24] px-1 py-0.5 rounded" title={items[out.itemId]?.name}>
-            <img src={items[out.itemId]?.icon} className="w-4 h-4 object-contain" onError={(e) => e.target.style.display='none'} />
+            <img src={getAssetUrl(items[out.itemId]?.icon)} className="w-4 h-4 object-contain" onError={(e) => e.target.style.display='none'} />
             <span className="font-medium">{out.rate}</span>
           </div>
         </React.Fragment>
@@ -222,7 +224,7 @@ export default function RightPanel() {
                       <div className="flex flex-col flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           {outItem?.icon ? (
-                            <img src={outItem.icon} alt="" className="w-6 h-6 object-contain rounded bg-[#0b0d10] p-0.5 border border-[#2a2e39]" onError={(e) => e.target.style.display='none'} />
+                            <img src={getAssetUrl(outItem.icon)} alt="" className="w-6 h-6 object-contain rounded bg-[#0b0d10] p-0.5 border border-[#2a2e39]" onError={(e) => e.target.style.display='none'} />
                           ) : (
                             <div className="w-6 h-6 bg-gray-700 rounded border border-[#2a2e39]"></div>
                           )}
@@ -253,7 +255,7 @@ export default function RightPanel() {
                         <div className="flex flex-col flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             {outItem?.icon ? (
-                              <img src={outItem.icon} alt="" className="w-6 h-6 object-contain rounded bg-[#0b0d10] p-0.5 border border-[#2a2e39]" onError={(e) => e.target.style.display='none'} />
+                              <img src={getAssetUrl(outItem.icon)} alt="" className="w-6 h-6 object-contain rounded bg-[#0b0d10] p-0.5 border border-[#2a2e39]" onError={(e) => e.target.style.display='none'} />
                             ) : (
                               <div className="w-6 h-6 bg-gray-700 rounded border border-[#2a2e39]"></div>
                             )}

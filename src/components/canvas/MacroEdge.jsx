@@ -1,5 +1,7 @@
 import React from 'react';
 import { BaseEdge, getSmoothStepPath, EdgeLabelRenderer } from '@xyflow/react';
+import { getAssetUrl } from '../../database/assets';
+
 
 export default function MacroEdge({
   id,
@@ -46,7 +48,7 @@ export default function MacroEdge({
           title={data?.name}
         >
           {data?.icon && (
-            <img src={data.icon} alt={data?.name} className="w-5 h-5 object-contain" />
+            <img src={getAssetUrl(data.icon)} alt={data?.name} className="w-5 h-5 object-contain" />
           )}
           <span className="text-[#f97316] font-bold text-xs tracking-wider">
             {data?.rate}/м

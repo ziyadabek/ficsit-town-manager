@@ -2,6 +2,8 @@ import React from 'react';
 import { BaseEdge, getSmoothStepPath, EdgeLabelRenderer } from '@xyflow/react';
 import { validateConveyor } from '../../engine/logistics';
 import items from '../../database/items.json';
+import { getAssetUrl } from '../../database/assets';
+
 
 export default function FlowEdge({
   id,
@@ -64,7 +66,7 @@ export default function FlowEdge({
           title={validation.message || 'Flow OK'}
         >
           <div className="flex items-center gap-1">
-            {item && <img src={item.icon} alt={item.name} className="w-4 h-4" />}
+            {item && <img src={getAssetUrl(item.icon)} alt={item.name} className="w-4 h-4" />}
             <span style={{ color: edgeColor }} className="font-bold">{rate.toFixed(1)}/m</span>
           </div>
           <div className="text-[10px] text-gray-400 mt-0.5">{validation.mk}</div>

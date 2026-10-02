@@ -2,6 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import powerData from '../../database/powerData.json';
 import { solvePower } from '../../engine/powerSolver';
 import { useFactoryStore } from '../../store/useFactoryStore';
+import { getAssetUrl } from '../../database/assets';
+
 
 export default function PowerPlanner({ isPresetMode }) {
   const [targetMW, setTargetMW] = useState(500);
@@ -92,7 +94,7 @@ export default function PowerPlanner({ isPresetMode }) {
                   onClick={() => handleGenChange(gen.id)}
                   className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${generatorId === gen.id ? 'border-[#f97316] bg-[#2a2e39]' : 'border-[#2a2e39] bg-[#0b0d10] hover:border-gray-500'}`}
                 >
-                  <img src={gen.icon} alt={gen.name} className="w-6 h-6 object-contain" onError={(e) => e.target.style.display='none'} />
+                  <img src={getAssetUrl(gen.icon)} alt={gen.name} className="w-6 h-6 object-contain" onError={(e) => e.target.style.display='none'} />
                   <span className="text-sm font-bold">{gen.name.split(' ')[0]}</span>
                 </button>
               ))}
@@ -110,7 +112,7 @@ export default function PowerPlanner({ isPresetMode }) {
                   onClick={() => setFuelId(f.id)}
                   className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${fuelId === f.id ? 'border-yellow-500 bg-[#2a2e39]' : 'border-[#2a2e39] bg-[#0b0d10] hover:border-gray-500'}`}
                 >
-                  <img src={f.icon} alt={f.name} className="w-5 h-5 object-contain" onError={(e) => e.target.style.display='none'} />
+                  <img src={getAssetUrl(f.icon)} alt={f.name} className="w-5 h-5 object-contain" onError={(e) => e.target.style.display='none'} />
                   <span className="text-sm">{f.name}</span>
                 </button>
               ))}
@@ -145,7 +147,7 @@ export default function PowerPlanner({ isPresetMode }) {
             <h3 className="text-lg font-bold border-b border-[#2a2e39] pb-2 text-[#e1e1e6]">Инфраструктура</h3>
             
             <div className="flex items-center gap-4 bg-[#0b0d10] p-3 rounded border border-[#2a2e39]">
-              <img src={result.generator.icon} alt={result.generator.name} className="w-10 h-10 object-contain" onError={(e) => e.target.style.display='none'} />
+              <img src={getAssetUrl(result.generator.icon)} alt={result.generator.name} className="w-10 h-10 object-contain" onError={(e) => e.target.style.display='none'} />
               <div>
                 <div className="font-bold">{result.generator.name}</div>
                 <div className="text-sm text-gray-400">{result.generators.count} шт. (Последний на {result.generators.lastClock.toFixed(1)}%)</div>
@@ -154,7 +156,7 @@ export default function PowerPlanner({ isPresetMode }) {
 
             {result.water.totalRate > 0 && (
               <div className="flex items-center gap-4 bg-[#0b0d10] p-3 rounded border border-blue-900/50">
-                <img src="/icons/Buildings/Waterpump.png" alt="Водяная помпа" className="w-10 h-10 object-contain" onError={(e) => e.target.style.display='none'} />
+                <img src={getAssetUrl('/icons/Buildings/Waterpump.png')} alt="Водяная помпа" className="w-10 h-10 object-contain" onError={(e) => e.target.style.display='none'} />
                 <div className="w-full">
                   <div className="flex justify-between font-bold text-blue-300">
                     <span>Водяные помпы</span>
@@ -173,7 +175,7 @@ export default function PowerPlanner({ isPresetMode }) {
             
             {result.fuel ? (
               <div className="flex items-center gap-4 bg-[#0b0d10] p-3 rounded border border-[#2a2e39]">
-                <img src={result.fuel.icon} alt={result.fuel.name} className="w-10 h-10 object-contain" onError={(e) => e.target.style.display='none'} />
+                <img src={getAssetUrl(result.fuel.icon)} alt={result.fuel.name} className="w-10 h-10 object-contain" onError={(e) => e.target.style.display='none'} />
                 <div>
                   <div className="font-bold text-[#f97316]">{result.fuel.name}</div>
                   <div className="text-sm text-gray-300">Потребление: {result.fuelLogistics.rate.toFixed(1)} /мин</div>

@@ -4,6 +4,8 @@ import { getItemIcon, getBuildingIcon } from '../../database/assets';
 import buildings from '../../database/buildings.json';
 import items from '../../database/items.json';
 import { useFactoryStore } from '../../store/useFactoryStore';
+import { getAssetUrl } from '../../database/assets';
+
 
 export default function СтанокNode({ data }) {
   const somersloopRecipes = useFactoryStore(state => state.options.somersloopRecipes) || [];
@@ -71,7 +73,7 @@ export default function СтанокNode({ data }) {
           <div className={`bg-[#101926] border-2 ${hasDeficit ? 'border-[#f97316] shadow-[0_0_15px_rgba(249,115,22,0.3)]' : 'border-[#3b82f6] shadow-[0_0_15px_rgba(59,130,246,0.3)]'} rounded-md p-3 min-w-[240px] text-center text-[#e1e1e6] relative z-10`}>
             <div className={`text-xs ${hasDeficit ? 'text-[#f97316]' : 'text-[#3b82f6]'} mb-1 font-bold flex flex-col items-center justify-center gap-1`}>
               <div className="flex items-center gap-1">
-                <img src={transIcon} alt="Transport" className="w-5 h-5 object-contain" onError={(e) => e.target.style.display='none'} />
+                <img src={getAssetUrl(transIcon)} alt="Transport" className="w-5 h-5 object-contain" onError={(e) => e.target.style.display='none'} />
                 {transTitle}
               </div>
               {transSub && <span className="text-[10px] text-gray-400">{transSub}</span>}
@@ -79,7 +81,7 @@ export default function СтанокNode({ data }) {
             </div>
             
             <div className="flex items-center justify-center gap-2 mt-2 bg-[#0b0d10] p-2 rounded">
-              {item && <img src={item.icon} alt={item.name} className="w-8 h-8" />}
+              {item && <img src={getAssetUrl(item.icon)} alt={item.name} className="w-8 h-8" />}
               <div className="text-right">
                 <div className="text-sm font-bold">{item?.name}</div>
                 <div className="text-xs text-[#22c55e] font-bold">+{data.rate.toFixed(1)} / min</div>
@@ -99,11 +101,11 @@ export default function СтанокNode({ data }) {
       return (
         <div className="bg-[#14171d] border-2 border-[#3b82f6] rounded-md shadow-[0_0_15px_rgba(59,130,246,0.2)] p-3 min-w-[200px] text-center text-[#e1e1e6] relative z-10">
           <div className="text-xs text-[#3b82f6] mb-1 font-bold flex items-center justify-center gap-1">
-            <img src="/icons/Conveyor Supports/TrainStation.png" alt="Train" className="w-4 h-4" />
+            <img src={getAssetUrl('/icons/Conveyor Supports/TrainStation.png')} alt="Train" className="w-4 h-4" />
             Входящий ж/д экспресс
           </div>
           <div className="flex items-center justify-center gap-2 mt-2 bg-[#0b0d10] p-2 rounded">
-            {item && <img src={item.icon} alt={item.name} className="w-8 h-8" />}
+            {item && <img src={getAssetUrl(item.icon)} alt={item.name} className="w-8 h-8" />}
             <div className="text-right">
               <div className="text-sm font-bold">{item?.name}</div>
               <div className="text-xs text-[#22c55e] font-bold">+{data.rate.toFixed(1)} / min</div>
@@ -118,7 +120,7 @@ export default function СтанокNode({ data }) {
       <div className="bg-[#14171d] border border-[#2a2e39] rounded-md shadow-lg p-2 min-w-[150px] text-center text-[#e1e1e6] relative z-10">
         <div className="text-xs text-gray-400 mb-1">Добыча (Сырье)</div>
         <div className="flex items-center justify-center gap-2">
-          {item && <img src={item.icon} alt={item.name} className="w-6 h-6" />}
+          {item && <img src={getAssetUrl(item.icon)} alt={item.name} className="w-6 h-6" />}
           <span className="font-bold text-[#f97316]">{data.rate.toFixed(1)} / min</span>
         </div>
         <Handle type="source" position={Position.Right} id={`out-${data.itemId}`} className="w-3 h-3 bg-[#f97316]" />
@@ -137,7 +139,7 @@ export default function СтанокNode({ data }) {
         {/* Header */}
         <div className="flex items-center justify-between p-2 border-b border-[#facc15]/30 bg-[#facc15]/10 gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            {building && <img src={building.icon} alt={building.name} className="w-8 h-8 object-contain shrink-0 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]" />}
+            {building && <img src={getAssetUrl(building.icon)} alt={building.name} className="w-8 h-8 object-contain shrink-0 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]" />}
             <span className="font-bold text-[#facc15] truncate" title={building?.name}>{building?.name || 'Генератор'}</span>
           </div>
           <div className="text-[10px] bg-[#facc15] text-black px-1.5 py-0.5 rounded font-bold shrink-0 whitespace-nowrap">⚡ ЭЛЕКТРОСТАНЦИЯ</div>
@@ -189,7 +191,7 @@ export default function СтанокNode({ data }) {
       {/* Header */}
       <div className={`flex items-center justify-between p-2 border-b rounded-t-md ${isAmplified ? 'bg-[#a855f7]/20 border-[#a855f7]/50' : 'bg-[#0b0d10] border-[#2a2e39]'}`}>
         <div className="flex items-center gap-2">
-          {building && <img src={building.icon} alt={building.name} className="w-8 h-8 rounded bg-gray-800" />}
+          {building && <img src={getAssetUrl(building.icon)} alt={building.name} className="w-8 h-8 rounded bg-gray-800" />}
           <span className="font-semibold">{building?.name || 'Станок'}</span>
         </div>
         <div className="flex gap-2 items-center">
@@ -199,7 +201,7 @@ export default function СтанокNode({ data }) {
               title="Усилитель Somersloop"
               className={`w-5 h-5 flex items-center justify-center rounded transition-all hover:scale-110 ${isAmplified ? 'opacity-100 shadow-[0_0_5px_rgba(168,85,247,1)]' : 'opacity-40 grayscale hover:grayscale-0 hover:opacity-100'}`}
             >
-              <img src="/icons/Tools/somersloop.png" className="w-4 h-4 object-contain" alt="S" />
+              <img src={getAssetUrl('/icons/Tools/somersloop.png')} className="w-4 h-4 object-contain" alt="S" />
             </button>
           )}
           {isAmplified && (
@@ -227,7 +229,7 @@ export default function СтанокNode({ data }) {
 
         {/* Recipe / Output */}
         <div className="flex items-center justify-center gap-2 bg-[#0b0d10] p-2 rounded">
-          {item && <img src={item.icon} alt={item.name} className="w-8 h-8" />}
+          {item && <img src={getAssetUrl(item.icon)} alt={item.name} className="w-8 h-8" />}
           <div className="text-right">
             <div className="text-sm font-bold">{item?.name}</div>
             <div className={`text-xs ${isAmplified ? 'text-[#a855f7] font-black text-[14px]' : 'text-[#f97316]'}`}>{data.rate.toFixed(1)} / min</div>

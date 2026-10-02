@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useFactoryStore } from '../../store/useFactoryStore';
 import items from '../../database/items.json';
+import { getAssetUrl } from '../../database/assets';
+
 
 // Custom Dropdown for Item Selection with Icons
 function ItemSelect({ value, onChange }) {
@@ -27,7 +29,7 @@ function ItemSelect({ value, onChange }) {
         className="flex items-center gap-2 bg-[#14171d] border border-[#2a2e39] text-[#e1e1e6] px-2 py-1 rounded cursor-pointer hover:border-[#f97316]"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {selectedItem && <img src={selectedItem.icon} alt={selectedItem.name} className="w-5 h-5" />}
+        {selectedItem && <img src={getAssetUrl(selectedItem.icon)} alt={selectedItem.name} className="w-5 h-5" />}
         <span className="truncate">{selectedItem ? selectedItem.name : 'Select item...'}</span>
         <span className="ml-auto text-xs text-gray-400">▼</span>
       </div>
@@ -45,7 +47,7 @@ function ItemSelect({ value, onChange }) {
                   setIsOpen(false);
                 }}
               >
-                <img src={item.icon} alt={item.name} className="w-5 h-5" />
+                <img src={getAssetUrl(item.icon)} alt={item.name} className="w-5 h-5" />
                 <span className="truncate text-[#e1e1e6]">{item.name}</span>
               </div>
             );

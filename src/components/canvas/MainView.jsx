@@ -17,6 +17,8 @@ import GraphCanvas from './GraphCanvas';
 import TreeView from './TreeView';
 import ExportImageButton from '../common/ExportImageButton';
 import itemsDB from '../../database/items.json';
+import { getAssetUrl } from '../../database/assets';
+
 
 // ─── ItemsTable ────────────────────────────────────────────────────────────────
 function ItemsTable({ summary, tableRef }) {
@@ -72,7 +74,7 @@ function ItemsTable({ summary, tableRef }) {
             return (
               <tr key={item.id} className="border-b border-[#2a2e39] hover:bg-[#14171d]">
                 <td className="p-2 flex items-center gap-2">
-                  {dbItem && <img src={dbItem.icon} alt={dbItem.name} className="w-6 h-6" />}
+                  {dbItem && <img src={getAssetUrl(dbItem.icon)} alt={dbItem.name} className="w-6 h-6" />}
                   <span>{dbItem?.name || item.id}</span>
                 </td>
                 <td className="p-2 text-[#f97316]">{item.produced.toFixed(2)}</td>
@@ -186,7 +188,7 @@ function LogisticsTable({ summary, tableRef }) {
             return (
               <tr key={item.id} className="border-b border-[#2a2e39] hover:bg-[#14171d]">
                 <td className="p-2 flex items-center gap-2">
-                  {dbItem && <img src={dbItem.icon} alt={dbItem.name} className="w-6 h-6" />}
+                  {dbItem && <img src={getAssetUrl(dbItem.icon)} alt={dbItem.name} className="w-6 h-6" />}
                   <span className="flex items-center gap-2">
                     {dbItem?.name || item.id}
                   </span>
@@ -195,7 +197,7 @@ function LogisticsTable({ summary, tableRef }) {
                 <td className="p-2 text-sm">{routeLabel}</td>
                 <td className={`p-2 flex items-center gap-2 ${alertColor}`}>
                   <img
-                    src={recIcon}
+                    src={getAssetUrl(recIcon)}
                     alt={recText}
                     className="w-8 h-8 object-contain"
                     onError={e => (e.target.style.display = 'none')}
@@ -233,7 +235,7 @@ function BuildingsTable({ summary, tableRef }) {
           {summary.buildings.map(b => (
             <tr key={b.id} className="border-b border-[#2a2e39] hover:bg-[#14171d]">
               <td className="p-2 flex items-center gap-2">
-                {b.icon && <img src={b.icon} alt={b.name} className="w-6 h-6" />}
+                {b.icon && <img src={getAssetUrl(b.icon)} alt={b.name} className="w-6 h-6" />}
                 <span>{b.name || b.id}</span>
               </td>
               <td className="p-2">{b.count.toFixed(2)}</td>

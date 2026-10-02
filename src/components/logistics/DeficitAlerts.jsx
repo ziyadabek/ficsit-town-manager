@@ -1,6 +1,8 @@
 import React from 'react';
 import { useFactoryStore } from '../../store/useFactoryStore';
 import items from '../../database/items.json';
+import { getAssetUrl } from '../../database/assets';
+
 
 export default function DeficitAlerts() {
   const { deficits } = useFactoryStore();
@@ -19,7 +21,7 @@ export default function DeficitAlerts() {
           return (
             <li key={itemKey} className="flex items-center justify-between bg-[#0b0d10] p-2 rounded border border-[#2a2e39]">
               <div className="flex items-center gap-2">
-                {item && <img src={item.icon} alt={item.name} className="w-5 h-5" />}
+                {item && <img src={getAssetUrl(item.icon)} alt={item.name} className="w-5 h-5" />}
                 <span className="text-[#e1e1e6]">{item?.name || itemKey}</span>
               </div>
               <span className="font-bold text-[#ef4444]">-{deficits[itemKey].toFixed(1)} / min</span>
