@@ -1,0 +1,541 @@
+{
+  "limestone": {
+    "name": "Известняк",
+    "icon": "/icons/Items/Stone.png",
+    "type": "solid"
+  },
+  "iron_ore": {
+    "name": "Железная руда",
+    "icon": "/icons/Items/iron.png",
+    "type": "solid"
+  },
+  "copper_ore": {
+    "name": "Медная руда",
+    "icon": "/icons/Items/copper.png",
+    "type": "solid"
+  },
+  "coal": {
+    "name": "Уголь",
+    "icon": "/icons/Items/CoalOre.png",
+    "type": "solid"
+  },
+  "crude_oil": {
+    "name": "Сырая нефть",
+    "icon": "/icons/Items/Oil.png",
+    "type": "fluid"
+  },
+  "copper_ingot": {
+    "name": "Медный слиток",
+    "icon": "/icons/Items/CopperIngot.png",
+    "type": "solid"
+  },
+  "copper_sheet": {
+    "name": "Медный лист",
+    "icon": "/icons/Items/CopperSheet.png",
+    "type": "solid"
+  },
+  "raw_quartz": {
+    "name": "Сырой кварц",
+    "icon": "/icons/Items/QuartzResource.png",
+    "type": "solid"
+  },
+  "water": {
+    "name": "Вода",
+    "icon": "/icons/Items/Water.png",
+    "type": "fluid"
+  },
+  "steel_beam": {
+    "name": "Стальные балки",
+    "icon": "/icons/Items/SteelBeam.png",
+    "type": "solid"
+  },
+  "steel_pipe": {
+    "name": "Стальные трубки",
+    "icon": "/icons/Items/SteelPipe.png",
+    "type": "solid"
+  },
+  "iron_beam": {
+    "name": "Железные балки",
+    "icon": "/icons/Items/IronPlates.png",
+    "type": "solid"
+  },
+  "reinforced_iron_plate": {
+    "name": "Укрепленные пластины",
+    "icon": "/icons/Items/ReinforcedIronPlates.png",
+    "type": "solid"
+  },
+  "modular_frame": {
+    "name": "Модульные каркасы",
+    "icon": "/icons/Items/ModularFrame.png",
+    "type": "solid"
+  },
+  "heavy_modular_frame": {
+    "name": "Тяжелые каркасы",
+    "icon": "/icons/Items/ModularFrameHeavy.png",
+    "type": "solid"
+  },
+  "screws": {
+    "name": "Винты",
+    "icon": "/icons/Items/IronScrews.png",
+    "type": "solid"
+  },
+  "iron_plate": {
+    "name": "Пластины",
+    "icon": "/icons/Items/IronPlates.png",
+    "type": "solid"
+  },
+  "iron_rod": {
+    "name": "Прутья",
+    "icon": "/icons/Items/IronRods.png",
+    "type": "solid"
+  },
+  "concrete": {
+    "name": "Бетон",
+    "icon": "/icons/Items/Concrete.png",
+    "type": "solid"
+  },
+  "steel_ingot": {
+    "name": "Стальной слиток",
+    "icon": "/icons/Items/SteelIngot.png",
+    "type": "solid"
+  },
+  "iron_ingot": {
+    "name": "Железный слиток",
+    "icon": "/icons/Items/IronIngot.png",
+    "type": "solid"
+  },
+  "plastic": {
+    "name": "Пластик",
+    "icon": "/icons/Items/Plastic.png",
+    "type": "solid"
+  },
+  "rubber": {
+    "name": "Резина",
+    "icon": "/icons/Items/Rubber.png",
+    "type": "solid"
+  },
+  "heavy_oil_residue": {
+    "name": "Мазут",
+    "icon": "/icons/Items/HeavyOilResidue.png",
+    "type": "fluid"
+  },
+  "fuel": {
+    "name": "Топливо",
+    "icon": "/icons/Items/Fuel.png",
+    "type": "fluid"
+  },
+  "polymer_resin": {
+    "name": "Полимерная смола",
+    "icon": "/icons/Items/PolymerResin.png",
+    "type": "solid"
+  },
+  "bauxite": {
+    "name": "Бокситы",
+    "icon": "/icons/Items/Bauxite.png",
+    "type": "solid"
+  },
+  "alumina_solution": {
+    "name": "Раствор глинозема",
+    "icon": "/icons/Items/Alumina.png",
+    "type": "fluid"
+  },
+  "aluminum_scrap": {
+    "name": "Алюминиевый лом",
+    "icon": "/icons/Items/AluminiumScrap.png",
+    "type": "solid"
+  },
+  "aluminum_ingot": {
+    "name": "Алюминиевый слиток",
+    "icon": "/icons/Items/AluminiumIngot.png",
+    "type": "solid"
+  },
+  "encased_industrial_beam": {
+    "name": "Армированные балки",
+    "icon": "/icons/Items/EncasedSteelBeam.png",
+    "type": "solid"
+  },
+  "motor": {
+    "name": "Мотор",
+    "icon": "/icons/Items/Engine.png",
+    "type": "solid"
+  },
+  "rotor": {
+    "name": "Ротор",
+    "icon": "/icons/Items/Rotor.png",
+    "type": "solid"
+  },
+  "stator": {
+    "name": "Статор",
+    "icon": "/icons/Items/Stator.png",
+    "type": "solid"
+  },
+  "wire": {
+    "name": "Проволока",
+    "icon": "/icons/Items/Wire.png",
+    "type": "solid"
+  },
+  "cable": {
+    "name": "Кабель",
+    "icon": "/icons/Items/Cables.png",
+    "type": "solid"
+  },
+  "computer": {
+    "name": "Компьютер",
+    "icon": "/icons/Items/Computer.png",
+    "type": "solid"
+  },
+  "circuit_board": {
+    "name": "Печатная плата",
+    "icon": "/icons/Items/CircuitBoard.png",
+    "type": "solid"
+  },
+  "silica": {
+    "name": "Кварц",
+    "icon": "/icons/Items/Silica.png",
+    "type": "solid"
+  },
+  "caterium_ore": {
+    "name": "Катериевая руда",
+    "icon": "/icons/Items/CateriumOre.png",
+    "type": "solid"
+  },
+  "caterium_ingot": {
+    "name": "Катериевый слиток",
+    "icon": "/icons/Items/CateriumIngot.png",
+    "type": "solid"
+  },
+  "quickwire": {
+    "name": "Катериевая проволока",
+    "icon": "/icons/Items/Quickwire.png",
+    "type": "solid"
+  },
+  "sam_ore": {
+    "name": "SAM Ore",
+    "icon": "/icons/Items/SameOre.png",
+    "type": "solid"
+  },
+  "reanimated_sam": {
+    "name": "Активизированная СИМ",
+    "icon": "/icons/Items/ReanimatedSam.png",
+    "type": "solid"
+  },
+  "sulfur": {
+    "name": "Сера",
+    "icon": "/icons/Items/Sulfur.png",
+    "type": "solid"
+  },
+  "sulfuric_acid": {
+    "name": "Серная кислота",
+    "icon": "/icons/Items/SulfuricAcid.png",
+    "type": "fluid"
+  },
+  "nitrogen_gas": {
+    "name": "Азотный газ",
+    "icon": "/icons/Items/NitrogenGas.png",
+    "type": "fluid"
+  },
+  "quartz_crystal": {
+    "name": "Кварцевый кристалл",
+    "icon": "/icons/Items/QuartzCrystal.png",
+    "type": "solid"
+  },
+  "crystal_oscillator": {
+    "name": "Кристаллический осциллятор",
+    "icon": "/icons/Items/CrystalOscillator.png",
+    "type": "solid"
+  },
+  "aluminum_casing": {
+    "name": "Алюминиевый корпус",
+    "icon": "/icons/Items/AluminiumCasing.png",
+    "type": "solid"
+  },
+  "aluminum_sheet": {
+    "name": "Алюминиевый лист",
+    "icon": "/icons/Items/AluminiumSheet.png",
+    "type": "solid"
+  },
+  "copper_powder": {
+    "name": "Медная пыль",
+    "icon": "/icons/Items/CopperDust.png",
+    "type": "solid"
+  },
+  "petroleum_coke": {
+    "name": "Нефтяной кокс",
+    "icon": "/icons/Items/PetroleumCoke.png",
+    "type": "solid"
+  },
+  "ai_limiter": {
+    "name": "Ограничитель ИИ",
+    "icon": "/icons/Items/AILimiter.png",
+    "type": "solid"
+  },
+  "high_speed_connector": {
+    "name": "Высокоскоростной коннектор",
+    "icon": "/icons/Items/HighSpeedConnector.png",
+    "type": "solid"
+  },
+  "supercomputer": {
+    "name": "Суперкомпьютер",
+    "icon": "/icons/Items/Computer.png",
+    "type": "solid"
+  },
+  "radio_control_unit": {
+    "name": "Блок радиоуправления",
+    "icon": "/icons/Items/RadioControlUnit.png",
+    "type": "solid"
+  },
+  "smart_plating": {
+    "name": "Умная обшивка",
+    "icon": "/icons/Items/SpelevatorPart_1.png",
+    "type": "solid"
+  },
+  "versatile_framework": {
+    "name": "Универсальный каркас",
+    "icon": "/icons/Items/SpelevatorPart_2.png",
+    "type": "solid"
+  },
+  "automated_wiring": {
+    "name": "Автоматизированная проводка",
+    "icon": "/icons/Items/SpelevatorPart_3.png",
+    "type": "solid"
+  },
+  "modular_engine": {
+    "name": "Модульный двигатель",
+    "icon": "/icons/Items/Engine.png",
+    "type": "solid"
+  },
+  "adaptive_control_unit": {
+    "name": "Адаптивный блок управления",
+    "icon": "/icons/Items/SpelevatorPart_4.png",
+    "type": "solid"
+  },
+  "electromagnetic_control_rod": {
+    "name": "ЭМ-Стержень",
+    "icon": "/icons/Items/ElectromagneticControlRod.png",
+    "type": "solid"
+  },
+  "battery": {
+    "name": "Батарея",
+    "icon": "/icons/Items/Battery.png",
+    "type": "solid"
+  },
+  "heatsink": {
+    "name": "Радиатор",
+    "icon": "/icons/Items/Heatsink.png",
+    "type": "solid"
+  },
+  "cooling_system": {
+    "name": "Система охлаждения",
+    "icon": "/icons/Items/CoolingSystem.png",
+    "type": "solid"
+  },
+  "turbo_motor": {
+    "name": "Турбомотор",
+    "icon": "/icons/Items/TurboMotor.png",
+    "type": "solid"
+  },
+  "fused_modular_frame": {
+    "name": "Сплавленный модульный каркас",
+    "icon": "/icons/Items/FusedModularFrame.png",
+    "type": "solid"
+  },
+  "pressure_conversion_cube": {
+    "name": "Куб преобразования давления",
+    "icon": "/icons/Items/PressureTank.png",
+    "type": "solid"
+  },
+  "nuclear_pasta": {
+    "name": "Ядерная паста",
+    "icon": "/icons/Items/NuclearPasta.png",
+    "type": "solid"
+  },
+  "magnetic_field_generator": {
+    "name": "Генератор магнитного поля",
+    "icon": "/icons/Items/MagneticFieldGenerator.png",
+    "type": "solid"
+  },
+  "thermal_propulsion_rocket": {
+    "name": "Тепловой ракетный двигатель",
+    "icon": "/icons/Items/ThermalPropulsionRocket.png",
+    "type": "solid"
+  },
+  "assembly_director_system": {
+    "name": "Система управления сборкой",
+    "icon": "/icons/Items/AssemblyDirectorSystem.png",
+    "type": "solid"
+  },
+  "diamonds": {
+    "name": "Алмазы",
+    "icon": "/icons/Items/Diamonds.png",
+    "type": "solid"
+  },
+  "time_crystal": {
+    "name": "Кристалл Времени",
+    "icon": "/icons/Items/TimeCrystal.png",
+    "type": "solid"
+  },
+  "dark_energy": {
+    "name": "Темная Энергия",
+    "icon": "/icons/Items/DarkEnergy.png",
+    "type": "solid"
+  },
+  "singularity_cell": {
+    "name": "Ячейка Сингулярности",
+    "icon": "/icons/Items/SingularityCell.png",
+    "type": "solid"
+  },
+  "ficsonium": {
+    "name": "Фиксоний",
+    "icon": "/icons/Items/FicsoniumCell.png",
+    "type": "solid"
+  },
+  "power": {
+    "id": "power",
+    "name": "Электроэнергия",
+    "description": "MW",
+    "icon": "/icons/Buildings/PowerStorage.png"
+  },
+  "nuclear_waste": {
+    "id": "nuclear_waste",
+    "name": "Урановые отходы",
+    "description": "",
+    "icon": "/icons/Items/NuclearWaste.png"
+  },
+  "uranium_fuel_rod": {
+    "id": "uranium_fuel_rod",
+    "name": "Урановый топливный стержень",
+    "description": "",
+    "icon": "/icons/Items/NuclearFuelRod.png"
+  },
+  "encased_uranium_cell": {
+    "id": "encased_uranium_cell",
+    "name": "Обетонированная урановая ячейка",
+    "description": "",
+    "icon": "/icons/Items/NuclearCell.png"
+  },
+  "sam_fluctuator": {
+    "id": "sam_fluctuator",
+    "name": "Флуктуатор СИМ",
+    "icon": "/icons/Items/SamFluctuator.png"
+  },
+  "dark_matter_residue": {
+    "id": "dark_matter_residue",
+    "name": "Остатки темной материи",
+    "icon": "/icons/Items/DarkEnergy.png"
+  },
+  "dark_matter_crystal": {
+    "id": "dark_matter_crystal",
+    "name": "Кристаллы темной материи",
+    "icon": "/icons/Items/QuantumEnergy.png"
+  },
+  "superposition_oscillator": {
+    "id": "superposition_oscillator",
+    "name": "Суперпозиционный осциллятор",
+    "icon": "/icons/Items/SuperPositionOscillator.png"
+  },
+  "quantum_computer": {
+    "id": "quantum_computer",
+    "name": "Квантовый компьютер",
+    "icon": "/icons/Items/QuantumComputer.png"
+  },
+  "ficsite_trigon": {
+    "id": "ficsite_trigon",
+    "name": "Треугольник FICSIT",
+    "icon": "/icons/Items/FicsiteMesh.png"
+  },
+  "ficsite_ingot": {
+    "id": "ficsite_ingot",
+    "name": "Слиток FICSIT",
+    "icon": "/icons/Items/FicsiteIngot.png"
+  },
+  "ai_expansion_server": {
+    "id": "ai_expansion_server",
+    "name": "Сервер расширения ИИ",
+    "icon": "/icons/Items/AIExpension.png"
+  },
+  "biochemical_spacesuit": {
+    "id": "biochemical_spacesuit",
+    "name": "Биохимический скафандр",
+    "icon": "/icons/Items/BiochemicalSculptor.png"
+  },
+  "ballistic_warp_drive": {
+    "id": "ballistic_warp_drive",
+    "name": "Баллистический варп-двигатель",
+    "icon": "/icons/Items/BallisticWarpDrive.png"
+  },
+  "ficsonium_fuel_rod": {
+    "id": "ficsonium_fuel_rod",
+    "name": "Фиксониевый топливный стержень",
+    "icon": "/icons/Items/FicsoniumFuelRod.png"
+  },
+  "excited_photonic_matter": {
+    "id": "excited_photonic_matter",
+    "name": "Возбужденная фотонная материя",
+    "icon": "/icons/Items/ExoticMatter.png"
+  },
+  "packaged_rocket_fuel": {
+    "id": "packaged_rocket_fuel",
+    "name": "Упакованное ракетное топливо",
+    "icon": "/icons/Items/PackagedRocketFuel.png"
+  },
+  "rocket_fuel": {
+    "id": "rocket_fuel",
+    "name": "Ракетное топливо",
+    "icon": "/icons/Items/RocketFuelPipe.png"
+  },
+  "ionized_fuel": {
+    "id": "ionized_fuel",
+    "name": "Ионизированное топливо",
+    "icon": "/icons/Items/IonizedFuel.png"
+  },
+  "uranium": {
+    "id": "uranium",
+    "name": "Уран",
+    "icon": "/icons/Items/UraniumOre.png"
+  },
+  "compacted_coal": {
+    "id": "compacted_coal",
+    "name": "Угольный брикет",
+    "icon": "/icons/Items/CompactedCoal.png"
+  },
+  "portable_miner": {
+    "id": "portable_miner",
+    "name": "Переносной бур",
+    "icon": "/icons/Tools/portable_miner.png"
+  },
+  "non_fissile_uranium": {
+    "id": "non_fissile_uranium",
+    "name": "Нерасщепляемый уран",
+    "icon": "/icons/Items/NonFissileUranium.png"
+  },
+  "encased_plutonium_cell": {
+    "id": "encased_plutonium_cell",
+    "name": "Обетонированная плутониевая ячейка",
+    "icon": "/icons/Items/EncasedPlutoniumCell.png"
+  },
+  "empty_canister": {
+    "id": "empty_canister",
+    "name": "Пустая канистра",
+    "icon": "/icons/Items/EmptyCannister.png"
+  },
+  "plutonium_fuel_rod": {
+    "id": "plutonium_fuel_rod",
+    "name": "Плутониевый топливный стержень",
+    "icon": "/icons/Items/PlutoniumFuelRod.png"
+  },
+  "packaged_turbofuel": {
+    "id": "packaged_turbofuel",
+    "name": "Упакованное турботопливо",
+    "icon": "/icons/Items/IconDesc_TurboFuel_256.png"
+  },
+  "somersloop": {
+    "id": "somersloop",
+    "name": "Петлевик",
+    "icon": "/icons/Tools/somersloop.png"
+  },
+  "hard_drive": {
+    "id": "hard_drive",
+    "name": "Жесткий диск",
+    "icon": "/icons/Tools/hard_drive.png"
+  }
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "id": "coal",
+    "name": "Угольный генератор",
+    "icon": "/icons/Buildings/CoalGenerator.png",
+    "power": 75,
+    "fuels": [
+      { "id": "coal", "name": "Уголь", "rate": 15, "icon": "/icons/Items/CoalOre.png" },
+      { "id": "compacted_coal", "name": "Уплотненный уголь", "rate": 12, "icon": "/icons/Items/CompactedCoal.png" }
+    ],
+    "water": 45,
+    "waste": null
+  },
+  {
+    "id": "fuel",
+    "name": "Топливный генератор",
+    "icon": "/icons/Buildings/FuelGenerator.png",
+    "power": 250,
+    "fuels": [
+      { "id": "fuel", "name": "Топливо", "rate": 20, "icon": "/icons/Items/Fuel.png" },
+      { "id": "turbofuel", "name": "Турботопливо", "rate": 12, "icon": "/icons/Items/TurboFuel.png" }
+    ],
+    "water": 0,
+    "waste": null
+  },
+  {
+    "id": "nuclear",
+    "name": "Атомная электростанция (Уран)",
+    "icon": "/icons/Buildings/NuclearPowerplant.png",
+    "power": 2500,
+    "fuels": [
+      { "id": "uranium_fuel_rod", "name": "Урановый стержень", "rate": 0.2, "icon": "/icons/Items/NuclearFuelRod.png" }
+    ],
+    "water": 240,
+    "waste": { "id": "nuclear_waste", "name": "Ядерные отходы", "rate": 10, "icon": "/icons/Items/NuclearWaste.png" }
+  },
+  {
+    "id": "plutonium",
+    "name": "Атомная электростанция (Плутоний)",
+    "icon": "/icons/Buildings/NuclearPowerplant.png",
+    "power": 2500,
+    "fuels": [
+      { "id": "plutonium_fuel_rod", "name": "Плутониевый стержень", "rate": 0.1, "icon": "/icons/Items/PlutoniumFuelRod.png" }
+    ],
+    "water": 240,
+    "waste": { "id": "plutonium_waste", "name": "Плутониевые отходы", "rate": 10, "icon": "/icons/Items/PlutoniumWaste.png" }
+  },
+  {
+    "id": "geothermal",
+    "name": "Геотермальный генератор",
+    "icon": "/icons/Buildings/GeoThermalPowerGenerator.png",
+    "power": 200,
+    "fuels": [],
+    "water": 0,
+    "waste": null
+  }
+]

@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ficsit-orange: #fa9549;
+  --color-ficsit-orange-dark: #f97316;
+  --color-ficsit-bg: #0b0d10;
+  --color-ficsit-bg-light: #14171d;
+  --color-ficsit-green: #22c55e;
+  --color-ficsit-yellow: #eab308;
+  --color-ficsit-red: #ef4444;
+  --color-ficsit-navy: #0284c7;
+  --color-ficsit-violet: #a855f7;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--color-ficsit-bg);
+  color: #e1e1e6;
+}
+
+.scim-grid {
+  background-color: var(--color-ficsit-bg);
+  background-image: linear-gradient(var(--color-ficsit-bg-light) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--color-ficsit-bg-light) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* React Flow Customization - FICSIT Dark Theme */
+.react-flow__controls {
+  background-color: #14171d !important;
+  border: 1px solid #2a2e39 !important;
+  border-radius: 0.5rem !important; /* rounded-lg */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important; /* shadow-xl */
+  overflow: hidden;
+  margin: 16px !important;
+  z-index: 10 !important;
+}
+
+.react-flow__controls-button {
+  background-color: #14171d !important;
+  border-bottom: 1px solid #2a2e39 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none !important;
+}
+
+.react-flow__controls-button svg {
+  fill: #e1e1e6 !important;
+  transition: fill 0.2s ease;
+}
+
+.react-flow__controls-button:hover {
+  background-color: #1f242d !important;
+}
+
+.react-flow__controls-button:hover svg {
+  fill: #fa9549 !important;
+}
+
+.react-flow__attribution {
+  display: none !important;
+}

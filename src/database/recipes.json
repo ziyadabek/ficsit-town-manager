@@ -1,0 +1,3611 @@
+[
+  {
+    "id": "standard_concrete",
+    "name": "Standard Concrete",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 4,
+    "inputs": [
+      {
+        "itemId": "limestone",
+        "rate": 45
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "concrete",
+        "rate": 15
+      }
+    ]
+  },
+  {
+    "id": "wet_concrete",
+    "name": "Влажный бетон",
+    "buildingId": "refinery",
+    "isAlternate": true,
+    "duration": 3,
+    "inputs": [
+      {
+        "itemId": "limestone",
+        "rate": 120
+      },
+      {
+        "itemId": "water",
+        "rate": 100
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "concrete",
+        "rate": 80
+      }
+    ]
+  },
+  {
+    "id": "standard_steel_ingot",
+    "name": "Standard Steel Ingot",
+    "buildingId": "foundry",
+    "isAlternate": false,
+    "duration": 4,
+    "inputs": [
+      {
+        "itemId": "iron_ore",
+        "rate": 45
+      },
+      {
+        "itemId": "coal",
+        "rate": 45
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "steel_ingot",
+        "rate": 45
+      }
+    ]
+  },
+  {
+    "id": "solid_steel_ingot",
+    "name": "Прочный стальной слиток",
+    "buildingId": "foundry",
+    "isAlternate": true,
+    "duration": 3,
+    "inputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 40
+      },
+      {
+        "itemId": "coal",
+        "rate": 40
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "steel_ingot",
+        "rate": 60
+      }
+    ]
+  },
+  {
+    "id": "steel_pipe",
+    "name": "Steel Pipe",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "steel_ingot",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "steel_pipe",
+        "rate": 20
+      }
+    ]
+  },
+  {
+    "id": "steel_beam",
+    "name": "Steel Beam",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 4,
+    "inputs": [
+      {
+        "itemId": "steel_ingot",
+        "rate": 60
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "steel_beam",
+        "rate": 15
+      }
+    ]
+  },
+  {
+    "id": "iron_ingot",
+    "name": "Iron Ingot",
+    "buildingId": "smelter",
+    "isAlternate": false,
+    "duration": 2,
+    "inputs": [
+      {
+        "itemId": "iron_ore",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 30
+      }
+    ]
+  },
+  {
+    "id": "pure_iron_ingot",
+    "name": "Слиток чистого железа",
+    "buildingId": "refinery",
+    "isAlternate": true,
+    "duration": 12,
+    "inputs": [
+      {
+        "itemId": "iron_ore",
+        "rate": 35
+      },
+      {
+        "itemId": "water",
+        "rate": 20
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 65
+      }
+    ]
+  },
+  {
+    "id": "iron_beam",
+    "name": "Iron Beam",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 4,
+    "inputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 60
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "iron_beam",
+        "rate": 15
+      }
+    ]
+  },
+  {
+    "id": "iron_plate",
+    "name": "Iron Plate",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "iron_plate",
+        "rate": 20
+      }
+    ]
+  },
+  {
+    "id": "iron_rod",
+    "name": "Iron Rod",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 4,
+    "inputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 15
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "iron_rod",
+        "rate": 15
+      }
+    ]
+  },
+  {
+    "id": "screws",
+    "name": "Screw",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "iron_rod",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "screws",
+        "rate": 40
+      }
+    ]
+  },
+  {
+    "id": "cast_screw",
+    "name": "Литые винты",
+    "buildingId": "constructor",
+    "isAlternate": true,
+    "duration": 4.8,
+    "inputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 12.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "screws",
+        "rate": 50
+      }
+    ]
+  },
+  {
+    "id": "reinforced_iron_plate",
+    "name": "Reinforced Iron Plate",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 12,
+    "inputs": [
+      {
+        "itemId": "iron_plate",
+        "rate": 30
+      },
+      {
+        "itemId": "screws",
+        "rate": 60
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "reinforced_iron_plate",
+        "rate": 5
+      }
+    ]
+  },
+  {
+    "id": "modular_frame",
+    "name": "Modular Frame",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 60,
+    "inputs": [
+      {
+        "itemId": "reinforced_iron_plate",
+        "rate": 3
+      },
+      {
+        "itemId": "iron_rod",
+        "rate": 12
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "modular_frame",
+        "rate": 2
+      }
+    ]
+  },
+  {
+    "id": "plastic",
+    "name": "Plastic",
+    "buildingId": "refinery",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "crude_oil",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "plastic",
+        "rate": 20
+      },
+      {
+        "itemId": "heavy_oil_residue",
+        "rate": 10
+      }
+    ]
+  },
+  {
+    "id": "rubber",
+    "name": "Rubber",
+    "buildingId": "refinery",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "crude_oil",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "rubber",
+        "rate": 20
+      },
+      {
+        "itemId": "heavy_oil_residue",
+        "rate": 20
+      }
+    ]
+  },
+  {
+    "id": "residual_fuel",
+    "name": "Residual Fuel",
+    "buildingId": "refinery",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "heavy_oil_residue",
+        "rate": 60
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "fuel",
+        "rate": 40
+      }
+    ]
+  },
+  {
+    "id": "heavy_encased_frame",
+    "name": "Тяжелый железобетонный каркас",
+    "buildingId": "manufacturer",
+    "isAlternate": true,
+    "duration": 64,
+    "inputs": [
+      {
+        "itemId": "modular_frame",
+        "rate": 7.5
+      },
+      {
+        "itemId": "encased_industrial_beam",
+        "rate": 9.375
+      },
+      {
+        "itemId": "steel_pipe",
+        "rate": 33.75
+      },
+      {
+        "itemId": "concrete",
+        "rate": 20.625
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "heavy_modular_frame",
+        "rate": 2.8125
+      }
+    ]
+  },
+  {
+    "id": "encased_industrial_pipe",
+    "name": "Железобетонная труба",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "duration": 15,
+    "inputs": [
+      {
+        "itemId": "steel_pipe",
+        "rate": 28
+      },
+      {
+        "itemId": "concrete",
+        "rate": 18
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "encased_industrial_beam",
+        "rate": 4
+      }
+    ]
+  },
+  {
+    "id": "motor",
+    "name": "Motor",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 12,
+    "inputs": [
+      {
+        "itemId": "rotor",
+        "rate": 10
+      },
+      {
+        "itemId": "stator",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "motor",
+        "rate": 5
+      }
+    ]
+  },
+  {
+    "id": "steel_rotor",
+    "name": "Стальной ротор",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "duration": 12,
+    "inputs": [
+      {
+        "itemId": "steel_pipe",
+        "rate": 10
+      },
+      {
+        "itemId": "wire",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "rotor",
+        "rate": 5
+      }
+    ]
+  },
+  {
+    "id": "stator",
+    "name": "Stator",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 12,
+    "inputs": [
+      {
+        "itemId": "steel_pipe",
+        "rate": 15
+      },
+      {
+        "itemId": "wire",
+        "rate": 40
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "stator",
+        "rate": 5
+      }
+    ]
+  },
+  {
+    "id": "silicon_circuit_board",
+    "name": "Кремниевая печатная плата",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "duration": 24,
+    "inputs": [
+      {
+        "itemId": "silica",
+        "rate": 27.5
+      },
+      {
+        "itemId": "plastic",
+        "rate": 27.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "circuit_board",
+        "rate": 12.5
+      }
+    ]
+  },
+  {
+    "id": "computer",
+    "name": "Computer",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "duration": 24,
+    "inputs": [
+      {
+        "itemId": "circuit_board",
+        "rate": 10
+      },
+      {
+        "itemId": "cable",
+        "rate": 18
+      },
+      {
+        "itemId": "plastic",
+        "rate": 18
+      },
+      {
+        "itemId": "screws",
+        "rate": 52
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "computer",
+        "rate": 2.5
+      }
+    ]
+  },
+  {
+    "id": "wire",
+    "name": "Wire",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 4,
+    "inputs": [
+      {
+        "itemId": "copper_ore",
+        "rate": 15
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "wire",
+        "rate": 30
+      }
+    ]
+  },
+  {
+    "id": "cable",
+    "name": "Cable",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 2,
+    "inputs": [
+      {
+        "itemId": "wire",
+        "rate": 60
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "cable",
+        "rate": 30
+      }
+    ]
+  },
+  {
+    "id": "silica",
+    "name": "Silica",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 1.6,
+    "inputs": [
+      {
+        "itemId": "raw_quartz",
+        "rate": 22.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "silica",
+        "rate": 37.5
+      }
+    ]
+  },
+  {
+    "id": "alumina_solution",
+    "name": "Alumina Solution",
+    "buildingId": "refinery",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "bauxite",
+        "rate": 120
+      },
+      {
+        "itemId": "water",
+        "rate": 180
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "alumina_solution",
+        "rate": 120
+      },
+      {
+        "itemId": "silica",
+        "rate": 50
+      }
+    ]
+  },
+  {
+    "id": "aluminum_scrap",
+    "name": "Aluminum Scrap",
+    "buildingId": "refinery",
+    "isAlternate": false,
+    "duration": 4,
+    "inputs": [
+      {
+        "itemId": "alumina_solution",
+        "rate": 240
+      },
+      {
+        "itemId": "coal",
+        "rate": 120
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "aluminum_scrap",
+        "rate": 360
+      },
+      {
+        "itemId": "water",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "aluminum_ingot",
+    "name": "Aluminum Ingot",
+    "buildingId": "foundry",
+    "isAlternate": false,
+    "duration": 4,
+    "inputs": [
+      {
+        "itemId": "aluminum_scrap",
+        "rate": 90
+      },
+      {
+        "itemId": "silica",
+        "rate": 75
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "aluminum_ingot",
+        "rate": 60
+      }
+    ]
+  },
+  {
+    "id": "copper_ingot",
+    "name": "Copper Ingot",
+    "buildingId": "smelter",
+    "isAlternate": false,
+    "duration": 2,
+    "inputs": [
+      {
+        "itemId": "copper_ore",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "copper_ingot",
+        "rate": 30
+      }
+    ]
+  },
+  {
+    "id": "copper_sheet",
+    "name": "Copper Sheet",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "copper_ingot",
+        "rate": 20
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "copper_sheet",
+        "rate": 10
+      }
+    ]
+  },
+  {
+    "id": "circuit_board",
+    "name": "Circuit Board",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 8,
+    "inputs": [
+      {
+        "itemId": "copper_sheet",
+        "rate": 15
+      },
+      {
+        "itemId": "plastic",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "circuit_board",
+        "rate": 7.5
+      }
+    ]
+  },
+  {
+    "id": "rotor",
+    "name": "Rotor",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 15,
+    "inputs": [
+      {
+        "itemId": "iron_rod",
+        "rate": 20
+      },
+      {
+        "itemId": "screws",
+        "rate": 100
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "rotor",
+        "rate": 4
+      }
+    ]
+  },
+  {
+    "id": "encased_industrial_beam",
+    "name": "Encased Industrial Beam",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 10,
+    "inputs": [
+      {
+        "itemId": "steel_beam",
+        "rate": 18
+      },
+      {
+        "itemId": "concrete",
+        "rate": 36
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "encased_industrial_beam",
+        "rate": 6
+      }
+    ]
+  },
+  {
+    "id": "heavy_modular_frame",
+    "name": "Heavy Modular Frame",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "duration": 30,
+    "inputs": [
+      {
+        "itemId": "modular_frame",
+        "rate": 10
+      },
+      {
+        "itemId": "steel_pipe",
+        "rate": 30
+      },
+      {
+        "itemId": "encased_industrial_beam",
+        "rate": 10
+      },
+      {
+        "itemId": "screws",
+        "rate": 200
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "heavy_modular_frame",
+        "rate": 2
+      }
+    ]
+  },
+  {
+    "id": "petroleum_coke",
+    "name": "Petroleum Coke",
+    "buildingId": "refinery",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "heavy_oil_residue",
+        "rate": 40
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "petroleum_coke",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "aluminum_casing",
+    "name": "Aluminum Casing",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 2,
+    "inputs": [
+      {
+        "itemId": "aluminum_ingot",
+        "rate": 90
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "aluminum_casing",
+        "rate": 60
+      }
+    ]
+  },
+  {
+    "id": "aluminum_sheet",
+    "name": "Aluminum Sheet",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 2,
+    "inputs": [
+      {
+        "itemId": "aluminum_ingot",
+        "rate": 30
+      },
+      {
+        "itemId": "copper_ingot",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "aluminum_sheet",
+        "rate": 30
+      }
+    ]
+  },
+  {
+    "id": "copper_powder",
+    "name": "Copper Powder",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "copper_ingot",
+        "rate": 300
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "copper_powder",
+        "rate": 50
+      }
+    ]
+  },
+  {
+    "id": "caterium_ingot",
+    "name": "Caterium Ingot",
+    "buildingId": "smelter",
+    "isAlternate": false,
+    "duration": 4,
+    "inputs": [
+      {
+        "itemId": "caterium_ore",
+        "rate": 45
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "caterium_ingot",
+        "rate": 15
+      }
+    ]
+  },
+  {
+    "id": "quickwire",
+    "name": "Quickwire",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 5,
+    "inputs": [
+      {
+        "itemId": "caterium_ingot",
+        "rate": 12
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "quickwire",
+        "rate": 60
+      }
+    ]
+  },
+  {
+    "id": "quartz_crystal",
+    "name": "Quartz Crystal",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 8,
+    "inputs": [
+      {
+        "itemId": "raw_quartz",
+        "rate": 37.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "quartz_crystal",
+        "rate": 22.5
+      }
+    ]
+  },
+  {
+    "id": "crystal_oscillator",
+    "name": "Crystal Oscillator",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "duration": 120,
+    "inputs": [
+      {
+        "itemId": "quartz_crystal",
+        "rate": 18
+      },
+      {
+        "itemId": "cable",
+        "rate": 14
+      },
+      {
+        "itemId": "reinforced_iron_plate",
+        "rate": 2.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "crystal_oscillator",
+        "rate": 1
+      }
+    ]
+  },
+  {
+    "id": "sulfuric_acid",
+    "name": "Sulfuric Acid",
+    "buildingId": "refinery",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "sulfur",
+        "rate": 50
+      },
+      {
+        "itemId": "water",
+        "rate": 50
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "sulfuric_acid",
+        "rate": 50
+      }
+    ]
+  },
+  {
+    "id": "battery",
+    "name": "Battery",
+    "buildingId": "blender",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "sulfuric_acid",
+        "rate": 50
+      },
+      {
+        "itemId": "alumina_solution",
+        "rate": 40
+      },
+      {
+        "itemId": "aluminum_casing",
+        "rate": 20
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "battery",
+        "rate": 20
+      },
+      {
+        "itemId": "water",
+        "rate": 30
+      }
+    ]
+  },
+  {
+    "id": "ai_limiter",
+    "name": "AI Limiter",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 12,
+    "inputs": [
+      {
+        "itemId": "copper_sheet",
+        "rate": 25
+      },
+      {
+        "itemId": "quickwire",
+        "rate": 100
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "ai_limiter",
+        "rate": 5
+      }
+    ]
+  },
+  {
+    "id": "electromagnetic_control_rod",
+    "name": "EM Control Rod",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 30,
+    "inputs": [
+      {
+        "itemId": "stator",
+        "rate": 1.5
+      },
+      {
+        "itemId": "ai_limiter",
+        "rate": 1
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "electromagnetic_control_rod",
+        "rate": 1
+      }
+    ]
+  },
+  {
+    "id": "high_speed_connector",
+    "name": "High-Speed Connector",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "duration": 16,
+    "inputs": [
+      {
+        "itemId": "quickwire",
+        "rate": 210
+      },
+      {
+        "itemId": "cable",
+        "rate": 37.5
+      },
+      {
+        "itemId": "circuit_board",
+        "rate": 3.75
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "high_speed_connector",
+        "rate": 3.75
+      }
+    ]
+  },
+  {
+    "id": "supercomputer",
+    "name": "Supercomputer",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "duration": 32,
+    "inputs": [
+      {
+        "itemId": "computer",
+        "rate": 3.75
+      },
+      {
+        "itemId": "ai_limiter",
+        "rate": 3.75
+      },
+      {
+        "itemId": "high_speed_connector",
+        "rate": 5.625
+      },
+      {
+        "itemId": "plastic",
+        "rate": 52.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "supercomputer",
+        "rate": 1.875
+      }
+    ]
+  },
+  {
+    "id": "radio_control_unit",
+    "name": "Radio Control Unit",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "duration": 48,
+    "inputs": [
+      {
+        "itemId": "aluminum_casing",
+        "rate": 40
+      },
+      {
+        "itemId": "crystal_oscillator",
+        "rate": 1
+      },
+      {
+        "itemId": "computer",
+        "rate": 1
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "radio_control_unit",
+        "rate": 2
+      }
+    ]
+  },
+  {
+    "id": "heatsink",
+    "name": "Heat Sink",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 8,
+    "inputs": [
+      {
+        "itemId": "aluminum_sheet",
+        "rate": 37.5
+      },
+      {
+        "itemId": "copper_sheet",
+        "rate": 22.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "heatsink",
+        "rate": 7.5
+      }
+    ]
+  },
+  {
+    "id": "cooling_system",
+    "name": "Cooling System",
+    "buildingId": "blender",
+    "isAlternate": false,
+    "duration": 10,
+    "inputs": [
+      {
+        "itemId": "heatsink",
+        "rate": 12
+      },
+      {
+        "itemId": "rubber",
+        "rate": 12
+      },
+      {
+        "itemId": "water",
+        "rate": 30
+      },
+      {
+        "itemId": "nitrogen_gas",
+        "rate": 150
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "cooling_system",
+        "rate": 6
+      }
+    ]
+  },
+  {
+    "id": "fused_modular_frame",
+    "name": "Fused Modular Frame",
+    "buildingId": "blender",
+    "isAlternate": false,
+    "duration": 60,
+    "inputs": [
+      {
+        "itemId": "heavy_modular_frame",
+        "rate": 1
+      },
+      {
+        "itemId": "aluminum_casing",
+        "rate": 50
+      },
+      {
+        "itemId": "nitrogen_gas",
+        "rate": 25
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "fused_modular_frame",
+        "rate": 1
+      }
+    ]
+  },
+  {
+    "id": "turbo_motor",
+    "name": "Turbo Motor",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "duration": 32,
+    "inputs": [
+      {
+        "itemId": "cooling_system",
+        "rate": 3.75
+      },
+      {
+        "itemId": "radio_control_unit",
+        "rate": 1.875
+      },
+      {
+        "itemId": "motor",
+        "rate": 3.75
+      },
+      {
+        "itemId": "rubber",
+        "rate": 45
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "turbo_motor",
+        "rate": 1.875
+      }
+    ]
+  },
+  {
+    "id": "pressure_conversion_cube",
+    "name": "Pressure Conversion Cube",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 60,
+    "inputs": [
+      {
+        "itemId": "fused_modular_frame",
+        "rate": 1
+      },
+      {
+        "itemId": "radio_control_unit",
+        "rate": 2
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "pressure_conversion_cube",
+        "rate": 1
+      }
+    ]
+  },
+  {
+    "id": "smart_plating",
+    "name": "Smart Plating",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 30,
+    "inputs": [
+      {
+        "itemId": "reinforced_iron_plate",
+        "rate": 2
+      },
+      {
+        "itemId": "rotor",
+        "rate": 2
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "smart_plating",
+        "rate": 2
+      }
+    ]
+  },
+  {
+    "id": "versatile_framework",
+    "name": "Versatile Framework",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 24,
+    "inputs": [
+      {
+        "itemId": "modular_frame",
+        "rate": 1
+      },
+      {
+        "itemId": "steel_beam",
+        "rate": 12
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "versatile_framework",
+        "rate": 2.5
+      }
+    ]
+  },
+  {
+    "id": "automated_wiring",
+    "name": "Automated Wiring",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 24,
+    "inputs": [
+      {
+        "itemId": "stator",
+        "rate": 2.5
+      },
+      {
+        "itemId": "cable",
+        "rate": 50
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "automated_wiring",
+        "rate": 2.5
+      }
+    ]
+  },
+  {
+    "id": "modular_engine",
+    "name": "Modular Engine",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "duration": 60,
+    "inputs": [
+      {
+        "itemId": "motor",
+        "rate": 2
+      },
+      {
+        "itemId": "rubber",
+        "rate": 15
+      },
+      {
+        "itemId": "smart_plating",
+        "rate": 2
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "modular_engine",
+        "rate": 1
+      }
+    ]
+  },
+  {
+    "id": "adaptive_control_unit",
+    "name": "Adaptive Control Unit",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "duration": 60,
+    "inputs": [
+      {
+        "itemId": "automated_wiring",
+        "rate": 7.5
+      },
+      {
+        "itemId": "circuit_board",
+        "rate": 5
+      },
+      {
+        "itemId": "heavy_modular_frame",
+        "rate": 1
+      },
+      {
+        "itemId": "computer",
+        "rate": 1
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "adaptive_control_unit",
+        "rate": 1
+      }
+    ]
+  },
+  {
+    "id": "nuclear_pasta",
+    "name": "Nuclear Pasta",
+    "buildingId": "particle_accelerator",
+    "isAlternate": false,
+    "duration": 120,
+    "inputs": [
+      {
+        "itemId": "copper_powder",
+        "rate": 100
+      },
+      {
+        "itemId": "pressure_conversion_cube",
+        "rate": 0.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "nuclear_pasta",
+        "rate": 0.5
+      }
+    ]
+  },
+  {
+    "id": "magnetic_field_generator",
+    "name": "Magnetic Field Generator",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "duration": 120,
+    "inputs": [
+      {
+        "itemId": "versatile_framework",
+        "rate": 2.5
+      },
+      {
+        "itemId": "electromagnetic_control_rod",
+        "rate": 1
+      },
+      {
+        "itemId": "battery",
+        "rate": 5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "magnetic_field_generator",
+        "rate": 1
+      }
+    ]
+  },
+  {
+    "id": "thermal_propulsion_rocket",
+    "name": "Thermal Propulsion Rocket",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "duration": 120,
+    "inputs": [
+      {
+        "itemId": "modular_engine",
+        "rate": 2.5
+      },
+      {
+        "itemId": "turbo_motor",
+        "rate": 1
+      },
+      {
+        "itemId": "cooling_system",
+        "rate": 3
+      },
+      {
+        "itemId": "fused_modular_frame",
+        "rate": 1
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "thermal_propulsion_rocket",
+        "rate": 1
+      }
+    ]
+  },
+  {
+    "id": "assembly_director_system",
+    "name": "Assembly Director System",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "duration": 80,
+    "inputs": [
+      {
+        "itemId": "adaptive_control_unit",
+        "rate": 1.5
+      },
+      {
+        "itemId": "supercomputer",
+        "rate": 0.75
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "assembly_director_system",
+        "rate": 0.75
+      }
+    ]
+  },
+  {
+    "id": "reanimated_sam",
+    "name": "Reanimated SAM",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 2,
+    "inputs": [
+      {
+        "itemId": "sam_ore",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 30
+      }
+    ]
+  },
+  {
+    "id": "diamonds",
+    "name": "Diamonds",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "coal",
+        "rate": 600
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "diamonds",
+        "rate": 10
+      }
+    ]
+  },
+  {
+    "id": "dark_energy",
+    "name": "Dark Energy",
+    "buildingId": "blender",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 20
+      },
+      {
+        "itemId": "water",
+        "rate": 20
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "dark_energy",
+        "rate": 10
+      }
+    ]
+  },
+  {
+    "id": "time_crystal",
+    "name": "Time Crystal",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "duration": 6,
+    "inputs": [
+      {
+        "itemId": "diamonds",
+        "rate": 10
+      },
+      {
+        "itemId": "dark_energy",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "time_crystal",
+        "rate": 10
+      }
+    ]
+  },
+  {
+    "id": "singularity_cell",
+    "name": "Singularity Cell",
+    "buildingId": "quantum_encoder",
+    "isAlternate": false,
+    "duration": 60,
+    "inputs": [
+      {
+        "itemId": "nuclear_pasta",
+        "rate": 1
+      },
+      {
+        "itemId": "dark_energy",
+        "rate": 5
+      },
+      {
+        "itemId": "iron_plate",
+        "rate": 100
+      },
+      {
+        "itemId": "concrete",
+        "rate": 200
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "singularity_cell",
+        "rate": 1
+      }
+    ]
+  },
+  {
+    "id": "ficsonium",
+    "name": "Ficsonium",
+    "buildingId": "particle_accelerator",
+    "isAlternate": false,
+    "duration": 60,
+    "inputs": [
+      {
+        "itemId": "nuclear_pasta",
+        "rate": 1
+      },
+      {
+        "itemId": "dark_energy",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "ficsonium",
+        "rate": 1
+      }
+    ]
+  },
+  {
+    "id": "recipe_power_coal",
+    "name": "Генерация: Уголь",
+    "buildingId": "coal_generator",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "coal",
+        "rate": 15
+      },
+      {
+        "itemId": "water",
+        "rate": 45
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "power",
+        "rate": 75
+      }
+    ]
+  },
+  {
+    "id": "recipe_power_fuel",
+    "name": "Генерация: Топливо",
+    "buildingId": "fuel_generator",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "fuel",
+        "rate": 20
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "power",
+        "rate": 250
+      }
+    ]
+  },
+  {
+    "id": "recipe_power_nuclear",
+    "name": "Генерация: Уран",
+    "buildingId": "nuclear_generator",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "uranium_fuel_rod",
+        "rate": 0.2
+      },
+      {
+        "itemId": "water",
+        "rate": 240
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "power",
+        "rate": 2500
+      },
+      {
+        "itemId": "nuclear_waste",
+        "rate": 10
+      }
+    ]
+  },
+  {
+    "id": "encased_uranium_cell",
+    "name": "Encased Uranium Cell",
+    "buildingId": "blender",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "uranium",
+        "rate": 50
+      },
+      {
+        "itemId": "concrete",
+        "rate": 15
+      },
+      {
+        "itemId": "sulfuric_acid",
+        "rate": 40
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "encased_uranium_cell",
+        "rate": 25
+      }
+    ]
+  },
+  {
+    "id": "uranium_fuel_rod",
+    "name": "Uranium Fuel Rod",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "encased_uranium_cell",
+        "rate": 50
+      },
+      {
+        "itemId": "encased_industrial_beam",
+        "rate": 3
+      },
+      {
+        "itemId": "electromagnetic_control_rod",
+        "rate": 5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "uranium_fuel_rod",
+        "rate": 0.4
+      }
+    ]
+  },
+  {
+    "id": "fuel",
+    "name": "Fuel",
+    "buildingId": "refinery",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "crude_oil",
+        "rate": 60
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "fuel",
+        "rate": 40
+      },
+      {
+        "itemId": "polymer_resin",
+        "rate": 30
+      }
+    ]
+  },
+  {
+    "id": "sam_fluctuator",
+    "name": "SAM Fluctuator",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 30
+      },
+      {
+        "itemId": "wire",
+        "rate": 50
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "sam_fluctuator",
+        "rate": 10
+      }
+    ]
+  },
+  {
+    "id": "ficsite_ingot",
+    "name": "Слиток FICSIT (алюминий)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 60
+      },
+      {
+        "itemId": "aluminum_ingot",
+        "rate": 120
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "ficsite_ingot",
+        "rate": 30
+      }
+    ]
+  },
+  {
+    "id": "ficsite_trigon",
+    "name": "Ficsite Trigon",
+    "buildingId": "constructor",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "ficsite_ingot",
+        "rate": 15
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "ficsite_trigon",
+        "rate": 10
+      }
+    ]
+  },
+  {
+    "id": "dark_matter_crystal",
+    "name": "Dark Matter Crystal",
+    "buildingId": "particle_accelerator",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "dark_matter_residue",
+        "rate": 30
+      },
+      {
+        "itemId": "diamonds",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "dark_matter_crystal",
+        "rate": 30
+      }
+    ]
+  },
+  {
+    "id": "superposition_oscillator",
+    "name": "Superposition Oscillator",
+    "buildingId": "quantum_encoder",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "dark_matter_crystal",
+        "rate": 5
+      },
+      {
+        "itemId": "crystal_oscillator",
+        "rate": 5
+      },
+      {
+        "itemId": "aluminum_sheet",
+        "rate": 10
+      },
+      {
+        "itemId": "excited_photonic_matter",
+        "rate": 25
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "superposition_oscillator",
+        "rate": 5
+      },
+      {
+        "itemId": "dark_matter_residue",
+        "rate": 25
+      }
+    ]
+  },
+  {
+    "id": "quantum_computer",
+    "name": "Quantum Computer",
+    "buildingId": "quantum_encoder",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "superposition_oscillator",
+        "rate": 5
+      },
+      {
+        "itemId": "supercomputer",
+        "rate": 5
+      },
+      {
+        "itemId": "ficsite_trigon",
+        "rate": 10
+      },
+      {
+        "itemId": "excited_photonic_matter",
+        "rate": 25
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "quantum_computer",
+        "rate": 5
+      },
+      {
+        "itemId": "dark_matter_residue",
+        "rate": 25
+      }
+    ]
+  },
+  {
+    "id": "ai_expansion_server",
+    "name": "AI Expansion Server",
+    "buildingId": "assembler",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "quantum_computer",
+        "rate": 5
+      },
+      {
+        "itemId": "ai_limiter",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "ai_expansion_server",
+        "rate": 2.5
+      }
+    ]
+  },
+  {
+    "id": "biochemical_spacesuit",
+    "name": "Biochemical Spacesuit",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "ficsite_trigon",
+        "rate": 10
+      },
+      {
+        "itemId": "supercomputer",
+        "rate": 5
+      },
+      {
+        "itemId": "cooling_system",
+        "rate": 10
+      },
+      {
+        "itemId": "sam_fluctuator",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "biochemical_spacesuit",
+        "rate": 2.5
+      }
+    ]
+  },
+  {
+    "id": "ballistic_warp_drive",
+    "name": "Ballistic Warp Drive",
+    "buildingId": "quantum_encoder",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "superposition_oscillator",
+        "rate": 5
+      },
+      {
+        "itemId": "heavy_modular_frame",
+        "rate": 5
+      },
+      {
+        "itemId": "ficsite_trigon",
+        "rate": 5
+      },
+      {
+        "itemId": "dark_matter_crystal",
+        "rate": 10
+      },
+      {
+        "itemId": "excited_photonic_matter",
+        "rate": 25
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "ballistic_warp_drive",
+        "rate": 1
+      },
+      {
+        "itemId": "dark_matter_residue",
+        "rate": 25
+      }
+    ]
+  },
+  {
+    "id": "ficsonium_fuel_rod",
+    "name": "Ficsonium Fuel Rod",
+    "buildingId": "manufacturer",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "ficsonium",
+        "rate": 5
+      },
+      {
+        "itemId": "electromagnetic_control_rod",
+        "rate": 5
+      },
+      {
+        "itemId": "ficsite_trigon",
+        "rate": 5
+      },
+      {
+        "itemId": "sam_fluctuator",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "ficsonium_fuel_rod",
+        "rate": 2.5
+      }
+    ]
+  },
+  {
+    "id": "nitrogen_gas_bauxite",
+    "name": "Азот (боксит)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "bauxite",
+        "rate": 100
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "nitrogen_gas",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "nitrogen_gas_caterium",
+    "name": "Азот (катерий)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "caterium_ore",
+        "rate": 120
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "nitrogen_gas",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "bauxite_caterium",
+    "name": "Боксит (катерий)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "caterium_ore",
+        "rate": 150
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "bauxite",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "bauxite_copper",
+    "name": "Боксит (медь)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "copper_ore",
+        "rate": 180
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "bauxite",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "excited_photonic_matter",
+    "name": "Возбужденная фотонная материя",
+    "buildingId": "converter",
+    "isAlternate": false,
+    "inputs": [],
+    "outputs": [
+      {
+        "itemId": "excited_photonic_matter",
+        "rate": 200
+      }
+    ]
+  },
+  {
+    "id": "iron_ore_limestone",
+    "name": "Железная руда (известняк)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "limestone",
+        "rate": 240
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "iron_ore",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "limestone_sulfur",
+    "name": "Известняк (сера)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "sulfur",
+        "rate": 20
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "limestone",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "caterium_ore_quartz",
+    "name": "Катерийная руда (кварц)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "raw_quartz",
+        "rate": 120
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "caterium_ore",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "caterium_ore_copper",
+    "name": "Катерийная руда (медь)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "copper_ore",
+        "rate": 150
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "caterium_ore",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "time_crystal_converter",
+    "name": "Кристалл времени",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "diamonds",
+        "rate": 12
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "time_crystal",
+        "rate": 6
+      }
+    ]
+  },
+  {
+    "id": "copper_ore_quartz",
+    "name": "Медная руда (кварц)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "raw_quartz",
+        "rate": 100
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "copper_ore",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "copper_ore_sulfur",
+    "name": "Медная руда (сера)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "sulfur",
+        "rate": 120
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "copper_ore",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "raw_quartz_bauxite",
+    "name": "Неогранённый кварц (боксит)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "bauxite",
+        "rate": 100
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "raw_quartz",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "raw_quartz_coal",
+    "name": "Неогранённый кварц (уголь)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "coal",
+        "rate": 240
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "raw_quartz",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "dark_matter_residue_converter",
+    "name": "Остатки темной материи",
+    "buildingId": "converter",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 50
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "dark_matter_residue",
+        "rate": 100
+      }
+    ]
+  },
+  {
+    "id": "sulfur_iron",
+    "name": "Сера (железо)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "iron_ore",
+        "rate": 300
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "sulfur",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "sulfur_coal",
+    "name": "Сера (уголь)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "coal",
+        "rate": 200
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "sulfur",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "ficsite_ingot_iron",
+    "name": "Слиток FICSIT (железо)",
+    "buildingId": "converter",
+    "isAlternate": false,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 40
+      },
+      {
+        "itemId": "iron_ingot",
+        "rate": 240
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "ficsite_ingot",
+        "rate": 10
+      }
+    ]
+  },
+  {
+    "id": "ficsite_ingot_caterium",
+    "name": "Слиток FICSIT (катерий)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 45
+      },
+      {
+        "itemId": "caterium_ingot",
+        "rate": 60
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "ficsite_ingot",
+        "rate": 15
+      }
+    ]
+  },
+  {
+    "id": "coal_iron",
+    "name": "Уголь (железо)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "iron_ore",
+        "rate": 180
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "coal",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "coal_limestone",
+    "name": "Уголь (известняк)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "limestone",
+        "rate": 360
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "coal",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "uranium_ore_bauxite",
+    "name": "Урановая руда (боксит)",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reanimated_sam",
+        "rate": 10
+      },
+      {
+        "itemId": "bauxite",
+        "rate": 480
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "uranium",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "alternate_pink_diamonds",
+    "name": "Розовые алмазы",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "coal",
+        "rate": 120
+      },
+      {
+        "itemId": "quartz_crystal",
+        "rate": 45
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "diamonds",
+        "rate": 15
+      }
+    ]
+  },
+  {
+    "id": "alternate_dark_ion_fuel",
+    "name": "Топливо на основе темных ионов",
+    "buildingId": "converter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "packaged_rocket_fuel",
+        "rate": 240
+      },
+      {
+        "itemId": "dark_matter_crystal",
+        "rate": 80
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "ionized_fuel",
+        "rate": 200
+      },
+      {
+        "itemId": "compacted_coal",
+        "rate": 40
+      }
+    ]
+  },
+  {
+    "id": "alt_automated_miner",
+    "name": "Автоматический бур",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "steel_pipe",
+        "rate": 4
+      },
+      {
+        "itemId": "iron_plate",
+        "rate": 4
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "portable_miner",
+        "rate": 1
+      }
+    ]
+  },
+  {
+    "id": "alt_petroleum_diamonds",
+    "name": "Алмазы на нефтяной основе",
+    "buildingId": "particle_accelerator",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "crude_oil",
+        "rate": 200
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "diamonds",
+        "rate": 40
+      }
+    ]
+  },
+  {
+    "id": "alt_electromagnetic_connection_rod",
+    "name": "Альт: электромагнитный соединяющий стержень",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "stator",
+        "rate": 8
+      },
+      {
+        "itemId": "high_speed_connector",
+        "rate": 4
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "electromagnetic_control_rod",
+        "rate": 8
+      }
+    ]
+  },
+  {
+    "id": "alt_aluminum_beam",
+    "name": "Алюминиевая балка",
+    "buildingId": "constructor",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "aluminum_ingot",
+        "rate": 22.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "steel_beam",
+        "rate": 22.5
+      }
+    ]
+  },
+  {
+    "id": "alt_instant_plutonium_cell",
+    "name": "Быстрая плутониевая ячейка",
+    "buildingId": "particle_accelerator",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "non_fissile_uranium",
+        "rate": 75
+      },
+      {
+        "itemId": "aluminum_casing",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "encased_plutonium_cell",
+        "rate": 10
+      }
+    ]
+  },
+  {
+    "id": "alt_leached_iron_ingot",
+    "name": "Выщелоченный железный слиток",
+    "buildingId": "refinery",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_ore",
+        "rate": 50
+      },
+      {
+        "itemId": "sulfuric_acid",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 100
+      }
+    ]
+  },
+  {
+    "id": "alt_leached_caterium_ingot",
+    "name": "Выщелоченный катерийный слиток",
+    "buildingId": "refinery",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "caterium_ore",
+        "rate": 54
+      },
+      {
+        "itemId": "sulfuric_acid",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "caterium_ingot",
+        "rate": 36
+      }
+    ]
+  },
+  {
+    "id": "alt_leached_copper_ingot",
+    "name": "Выщелоченный медный слиток",
+    "buildingId": "refinery",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "copper_ore",
+        "rate": 45
+      },
+      {
+        "itemId": "sulfuric_acid",
+        "rate": 25
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "copper_ingot",
+        "rate": 110
+      }
+    ]
+  },
+  {
+    "id": "alt_alclad_casing",
+    "name": "Дюралюминиевый корпус",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "aluminum_ingot",
+        "rate": 150
+      },
+      {
+        "itemId": "copper_ingot",
+        "rate": 75
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "aluminum_casing",
+        "rate": 112.5
+      }
+    ]
+  },
+  {
+    "id": "alt_coated_iron_canister",
+    "name": "Железная канистра с покрытием",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_plate",
+        "rate": 30
+      },
+      {
+        "itemId": "copper_sheet",
+        "rate": 15
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "empty_canister",
+        "rate": 60
+      }
+    ]
+  },
+  {
+    "id": "alt_coated_iron_plate",
+    "name": "Железная пластина с покрытием",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 50
+      },
+      {
+        "itemId": "plastic",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "iron_plate",
+        "rate": 75
+      }
+    ]
+  },
+  {
+    "id": "alt_iron_wire",
+    "name": "Железная проволока",
+    "buildingId": "constructor",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 12.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "wire",
+        "rate": 22.5
+      }
+    ]
+  },
+  {
+    "id": "alt_iron_pipe",
+    "name": "Железная труба",
+    "buildingId": "constructor",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 100
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "steel_pipe",
+        "rate": 25
+      }
+    ]
+  },
+  {
+    "id": "alt_encased_industrial_pipe",
+    "name": "Железобетонная труба",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "steel_pipe",
+        "rate": 28
+      },
+      {
+        "itemId": "concrete",
+        "rate": 20
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "encased_industrial_beam",
+        "rate": 4
+      }
+    ]
+  },
+  {
+    "id": "alt_heat_fused_frame",
+    "name": "Закалённый каркас",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reinforced_iron_plate",
+        "rate": 2
+      },
+      {
+        "itemId": "steel_pipe",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "modular_frame",
+        "rate": 3
+      }
+    ]
+  },
+  {
+    "id": "alt_tempered_caterium_ingot",
+    "name": "Закалённый катерийный слиток",
+    "buildingId": "foundry",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "caterium_ore",
+        "rate": 45
+      },
+      {
+        "itemId": "petroleum_coke",
+        "rate": 15
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "caterium_ingot",
+        "rate": 22.5
+      }
+    ]
+  },
+  {
+    "id": "alt_tempered_copper_ingot",
+    "name": "Закалённый медный слиток",
+    "buildingId": "foundry",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "copper_ore",
+        "rate": 25
+      },
+      {
+        "itemId": "petroleum_coke",
+        "rate": 40
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "copper_ingot",
+        "rate": 60
+      }
+    ]
+  },
+  {
+    "id": "alt_insulated_cable",
+    "name": "Изолированный кабель",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "wire",
+        "rate": 45
+      },
+      {
+        "itemId": "rubber",
+        "rate": 15
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "cable",
+        "rate": 100
+      }
+    ]
+  },
+  {
+    "id": "alt_crystal_computer",
+    "name": "Кварцевый компьютер",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "circuit_board",
+        "rate": 7.5
+      },
+      {
+        "itemId": "crystal_oscillator",
+        "rate": 2.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "computer",
+        "rate": 3.333
+      }
+    ]
+  },
+  {
+    "id": "alt_coke_steel_ingot",
+    "name": "Коксовый стальной слиток",
+    "buildingId": "foundry",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_ore",
+        "rate": 75
+      },
+      {
+        "itemId": "petroleum_coke",
+        "rate": 75
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "steel_ingot",
+        "rate": 100
+      }
+    ]
+  },
+  {
+    "id": "alt_dark_matter_crystallization",
+    "name": "Кристаллизация темной материи",
+    "buildingId": "particle_accelerator",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "dark_matter_residue",
+        "rate": 200
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "dark_matter_crystal",
+        "rate": 20
+      }
+    ]
+  },
+  {
+    "id": "alt_cast_steel_plate",
+    "name": "Литая стальная пластина",
+    "buildingId": "foundry",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 15
+      },
+      {
+        "itemId": "steel_ingot",
+        "rate": 15
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "iron_plate",
+        "rate": 45
+      }
+    ]
+  },
+  {
+    "id": "alt_dark_matter_trap",
+    "name": "Ловушка для темной материи",
+    "buildingId": "particle_accelerator",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "time_crystal",
+        "rate": 30
+      },
+      {
+        "itemId": "dark_matter_residue",
+        "rate": 150
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "dark_matter_crystal",
+        "rate": 60
+      }
+    ]
+  },
+  {
+    "id": "alt_cloudy_diamonds",
+    "name": "Матовые алмазы",
+    "buildingId": "particle_accelerator",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "coal",
+        "rate": 120
+      },
+      {
+        "itemId": "limestone",
+        "rate": 240
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "diamonds",
+        "rate": 20
+      }
+    ]
+  },
+  {
+    "id": "alt_copper_rotor",
+    "name": "Медный ротор",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "copper_sheet",
+        "rate": 22.5
+      },
+      {
+        "itemId": "screws",
+        "rate": 195
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "rotor",
+        "rate": 11.25
+      }
+    ]
+  },
+  {
+    "id": "alt_petroleum_coke_diamonds",
+    "name": "Нефтяные алмазы",
+    "buildingId": "particle_accelerator",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "petroleum_coke",
+        "rate": 720
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "diamonds",
+        "rate": 30
+      }
+    ]
+  },
+  {
+    "id": "alt_basic_iron_ingot",
+    "name": "Обычный железный слиток",
+    "buildingId": "foundry",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_ore",
+        "rate": 25
+      },
+      {
+        "itemId": "limestone",
+        "rate": 25
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 50
+      }
+    ]
+  },
+  {
+    "id": "alt_plutonium_fuel_unit",
+    "name": "Плутониевый топливный элемент",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "encased_plutonium_cell",
+        "rate": 10
+      },
+      {
+        "itemId": "pressure_conversion_cube",
+        "rate": 0.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "plutonium_fuel_rod",
+        "rate": 0.5
+      }
+    ]
+  },
+  {
+    "id": "alt_rubber_concrete",
+    "name": "Прорезиненный бетон",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "limestone",
+        "rate": 50
+      },
+      {
+        "itemId": "rubber",
+        "rate": 10
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "concrete",
+        "rate": 90
+      }
+    ]
+  },
+  {
+    "id": "alt_solid_steel_ingot",
+    "name": "Прочный стальной слиток",
+    "buildingId": "foundry",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 40
+      },
+      {
+        "itemId": "coal",
+        "rate": 40
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "steel_ingot",
+        "rate": 60
+      }
+    ]
+  },
+  {
+    "id": "alt_stitched_iron_plate",
+    "name": "Прошитая железная пластина",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_plate",
+        "rate": 18.75
+      },
+      {
+        "itemId": "wire",
+        "rate": 37.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "reinforced_iron_plate",
+        "rate": 5.625
+      }
+    ]
+  },
+  {
+    "id": "alt_diluted_fuel",
+    "name": "Разбавленное топливо",
+    "buildingId": "blender",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "heavy_oil_residue",
+        "rate": 50
+      },
+      {
+        "itemId": "water",
+        "rate": 100
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "fuel",
+        "rate": 100
+      }
+    ]
+  },
+  {
+    "id": "alt_super_state_computer",
+    "name": "Разогнанный суперкомпьютер",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "radio_control_unit",
+        "rate": 6
+      },
+      {
+        "itemId": "cooling_system",
+        "rate": 6
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "supercomputer",
+        "rate": 3
+      }
+    ]
+  },
+  {
+    "id": "alt_assembled_iron_plate",
+    "name": "Сборная железная пластина",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_plate",
+        "rate": 90
+      },
+      {
+        "itemId": "wire",
+        "rate": 250
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "reinforced_iron_plate",
+        "rate": 15
+      }
+    ]
+  },
+  {
+    "id": "alt_bolted_frame",
+    "name": "Сборный каркас",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "reinforced_iron_plate",
+        "rate": 7.5
+      },
+      {
+        "itemId": "screws",
+        "rate": 140
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "modular_frame",
+        "rate": 5
+      }
+    ]
+  },
+  {
+    "id": "alt_adhered_iron_plate",
+    "name": "Скреплённая железная пластина",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_plate",
+        "rate": 11.25
+      },
+      {
+        "itemId": "rubber",
+        "rate": 3.75
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "reinforced_iron_plate",
+        "rate": 3.75
+      }
+    ]
+  },
+  {
+    "id": "alt_iron_alloy_ingot",
+    "name": "Слиток железного сплава",
+    "buildingId": "foundry",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "iron_ore",
+        "rate": 40
+      },
+      {
+        "itemId": "copper_ore",
+        "rate": 20
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "iron_ingot",
+        "rate": 75
+      }
+    ]
+  },
+  {
+    "id": "alt_copper_alloy_ingot",
+    "name": "Слиток медного сплава",
+    "buildingId": "foundry",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "copper_ore",
+        "rate": 50
+      },
+      {
+        "itemId": "iron_ore",
+        "rate": 25
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "copper_ingot",
+        "rate": 100
+      }
+    ]
+  },
+  {
+    "id": "alt_pure_aluminum_ingot",
+    "name": "Слиток чистого алюминия",
+    "buildingId": "smelter",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "aluminum_scrap",
+        "rate": 60
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "aluminum_ingot",
+        "rate": 30
+      }
+    ]
+  },
+  {
+    "id": "alt_fused_quickwire",
+    "name": "Сплавленная сверхпроволока",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "caterium_ingot",
+        "rate": 7.5
+      },
+      {
+        "itemId": "copper_ingot",
+        "rate": 37.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "quickwire",
+        "rate": 90
+      }
+    ]
+  },
+  {
+    "id": "alt_steel_rotor",
+    "name": "Стальной ротор",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "steel_pipe",
+        "rate": 10
+      },
+      {
+        "itemId": "wire",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "rotor",
+        "rate": 5
+      }
+    ]
+  },
+  {
+    "id": "alt_heat_exchanger",
+    "name": "Теплообменник",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "aluminum_casing",
+        "rate": 30
+      },
+      {
+        "itemId": "rubber",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "cooling_system",
+        "rate": 10
+      }
+    ]
+  },
+  {
+    "id": "alt_turbo_diamonds",
+    "name": "Турбо-алмазы",
+    "buildingId": "particle_accelerator",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "coal",
+        "rate": 600
+      },
+      {
+        "itemId": "packaged_turbofuel",
+        "rate": 40
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "diamonds",
+        "rate": 60
+      }
+    ]
+  },
+  {
+    "id": "alt_molded_beam",
+    "name": "Формованная балка",
+    "buildingId": "foundry",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "steel_ingot",
+        "rate": 120
+      },
+      {
+        "itemId": "concrete",
+        "rate": 80
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "steel_beam",
+        "rate": 45
+      }
+    ]
+  },
+  {
+    "id": "alt_molded_steel_pipe",
+    "name": "Формованная стальная труба",
+    "buildingId": "foundry",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "steel_ingot",
+        "rate": 50
+      },
+      {
+        "itemId": "concrete",
+        "rate": 30
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "steel_pipe",
+        "rate": 50
+      }
+    ]
+  },
+  {
+    "id": "alt_electrode_circuit_board",
+    "name": "Электродная плата",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "rubber",
+        "rate": 30
+      },
+      {
+        "itemId": "petroleum_coke",
+        "rate": 45
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "circuit_board",
+        "rate": 5
+      }
+    ]
+  },
+  {
+    "id": "alt_electric_motor",
+    "name": "Электромотор",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "inputs": [
+      {
+        "itemId": "electromagnetic_control_rod",
+        "rate": 3.75
+      },
+      {
+        "itemId": "rotor",
+        "rate": 7.5
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "motor",
+        "rate": 7.5
+      }
+    ]
+  }
+]

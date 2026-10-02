@@ -1,0 +1,117 @@
+{
+  "assembler": {
+    "name": "Ассемблер Mk.1",
+    "icon": "/icons/Buildings/AssemblerMk1.png",
+    "power": 15,
+    "inputs": 2,
+    "outputs": 1,
+    "somersloopSlots": 2
+  },
+  "constructor": {
+    "name": "Конструктор Mk.1",
+    "icon": "/icons/Buildings/ConstructorMk1.png",
+    "power": 4,
+    "inputs": 1,
+    "outputs": 1,
+    "somersloopSlots": 1
+  },
+  "foundry": {
+    "name": "Литейная",
+    "icon": "/icons/Buildings/Foundry.png",
+    "power": 16,
+    "inputs": 2,
+    "outputs": 1,
+    "somersloopSlots": 2
+  },
+  "smelter": {
+    "name": "Плавильня Mk.1",
+    "icon": "/icons/Buildings/SmelterMk1.png",
+    "power": 4,
+    "inputs": 1,
+    "outputs": 1,
+    "somersloopSlots": 1
+  },
+  "manufacturer": {
+    "name": "Мануфактурщик",
+    "icon": "/icons/Buildings/Manufacturer.png",
+    "power": 55,
+    "inputs": 4,
+    "outputs": 1,
+    "somersloopSlots": 4
+  },
+  "refinery": {
+    "name": "Нефтеперерабатывающий завод",
+    "icon": "/icons/Buildings/OilRefinery.png",
+    "power": 30,
+    "inputs": 2,
+    "outputs": 2,
+    "somersloopSlots": 2
+  },
+  "blender": {
+    "name": "Блендер",
+    "icon": "/icons/Buildings/Blender.png",
+    "power": 75,
+    "inputs": 4,
+    "outputs": 2,
+    "somersloopSlots": 4
+  },
+  "water_pump": {
+    "name": "Водяная помпа",
+    "icon": "/icons/Buildings/Waterpump.png",
+    "power": 20,
+    "head": 20,
+    "outputs": 1,
+    "somersloopSlots": 0
+  },
+  "oil_pump": {
+    "name": "Нефтяная вышка",
+    "icon": "/icons/Buildings/OilPump.png",
+    "power": 40,
+    "outputs": 1,
+    "somersloopSlots": 0
+  },
+  "fuel_generator": {
+    "name": "Топливный генератор",
+    "icon": "/icons/Buildings/FuelGenerator.png",
+    "generation": 250,
+    "inputs": 1,
+    "somersloopSlots": 0
+  },
+  "miner_mk3": {
+    "name": "Буровой комплекс Mk.3",
+    "icon": "/icons/Buildings/MinerMk3.png",
+    "power": 45,
+    "outputs": 1,
+    "somersloopSlots": 0
+  },
+  "coal_generator": {
+    "name": "Угольный генератор",
+    "icon": "/icons/Buildings/CoalGenerator.png",
+    "power": 0,
+    "somersloopSlots": 0
+  },
+  "nuclear_generator": {
+    "name": "Атомная электростанция",
+    "icon": "/icons/Buildings/NuclearPowerplant.png",
+    "power": 0,
+    "somersloopSlots": 0
+  },
+  "converter": {
+    "name": "Конвертер материи",
+    "icon": "/icons/Buildings/Converter.png",
+    "power": 100,
+    "somersloopSlots": 4
+  },
+  "quantum_encoder": {
+    "name": "Квантовый кодер",
+    "icon": "/icons/Buildings/QuantumEncoder.png",
+    "power": 2000,
+    "somersloopSlots": 4
+  },
+  "particle_accelerator": {
+    "name": "Ускоритель частиц",
+    "icon": "/icons/Buildings/HadronCollider.png",
+    "power": 1000,
+    "somersloopSlots": 4
+  }
+}

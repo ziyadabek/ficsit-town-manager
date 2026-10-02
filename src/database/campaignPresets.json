@@ -1,0 +1,370 @@
+[
+  {
+    "id": "complex_1",
+    "type": "production",
+    "tier": "Tier 1-2",
+    "name": "ЭТАП 1: Бетонный хаб",
+    "description": "Базовая инфраструктура по World Grid. Расход: ~280 МВт.",
+    "inputsLimit": [],
+    "targets": [
+      {
+        "id": "t1",
+        "itemId": "concrete",
+        "rate": 440
+      }
+    ],
+    "options": {
+      "optimize": "power",
+      "altRecipes": [
+        "wet_concrete"
+      ]
+    }
+  },
+  {
+    "id": "power_2a",
+    "type": "power",
+    "tier": "Tier 3",
+    "name": "ЭТАП 2: Угольная ТЭС",
+    "description": "Обеспечение стабильной энергией литейных цехов и метизного производства. Генерация: +1200 МВт.",
+    "powerConfig": {
+      "targetMW": 1200,
+      "generatorId": "coal",
+      "fuelId": "coal"
+    }
+  },
+  {
+    "id": "complex_2b",
+    "type": "production",
+    "tier": "Tier 3-4",
+    "name": "ЭТАП 3: Тяжелая металлургия",
+    "description": "46 литейных, стальные трубы и балки. Расход: ~1392 МВт.",
+    "inputsLimit": [],
+    "targets": [
+      {
+        "id": "t1",
+        "itemId": "steel_pipe",
+        "rate": 780
+      },
+      {
+        "id": "t2",
+        "itemId": "steel_beam",
+        "rate": 390
+      },
+      {
+        "id": "t3",
+        "itemId": "iron_plate",
+        "rate": 500
+      }
+    ],
+    "options": {
+      "optimize": "power",
+      "altRecipes": [
+        "solid_steel_ingot"
+      ]
+    }
+  },
+  {
+    "id": "complex_3",
+    "type": "production",
+    "tier": "Tier 2-4",
+    "name": "ЭТАП 4: Сборочно-метизный хаб",
+    "description": "Пластины, винты, каркасы. Расход: ~2008 МВт.",
+    "inputsLimit": [
+      {
+        "id": "inp1",
+        "itemId": "iron_plate",
+        "rate": 500
+      }
+    ],
+    "targets": [
+      {
+        "id": "t1",
+        "itemId": "iron_plate",
+        "rate": 780
+      },
+      {
+        "id": "t2",
+        "itemId": "screws",
+        "rate": 490
+      },
+      {
+        "id": "t3",
+        "itemId": "reinforced_iron_plate",
+        "rate": 240
+      },
+      {
+        "id": "t4",
+        "itemId": "modular_frame",
+        "rate": 120
+      }
+    ],
+    "options": {
+      "optimize": "power",
+      "altRecipes": [
+        "cast_screw"
+      ]
+    }
+  },
+  {
+    "id": "power_4a",
+    "type": "power",
+    "tier": "Tier 5-6",
+    "name": "ЭТАП 5: Топливный энергоблок",
+    "description": "Выпуск полимеров и второй рубеж энергонезависимости. Генерация: +2500 МВт.",
+    "powerConfig": {
+      "targetMW": 2500,
+      "generatorId": "fuel",
+      "fuelId": "fuel"
+    }
+  },
+  {
+    "id": "complex_5",
+    "type": "production",
+    "tier": "Tier 5-6",
+    "name": "ЭТАП 6: Тяжелое машиностроение",
+    "description": "Тяжелые каркасы, моторы. Расход: ~895 МВт.",
+    "inputsLimit": [
+      {
+        "id": "inp1",
+        "itemId": "steel_pipe",
+        "rate": 780
+      },
+      {
+        "id": "inp2",
+        "itemId": "modular_frame",
+        "rate": 27
+      },
+      {
+        "id": "inp3",
+        "itemId": "concrete",
+        "rate": 344
+      }
+    ],
+    "targets": [
+      {
+        "id": "t1",
+        "itemId": "heavy_modular_frame",
+        "rate": 10
+      },
+      {
+        "id": "t2",
+        "itemId": "encased_industrial_beam",
+        "rate": 60
+      },
+      {
+        "id": "t3",
+        "itemId": "motor",
+        "rate": 50
+      }
+    ],
+    "options": {
+      "optimize": "power",
+      "altRecipes": [
+        "heavy_encased_frame",
+        "encased_industrial_pipe",
+        "steel_rotor"
+      ]
+    }
+  },
+  {
+    "id": "complex_6",
+    "type": "production",
+    "tier": "Tier 7-8",
+    "name": "ЭТАП 7: Электроника и вычислительный хаб",
+    "description": "Компьютеры, печатные платы, кабели. Расход: ~376 МВт.",
+    "inputsLimit": [
+      {
+        "id": "inp1",
+        "itemId": "plastic",
+        "rate": 160
+      },
+      {
+        "id": "inp2",
+        "itemId": "screws",
+        "rate": 208
+      }
+    ],
+    "targets": [
+      {
+        "id": "t1",
+        "itemId": "computer",
+        "rate": 10
+      },
+      {
+        "id": "t2",
+        "itemId": "circuit_board",
+        "rate": 40
+      },
+      {
+        "id": "t3",
+        "itemId": "cable",
+        "rate": 180
+      }
+    ],
+    "options": {
+      "optimize": "power",
+      "altRecipes": [
+        "silicon_circuit_board"
+      ]
+    }
+  },
+  {
+    "id": "complex_7",
+    "type": "production",
+    "tier": "Tier 7-8",
+    "name": "ЭТАП 8: Алюминиевый завод",
+    "description": "Критический материал для АЭС. Расход: ~518 МВт.",
+    "inputsLimit": [
+      {
+        "id": "inp1",
+        "itemId": "petroleum_coke",
+        "rate": 300
+      }
+    ],
+    "targets": [
+      {
+        "id": "t1",
+        "itemId": "aluminum_sheet",
+        "rate": 200
+      },
+      {
+        "id": "t2",
+        "itemId": "aluminum_casing",
+        "rate": 150
+      }
+    ],
+    "options": {
+      "optimize": "power",
+      "altRecipes": []
+    }
+  },
+  {
+    "id": "power_8a",
+    "type": "power",
+    "tier": "Tier 8",
+    "name": "ЭТАП 9: Атомный технопарк",
+    "description": "Буфер перед запуском квантовых производств. Генерация: +10 000 МВт.",
+    "inputsLimit": [
+      {
+        "id": "inp1",
+        "itemId": "aluminum_casing",
+        "rate": 60
+      },
+      {
+        "id": "inp2",
+        "itemId": "encased_industrial_beam",
+        "rate": 15
+      }
+    ],
+    "powerConfig": {
+      "targetMW": 10000,
+      "generatorId": "nuclear",
+      "fuelId": "uranium_fuel_rod"
+    }
+  },
+  {
+    "id": "complex_8b",
+    "type": "production",
+    "tier": "Tier 8-9",
+    "name": "ЭТАП 10: Верфь Космического Лифта",
+    "description": "Ускорители частиц, Квантовые энкодеры. Пиковый расход: ~3800 МВт.",
+    "inputsLimit": [
+      {
+        "id": "inp1",
+        "itemId": "heavy_modular_frame",
+        "rate": 2.5
+      },
+      {
+        "id": "inp2",
+        "itemId": "computer",
+        "rate": 3
+      },
+      {
+        "id": "inp3",
+        "itemId": "motor",
+        "rate": 10
+      },
+      {
+        "id": "inp4",
+        "itemId": "aluminum_casing",
+        "rate": 90
+      },
+      {
+        "id": "inp5",
+        "itemId": "aluminum_sheet",
+        "rate": 60
+      },
+      {
+        "id": "inp6",
+        "itemId": "copper_ingot",
+        "rate": 600
+      }
+    ],
+    "targets": [
+      {
+        "id": "t1",
+        "itemId": "nuclear_pasta",
+        "rate": 1
+      },
+      {
+        "id": "t2",
+        "itemId": "magnetic_field_generator",
+        "rate": 2.5
+      },
+      {
+        "id": "t3",
+        "itemId": "thermal_propulsion_rocket",
+        "rate": 1
+      },
+      {
+        "id": "t4",
+        "itemId": "singularity_cell",
+        "rate": 1
+      }
+    ],
+    "options": {
+      "optimize": "power",
+      "altRecipes": []
+    }
+  },
+  {
+    "id": "phase_5",
+    "type": "production",
+    "tier": "Tier 9",
+    "name": "ЭТАП 11: Квантовая верфь (Фаза 5 Лифта)",
+    "targets": [
+      {
+        "itemId": "ai_expansion_server",
+        "rate": 2.5
+      },
+      {
+        "itemId": "biochemical_spacesuit",
+        "rate": 2.5
+      },
+      {
+        "itemId": "ballistic_warp_drive",
+        "rate": 1
+      }
+    ],
+    "transits": [
+      {
+        "itemId": "supercomputer",
+        "maxRate": 20,
+        "stageName": "Комплекс №8 (Электроника)",
+        "transport": "train"
+      },
+      {
+        "itemId": "cooling_system",
+        "maxRate": 10,
+        "stageName": "Комплекс №9 (Турбомоторы)",
+        "transport": "train"
+      },
+      {
+        "itemId": "heavy_modular_frame",
+        "maxRate": 10,
+        "stageName": "Комплекс №5 (Тяжелые каркасы)",
+        "transport": "train"
+      }
+    ]
+  }
+]
