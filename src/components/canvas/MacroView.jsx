@@ -92,36 +92,36 @@ const MacroStageNode = ({ data }) => {
         <span className="text-[10px] text-green-400 font-bold">● ОНЛАЙН</span>
       </div>
 
-      {/* Входные хэндлы — слева, цвет соответствует типу ресурса */}
+      {/* Входные хэндлы — сверху */}
       {(data.inputs || []).map((itemId, idx, arr) => (
         <Handle
           key={`in-${itemId}`}
           type="target"
           id={`target-${itemId}`}
-          position={Position.Left}
+          position={Position.Top}
           style={{
-            top: `${((idx + 1) / (arr.length + 1)) * 100}%`,
+            left: `${((idx + 1) / (arr.length + 1)) * 100}%`,
             background: getEdgeColor(itemId),
             border: '2px solid #0b0d10',
             width: 12, height: 12,
           }}
-          title={`← ${itemId}`}
+          title={`↓ ${itemId}`}
         />
       ))}
-      {/* Выходные хэндлы — справа */}
+      {/* Выходные хэндлы — снизу */}
       {(data.outputs || []).map((itemId, idx, arr) => (
         <Handle
           key={`out-${itemId}`}
           type="source"
           id={`source-${itemId}`}
-          position={Position.Right}
+          position={Position.Bottom}
           style={{
-            top: `${((idx + 1) / (arr.length + 1)) * 100}%`,
+            left: `${((idx + 1) / (arr.length + 1)) * 100}%`,
             background: getEdgeColor(itemId),
             border: '2px solid #0b0d10',
             width: 12, height: 12,
           }}
-          title={`→ ${itemId}`}
+          title={`↓ ${itemId}`}
         />
       ))}
     </div>
@@ -169,7 +169,7 @@ export default function MacroView() {
     // Это естественно снижает количество пересечений рёбер, т.к.
     // более поздние этапы всегда оказываются правее ранних.
     const g = new dagre.graphlib.Graph();
-    g.setGraph({ rankdir: 'LR', nodesep: 90, ranksep: 340 });
+    g.setGraph({ rankdir: 'TB', nodesep: 250, ranksep: 600 });
     g.setDefaultEdgeLabel(() => ({}));
 
     const newNodes = presets.map(preset => {
