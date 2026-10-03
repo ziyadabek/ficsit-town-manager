@@ -2,7 +2,6 @@ import React from 'react';
 import { BaseEdge, getSmoothStepPath, EdgeLabelRenderer } from '@xyflow/react';
 import { getAssetUrl } from '../../database/assets';
 
-
 export default function MacroEdge({
   id,
   sourceX,
@@ -15,10 +14,14 @@ export default function MacroEdge({
   markerEnd,
   data,
 }) {
+  const color = data?.color || '#f97316';
   const { trackIndex = 0, totalTracks = 1 } = data || {};
+
+  // Разводим параллельные рёбра по вертикальным полосам (lanes).
+  // Смещение по Y устраняет наложение рёбер между одной парой узлов.
   const midY = (sourceY + targetY) / 2;
-  const trackSpacing = 35; // 35px gap between lanes to accommodate labels nicely
-  const offset = (trackIndex - (totalTracks - 1) / 2) * trackSpacing;
+  const laneSpacing = 28;
+  const offset = (trackIndex - (totalTracks - 1) / 2) * laneSpacing;
   const centerY = midY + offset;
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
@@ -29,12 +32,16 @@ export default function MacroEdge({
     targetX,
     targetY,
     targetPosition,
-    borderRadius: 15,
+    borderRadius: 18,
   });
 
   return (
     <>
-      <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+      <BaseEdge
+        path={edgePath}
+        markerEnd={markerEnd}
+        style={{ ...style, stroke: color, filter: `drop-shadow(0 0 3px ${color}44)` }}
+      />
       <EdgeLabelRenderer>
         <div
           style={{
@@ -42,15 +49,16 @@ export default function MacroEdge({
             transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
             pointerEvents: 'all',
             opacity: style.opacity ?? 1,
-            transition: style.transition || 'opacity 0.3s'
+            transition: style.transition || 'opacity 0.25s',
+            borderColor: color,
           }}
-          className="nodrag nopan bg-[#14171d] border border-[#f97316] rounded flex items-center gap-1.5 px-2 py-1 shadow-[0_0_10px_rgba(249,115,22,0.2)] z-20"
+          className="nodrag nopan bg-[#0b0d10] border rounded flex items-center gap-1.5 px-2 py-0.5 z-20 shadow-lg"
           title={data?.name}
         >
           {data?.icon && (
-            <img src={getAssetUrl(data.icon)} alt={data?.name} className="w-5 h-5 object-contain" />
+            <img src={getAssetUrl(data.icon)} alt={data?.name} className="w-4 h-4 object-contain" />
           )}
-          <span className="text-[#f97316] font-bold text-xs tracking-wider">
+          <span className="font-bold text-[10px] tracking-wider" style={{ color }}>
             {data?.rate}/м
           </span>
         </div>

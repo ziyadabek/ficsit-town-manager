@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { 
   ReactFlow,
   Background, 
@@ -16,182 +16,244 @@ import { STAGE_TRANSIT_ROUTES } from '../../engine/campaignTransitEngine';
 import items from '../../database/items.json';
 import MacroEdge from './MacroEdge';
 
-// Helper to get item name/icon
-const getItemInfo = (itemId) => {
-  const item = items?.[itemId];
-  return item || { name: itemId, icon: '' };
+// ─── Корпоративная цветовая карта FICSIT ─────────────────────────────────────
+// Каждая категория ресурсов — свой технический цвет на дисплее SCADA
+const ITEM_COLORS = {
+  // Строительные материалы и конструкции — стальной серый
+  concrete:                '#94a3b8',
+  iron_plate:              '#9ca3af',
+  steel_pipe:              '#78716c',
+  screws:                  '#6b7280',
+  modular_frame:           '#a8a29e',
+  heavy_modular_frame:     '#64748b',
+  encased_industrial_beam: '#6b7280',
+
+  // Двигатели и электроника — индиго/синий
+  motor:                   '#818cf8',
+  computer:                '#3b82f6',
+  supercomputer:           '#60a5fa',
+
+  // Нефтехимия и полимеры — янтарный
+  plastic:                 '#fbbf24',
+  petroleum_coke:          '#d97706',
+
+  // Алюминий и системы охлаждения — бирюзовый
+  aluminum_casing:         '#22d3ee',
+  aluminum_sheet:          '#06b6d4',
+  cooling_system:          '#67e8f9',
+
+  // Ядерные материалы — радиационный зелёный
+  uranium:                 '#4ade80',
 };
 
-// --- Custom Node Component ---
+const LEGEND = [
+  { color: '#94a3b8', label: 'Строительство' },
+  { color: '#818cf8', label: 'Электроника' },
+  { color: '#fbbf24', label: 'Топливо/Полимеры' },
+  { color: '#22d3ee', label: 'Алюминий' },
+  { color: '#4ade80', label: 'Ядерные' },
+  { color: '#f97316', label: 'Прочее' },
+];
+
+const getEdgeColor = (itemId) => ITEM_COLORS[itemId] || '#f97316';
+
+// ─── Узел этапа кампании ──────────────────────────────────────────────────────
 const MacroStageNode = ({ data }) => {
+  const isPower = data.stageType === 'power';
+  const accent   = isPower ? '#22c55e' : '#f97316';
+  const glow     = isPower ? '0 0 16px rgba(34,197,94,0.18)' : '0 0 16px rgba(249,115,22,0.18)';
+  const stripe   = isPower
+    ? 'bg-[repeating-linear-gradient(45deg,#22c55e,#22c55e_8px,#0b0d10_8px,#0b0d10_16px)]'
+    : 'bg-[repeating-linear-gradient(45deg,#f97316,#f97316_8px,#0b0d10_8px,#0b0d10_16px)]';
+  const gradFrom = isPower ? 'from-[#22c55e]/15' : 'from-[#f97316]/15';
+  const divider  = isPower ? 'border-[#22c55e]/30' : 'border-[#f97316]/30';
+  const typeTag  = isPower ? '⚡ ЭЛЕКТРОСТАНЦИЯ' : '🏭 ЦЕХ / ЗАВОД';
+
   return (
-    <div className="bg-[#14171d] border-2 border-[#f97316] rounded-md shadow-[0_0_15px_rgba(249,115,22,0.15)] w-[260px] flex flex-col relative overflow-hidden">
-      {/* Striped hazard pattern at the top edge */}
-      <div className="h-2 w-full bg-[repeating-linear-gradient(45deg,#f97316,#f97316_10px,#0b0d10_10px,#0b0d10_20px)]" />
-      
-      <div className="p-3 bg-gradient-to-b from-[#f97316]/20 to-transparent border-b border-[#f97316]/30">
-        <h3 className="text-center font-black text-[#f97316] uppercase tracking-widest text-sm drop-shadow-md">
+    <div
+      className={`bg-[#14171d] rounded-md w-[250px] flex flex-col relative overflow-hidden`}
+      style={{ border: `2px solid ${accent}`, boxShadow: glow }}
+    >
+      {/* Полосатый FICSIT-декор сверху */}
+      <div className={`h-2 w-full ${stripe}`} />
+
+      <div className={`p-3 bg-gradient-to-b ${gradFrom} to-transparent border-b ${divider}`}>
+        <h3
+          className="text-center font-black uppercase tracking-widest text-[11px] drop-shadow-md leading-tight"
+          style={{ color: accent }}
+        >
           {data.name}
         </h3>
-        <p className="text-center text-[10px] text-gray-400 font-bold tracking-wide mt-1">ЦЕХ / ЗАВОД</p>
+        <p className="text-center text-[9px] text-gray-500 font-bold tracking-wider mt-1">{typeTag}</p>
       </div>
 
-      <div className="p-3 bg-[#0b0d10]">
-        <div className="text-xs text-gray-400 flex justify-between">
-          <span>Статус:</span>
-          <span className="text-green-400 font-bold">ОНЛАЙН</span>
-        </div>
+      <div className="px-3 py-2 bg-[#0b0d10] flex justify-between items-center">
+        <span className="text-[10px] text-gray-500">Статус</span>
+        <span className="text-[10px] text-green-400 font-bold">● ОНЛАЙН</span>
       </div>
 
-      {(data.inputs || []).map((itemId, idx) => (
-        <Handle 
+      {/* Входные хэндлы — слева, цвет соответствует типу ресурса */}
+      {(data.inputs || []).map((itemId, idx, arr) => (
+        <Handle
           key={`in-${itemId}`}
-          type="target" 
-          id={`target-${itemId}`} 
-          position={Position.Top} 
-          style={{ left: `${(idx + 1) * (100 / ((data.inputs?.length || 0) + 1))}%` }}
-          className="w-3 h-3 bg-[#3b82f6] border-2 border-[#0b0d10]" 
-          title={`Input: ${itemId}`}
+          type="target"
+          id={`target-${itemId}`}
+          position={Position.Left}
+          style={{
+            top: `${((idx + 1) / (arr.length + 1)) * 100}%`,
+            background: getEdgeColor(itemId),
+            border: '2px solid #0b0d10',
+            width: 12, height: 12,
+          }}
+          title={`← ${itemId}`}
         />
       ))}
-      {(data.outputs || []).map((itemId, idx) => (
-        <Handle 
+      {/* Выходные хэндлы — справа */}
+      {(data.outputs || []).map((itemId, idx, arr) => (
+        <Handle
           key={`out-${itemId}`}
-          type="source" 
-          id={`source-${itemId}`} 
-          position={Position.Bottom} 
-          style={{ left: `${(idx + 1) * (100 / ((data.outputs?.length || 0) + 1))}%` }}
-          className="w-3 h-3 bg-[#f97316] border-2 border-[#0b0d10]" 
-          title={`Output: ${itemId}`}
+          type="source"
+          id={`source-${itemId}`}
+          position={Position.Right}
+          style={{
+            top: `${((idx + 1) / (arr.length + 1)) * 100}%`,
+            background: getEdgeColor(itemId),
+            border: '2px solid #0b0d10',
+            width: 12, height: 12,
+          }}
+          title={`→ ${itemId}`}
         />
       ))}
     </div>
   );
 };
 
-const nodeTypes = {
-  macroStage: MacroStageNode
-};
+const nodeTypes = { macroStage: MacroStageNode };
+const edgeTypes = { macroEdge: MacroEdge };
 
-const edgeTypes = {
-  macroEdge: MacroEdge
-};
-
+// ─── Основной компонент ───────────────────────────────────────────────────────
 export default function MacroView() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const onNodeMouseEnter = (_, node) => {
-    const hoveredId = node.id;
-    const connected = new Set([hoveredId]);
+    const id = node.id;
+    const connected = new Set([id]);
     edges.forEach(e => {
-      if (e.source === hoveredId) connected.add(e.target);
-      if (e.target === hoveredId) connected.add(e.source);
+      if (e.source === id) connected.add(e.target);
+      if (e.target === id) connected.add(e.source);
     });
-    
     setNodes(nds => nds.map(n => ({
-      ...n,
-      style: { ...n.style, opacity: connected.has(n.id) ? 1 : 0.2, transition: 'opacity 0.3s' }
+      ...n, style: { ...n.style, opacity: connected.has(n.id) ? 1 : 0.12, transition: 'opacity 0.25s' }
     })));
-
     setEdges(eds => eds.map(e => ({
-      ...e,
-      style: { ...e.style, opacity: (e.source === hoveredId || e.target === hoveredId) ? 1 : 0.05, transition: 'opacity 0.3s' }
+      ...e, style: { ...e.style, opacity: (e.source === id || e.target === id) ? 1 : 0.03, transition: 'opacity 0.25s' }
     })));
   };
 
   const onNodeMouseLeave = () => {
-    setNodes(nds => nds.map(n => ({
-      ...n,
-      style: { ...n.style, opacity: 1, transition: 'opacity 0.3s' }
-    })));
-    setEdges(eds => eds.map(e => ({
-      ...e,
-      style: { ...e.style, opacity: 1, transition: 'opacity 0.3s' }
-    })));
+    setNodes(nds => nds.map(n => ({ ...n, style: { ...n.style, opacity: 1, transition: 'opacity 0.25s' } })));
+    setEdges(eds => eds.map(e => ({ ...e, style: { ...e.style, opacity: 1, transition: 'opacity 0.25s' } })));
   };
 
   useEffect(() => {
-    // Generate graph data
+    // Собираем входы/выходы для каждого этапа
+    const connections = {};
+    presets.forEach(p => { connections[p.id] = { inputs: new Set(), outputs: new Set() }; });
+    STAGE_TRANSIT_ROUTES.forEach(route => {
+      connections[route.source]?.outputs.add(route.itemId);
+      connections[route.target]?.inputs.add(route.itemId);
+    });
+
+    // Dagre: LR — кампания читается слева направо как временна́я шкала
+    // Это естественно снижает количество пересечений рёбер, т.к.
+    // более поздние этапы всегда оказываются правее ранних.
     const g = new dagre.graphlib.Graph();
-    g.setGraph({ rankdir: 'TB', nodesep: 250, ranksep: 600 }); // Much larger ranksep to give room for the Main Bus
+    g.setGraph({ rankdir: 'LR', nodesep: 90, ranksep: 340 });
     g.setDefaultEdgeLabel(() => ({}));
 
-    const stageConnections = {};
-    presets.forEach(p => {
-      stageConnections[p.id] = { inputs: new Set(), outputs: new Set() };
-    });
-    STAGE_TRANSIT_ROUTES.forEach(route => {
-      if (stageConnections[route.source]) stageConnections[route.source].outputs.add(route.itemId);
-      if (stageConnections[route.target]) stageConnections[route.target].inputs.add(route.itemId);
-    });
-
-    const newNodes = presets.map((preset) => {
-      g.setNode(preset.id, { width: 260, height: 100 });
+    const newNodes = presets.map(preset => {
+      g.setNode(preset.id, { width: 250, height: 90 });
       return {
         id: preset.id,
         type: 'macroStage',
-        data: { 
-          name: preset.name, 
-          id: preset.id,
-          inputs: Array.from(stageConnections[preset.id]?.inputs || []),
-          outputs: Array.from(stageConnections[preset.id]?.outputs || [])
+        data: {
+          name: preset.name,
+          stageType: preset.type,
+          inputs:  Array.from(connections[preset.id]?.inputs  || []),
+          outputs: Array.from(connections[preset.id]?.outputs || []),
         },
-        position: { x: 0, y: 0 } // Dagre will set this
+        position: { x: 0, y: 0 }
       };
     });
 
+    // Уникальный список предметов — для разведения параллельных рёбер по полосам
     const uniqueItems = Array.from(new Set(STAGE_TRANSIT_ROUTES.map(r => r.itemId))).sort();
-    
-    const newEdges = STAGE_TRANSIT_ROUTES.map((route, idx) => {
-      const trackIndex = uniqueItems.indexOf(route.itemId);
-      const edgeId = `e-${route.source}-${route.target}-${route.itemId}-${idx}`;
-      g.setEdge(route.source, route.target);
 
+    const newEdges = STAGE_TRANSIT_ROUTES.map((route, idx) => {
+      const color    = getEdgeColor(route.itemId);
       const itemInfo = items[route.itemId] || { name: route.itemId, icon: '' };
+      g.setEdge(route.source, route.target);
       return {
-        id: edgeId,
+        id: `e-${route.source}-${route.target}-${route.itemId}-${idx}`,
         source: route.source,
         target: route.target,
         sourceHandle: `source-${route.itemId}`,
         targetHandle: `target-${route.itemId}`,
         type: 'macroEdge',
-        data: {
-          icon: itemInfo.icon,
-          rate: route.baseRate,
-          name: itemInfo.name,
-          trackIndex,
-          totalTracks: uniqueItems.length
-        },
         animated: true,
-        style: { strokeWidth: 3, stroke: '#f97316' },
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#f97316' }
+        style:     { strokeWidth: 2.5, stroke: color },
+        markerEnd: { type: MarkerType.ArrowClosed, color },
+        data: {
+          icon:        itemInfo.icon,
+          rate:        route.baseRate,
+          name:        itemInfo.name,
+          color,
+          trackIndex:  uniqueItems.indexOf(route.itemId),
+          totalTracks: uniqueItems.length,
+        },
       };
     });
 
-    // Run Dagre Layout
     dagre.layout(g);
 
-    const layoutedNodes = newNodes.map((node) => {
-      const nodeWithPosition = g.node(node.id);
-      return {
-        ...node,
-        position: {
-          x: nodeWithPosition.x - nodeWithPosition.width / 2,
-          y: nodeWithPosition.y - nodeWithPosition.height / 2
-        }
-      };
-    });
-
-    setNodes(layoutedNodes);
+    setNodes(newNodes.map(node => {
+      const pos = g.node(node.id);
+      return { ...node, position: { x: pos.x - pos.width / 2, y: pos.y - pos.height / 2 } };
+    }));
     setEdges(newEdges);
   }, [setNodes, setEdges]);
 
   return (
     <div className="w-full h-full bg-[#0b0d10] relative">
-      <div className="absolute top-4 left-4 z-10 bg-[#14171d] border-2 border-[#f97316] p-4 rounded shadow-lg pointer-events-none">
-        <h2 className="text-[#f97316] font-black text-lg uppercase tracking-wider">Глобальная карта логистики</h2>
-        <p className="text-gray-400 text-sm mt-1">Отображение связей между макро-заводами</p>
+      {/* ── FICSIT SCADA панель легенды ── */}
+      <div className="absolute top-4 left-4 z-10 bg-[#14171d] border-2 border-[#f97316] p-4 rounded shadow-lg pointer-events-none w-52">
+        <h2 className="text-[#f97316] font-black text-sm uppercase tracking-wider">Карта логистики</h2>
+        <p className="text-gray-500 text-[10px] mt-0.5 mb-3">FICSIT Global Transit v1.0</p>
+
+        {/* Легенда рёбер */}
+        <p className="text-[9px] text-gray-500 uppercase tracking-widest mb-1.5">Потоки ресурсов</p>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mb-3">
+          {LEGEND.map(({ color, label }) => (
+            <div key={label} className="flex items-center gap-1.5">
+              <div className="w-4 h-1 rounded-full flex-shrink-0" style={{ background: color }} />
+              <span className="text-[9px] text-gray-400 truncate">{label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Легенда узлов */}
+        <p className="text-[9px] text-gray-500 uppercase tracking-widest mb-1.5">Типы объектов</p>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-1.5">
+            <div className="w-4 h-3 rounded-sm flex-shrink-0" style={{ border: '2px solid #f97316' }} />
+            <span className="text-[9px] text-gray-400">ЦЕХ / ЗАВОД</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-4 h-3 rounded-sm flex-shrink-0" style={{ border: '2px solid #22c55e' }} />
+            <span className="text-[9px] text-gray-400">⚡ Электростанция</span>
+          </div>
+        </div>
       </div>
 
       <ReactFlow
@@ -204,15 +266,12 @@ export default function MacroView() {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
-        minZoom={0.1}
+        minZoom={0.05}
         maxZoom={2}
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="#2a2e39" gap={30} size={2} />
-        <Controls 
-          className="bg-[#14171d] border border-[#2a2e39] fill-[#e1e1e6]" 
-          showInteractive={false} 
-        />
+        <Background color="#1e2330" gap={28} size={2} />
+        <Controls className="bg-[#14171d] border border-[#2a2e39] fill-[#e1e1e6]" showInteractive={false} />
       </ReactFlow>
     </div>
   );
