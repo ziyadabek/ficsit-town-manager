@@ -3,33 +3,47 @@ import powerData from '../database/powerData.json';
 export function calculateNuclearRecycling(wasteRate) {
   if (wasteRate <= 0) return null;
 
-  // Этап 1: Блендер (Non-fissile Uranium)
-  // Из 10 отходов АЭС 7.5 идут в блендер, 2.5 в ускоритель.
-  const w1 = 0.75 * wasteRate;
-  const blenders = w1 / 15;
-  const nfUranium = blenders * 20;
-  const silica = blenders * 10;
-  const nitricAcid = blenders * 15;
-  const sulfuricAcid = blenders * 15;
-  const blenderPower = blenders * 75;
+  // ─── Точные коэффициенты по Satisfactory 1.0 Wiki ─────────────────────────
+  // Шаг 1: Блендер (Non-fissile Uranium)
+  //   Рецепт: 37.5 Nuclear Waste/мин + 25 Uranium/мин + 15 Nitric Acid/мин
+  //           + 15 Sulfuric Acid/мин → 50 Non-fissile Uranium/мин | 75 МВт
+  //
+  // Шаг 2: Ускоритель частиц (Plutonium Pellets)
+  //   Рецепт: 100 Non-fissile Uranium/мин + 25 Nuclear Waste/мин
+  //           → 30 Plutonium Pellets/мин | ~500 МВт (среднее)
+  //
+  // Математика: каждый ускоритель требует 2 блендера (100 NfU / 50 = 2)
+  //   → Отходы на ускоритель: 2×37.5 (блендеры) + 25 (прямо) = 100/мин
+  //   → accelerators = wasteRate / 100; blenders = wasteRate / 50
+  // ──────────────────────────────────────────────────────────────────────────
+  const blenders     = wasteRate / 50;
+  const accelerators = wasteRate / 100;
 
-  // Этап 2: Ускоритель частиц (Plutonium Pellets)
-  const accelerators = nfUranium / 100;
-  const pellets = accelerators * 30;
-  const acceleratorPower = accelerators * 500; // 500 MW avg для пеллет
+  const nfUranium         = blenders     * 50;   // произведено NfU/мин
+  const pellets           = accelerators * 30;   // произведено гранул/мин
+  const blenderPower      = blenders     * 75;   // МВт
+  const acceleratorPower  = accelerators * 500;  // МВт (среднее)
 
-  // Этап 3: Ассемблер (Encased Plutonium Cell)
-  const assemblers = pellets / 10;
-  const cells = assemblers * 5;
-  const concrete = assemblers * 20;
-  const assemblerPower = assemblers * 15;
+  // Дополнительное сырьё для блендеров
+  const uranium      = blenders * 25;   // Uranium/мин (из шахты или склада)
+  const nitricAcid   = blenders * 15;   // Nitric Acid/мин
+  const sulfuricAcid = blenders * 15;   // Sulfuric Acid/мин
 
-  // Этап 4: Мануфактурщик (Plutonium Fuel Rod)
-  const manufacturers = cells / 30;
-  const rods = manufacturers * 0.25;
-  const steelBeams = manufacturers * 18;
-  const ecr = manufacturers * 6;
-  const heatSinks = manufacturers * 10;
+  // Шаг 3: Ассемблер (Encased Plutonium Cell)
+  //   Рецепт: 10 Pellets/мин + 20 Concrete/мин → 5 Cells/мин | 15 МВт
+  const assemblers      = pellets  / 10;
+  const cells           = assemblers * 5;
+  const concrete        = assemblers * 20;
+  const assemblerPower  = assemblers * 15;
+
+  // Шаг 4: Производитель (Plutonium Fuel Rod)
+  //   Рецепт: 7.5 Cells/мин + 4.5 Steel Beams/мин + 1.5 ECM/мин
+  //           + 2.5 Heat Sinks/мин → 0.25 Rods/мин | 55 МВт
+  const manufacturers     = cells / 7.5;
+  const rods              = manufacturers * 0.25;
+  const steelBeams        = manufacturers * 4.5;
+  const ecr               = manufacturers * 1.5;
+  const heatSinks         = manufacturers * 2.5;
   const manufacturerPower = manufacturers * 55;
 
   const totalParasiticPower = blenderPower + acceleratorPower + assemblerPower + manufacturerPower;
@@ -38,22 +52,23 @@ export function calculateNuclearRecycling(wasteRate) {
     rods,
     totalParasiticPower,
     machines: [
-      { name: 'Блендер (Non-fissile Uranium)', count: blenders, power: blenderPower },
-      { name: 'Ускоритель частиц (Plutonium Pellets)', count: accelerators, power: acceleratorPower },
-      { name: 'Ассемблер (Encased Plutonium Cell)', count: assemblers, power: assemblerPower },
-      { name: 'Мануфактурщик (Plutonium Fuel Rod)', count: manufacturers, power: manufacturerPower }
+      { name: 'Блендер (Non-fissile Uranium)',        count: blenders,      power: blenderPower },
+      { name: 'Ускоритель частиц (Plutonium Pellets)',count: accelerators,  power: acceleratorPower },
+      { name: 'Ассемблер (Encased Plutonium Cell)',   count: assemblers,    power: assemblerPower },
+      { name: 'Производитель (Plutonium Fuel Rod)',   count: manufacturers, power: manufacturerPower }
     ],
     materials: [
-      { name: 'Кремнезем (Silica)', rate: silica },
-      { name: 'Азотная кислота (Nitric Acid)', rate: nitricAcid },
-      { name: 'Серная кислота (Sulfuric Acid)', rate: sulfuricAcid },
-      { name: 'Бетон (Concrete)', rate: concrete },
-      { name: 'Стальные балки (Steel Beam)', rate: steelBeams },
-      { name: 'ЭМ-управляющие стержни (ECR)', rate: ecr },
-      { name: 'Теплоотводы (Heat Sink)', rate: heatSinks }
+      { name: 'Уран (Uranium)',                    rate: uranium },
+      { name: 'Азотная кислота (Nitric Acid)',     rate: nitricAcid },
+      { name: 'Серная кислота (Sulfuric Acid)',    rate: sulfuricAcid },
+      { name: 'Бетон (Concrete)',                  rate: concrete },
+      { name: 'Стальные балки (Steel Beam)',       rate: steelBeams },
+      { name: 'ЭМ-управляющие стержни (ECM)',      rate: ecr },
+      { name: 'Теплоотводы (Heat Sink)',           rate: heatSinks }
     ]
   };
 }
+
 
 export function solvePower(targetMW, generatorId, fuelId) {
   const gen = powerData.find(g => g.id === generatorId);

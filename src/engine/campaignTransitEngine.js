@@ -118,7 +118,20 @@ export function calculateAllTransits(stagesState) {
     }
 
     const tripsPerMinute = requiredAmount / capacityPerTrip;
-    const roundTripTimeSeconds = 300; // 5 минут на круг по умолчанию
+
+    // УЛУЧШЕНО: Время кругового рейса зависит от дистанции между этапами кампании.
+    // Вместо константы 300 с используем порядок этапов как приближение расстояния.
+    // ~90 с/переход для трактора, ~60 с/переход для поезда (поезд быстрее).
+    const STAGE_ORDER = [
+      'complex_1', 'power_2a', 'complex_2b', 'complex_3', 'power_4a',
+      'complex_5', 'complex_6', 'complex_7', 'power_8a', 'complex_8b', 'phase_5'
+    ];
+    const sourceIdx = STAGE_ORDER.indexOf(route.source);
+    const targetIdx = STAGE_ORDER.indexOf(route.target);
+    const stageHops = Math.max(1, Math.abs(targetIdx - sourceIdx));
+    const secondsPerHop = transportType === 'tractor' ? 90 : 60;
+    const roundTripTimeSeconds = stageHops * secondsPerHop * 2; // туда и обратно
+
     const vehicleCount = Math.max(1, Math.ceil(tripsPerMinute * (roundTripTimeSeconds / 60)));
 
     // Формируем входящий транзит (autoInput)

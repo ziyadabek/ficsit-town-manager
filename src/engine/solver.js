@@ -281,12 +281,20 @@ export function solveProductionGraph(targets, inputsLimit, options) {
 
   const sourceOutCount = {};
 
+  // УЛУЧШЕНО: Пропорциональное распределение вместо жадного «первый пришёл — первый получил».
+  // Если суммарный спрос превышает суммарное предложение, каждый потребитель получает
+  // пропорциональную долю, устраняя асимметрию в ребрах графа.
   Object.keys(consumers).forEach(item => {
     const itemProducers = producers[item] || [];
     const itemConsumers = consumers[item];
-    
+
+    const totalAvailable = itemProducers.reduce((s, p) => s + p.rate, 0);
+    const totalNeeded = itemConsumers.reduce((s, c) => s + c.rate, 0);
+    // Если предложение < спроса — масштабируем доли пропорционально
+    const allocationRatio = totalNeeded > totalAvailable + 0.001 ? totalAvailable / totalNeeded : 1.0;
+
     itemConsumers.forEach(consumer => {
-      let needed = consumer.rate;
+      let needed = consumer.rate * allocationRatio;
       for (const producer of itemProducers) {
         if (needed <= 0.001) break;
         if (producer.rate <= 0.001) continue;
