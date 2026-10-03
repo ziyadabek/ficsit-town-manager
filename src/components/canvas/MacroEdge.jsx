@@ -20,7 +20,7 @@ export default function MacroEdge({
   // Разводим параллельные рёбра по вертикальным полосам (lanes).
   // Смещение по Y устраняет наложение рёбер между одной парой узлов.
   const midY = (sourceY + targetY) / 2;
-  const laneSpacing = 28;
+  const laneSpacing = 18;
   const offset = (trackIndex - (totalTracks - 1) / 2) * laneSpacing;
   const centerY = midY + offset;
 

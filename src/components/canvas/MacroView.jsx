@@ -187,12 +187,23 @@ export default function MacroView() {
       };
     });
 
-    // Уникальный список предметов — для разведения параллельных рёбер по полосам
-    const uniqueItems = Array.from(new Set(STAGE_TRANSIT_ROUTES.map(r => r.itemId))).sort();
+    // Группируем маршруты по паре (source → target), чтобы смещение рёбер
+    // считалось локально внутри каждой пары, а не глобально по всем 15 предметам.
+    // Это держит иконки/цифры близко к линии (max ±20px вместо ±196px).
+    const pairGroups = {};
+    STAGE_TRANSIT_ROUTES.forEach(route => {
+      const key = `${route.source}__${route.target}`;
+      if (!pairGroups[key]) pairGroups[key] = [];
+      pairGroups[key].push(route.itemId);
+    });
 
     const newEdges = STAGE_TRANSIT_ROUTES.map((route, idx) => {
       const color    = getEdgeColor(route.itemId);
       const itemInfo = items[route.itemId] || { name: route.itemId, icon: '' };
+      const pairKey    = `${route.source}__${route.target}`;
+      const group      = pairGroups[pairKey];
+      const trackIndex  = group.indexOf(route.itemId);
+      const totalTracks = group.length;
       g.setEdge(route.source, route.target);
       return {
         id: `e-${route.source}-${route.target}-${route.itemId}-${idx}`,
@@ -209,8 +220,8 @@ export default function MacroView() {
           rate:        route.baseRate,
           name:        itemInfo.name,
           color,
-          trackIndex:  uniqueItems.indexOf(route.itemId),
-          totalTracks: uniqueItems.length,
+          trackIndex,
+          totalTracks,
         },
       };
     });
