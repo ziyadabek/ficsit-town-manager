@@ -2,7 +2,7 @@ import lp_solver from 'javascript-lp-solver';
 import recipesDB from '../database/recipes.json';
 import itemsDB from '../database/items.json';
 import buildings from '../database/buildings.json';
-import { calculatePower } from './overclock';
+import { calculatePower } from './overclock.js';
 
 export function getRecipe(recipeId) {
   return recipesDB.find(r => r.id === recipeId);

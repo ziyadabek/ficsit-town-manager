@@ -257,7 +257,12 @@ export default function MainView() {
     recalculateGraph,
     targets,
     activePresetId,
+    frozenStages,
+    freezeCurrentStage,
+    unfreezeStage
   } = useFactoryStore();
+
+  const isStageFrozen = !!(activePresetId && frozenStages[activePresetId]?.isFrozen);
 
   // Ref на GraphCanvas компонент (для вызова __exportCurrentView / __exportFullGraph)
   const graphCanvasRef = useRef(null);
@@ -313,6 +318,36 @@ export default function MainView() {
 
         {/* Разделитель */}
         <div className="flex-1" />
+
+        {/* Кнопка фиксации постройки этапа */}
+        {activePresetId && (
+          isStageFrozen ? (
+            <button
+              type="button"
+              onClick={() => unfreezeStage(activePresetId)}
+              title="Завод зафиксирован как построенный в игре. Нажмите, чтобы разморозить для перестройки."
+              className="px-3 py-1.5 rounded text-xs font-bold bg-[#14231a] hover:bg-[#1b3324] text-[#22c55e] border border-[#22c55e] flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,197,94,0.3)] transition-all mr-2"
+            >
+              <span>🔒</span>
+              <span>ПОСТРОЕНО</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={!summary || targets.length === 0}
+              onClick={freezeCurrentStage}
+              title="Зафиксировать постройку завода. Заблокирует изменения и сохранит схему в трекере прогресса."
+              className={`px-3 py-1.5 rounded text-xs font-bold border flex items-center gap-1.5 transition-all mr-2 ${
+                !summary || targets.length === 0
+                  ? 'opacity-40 cursor-not-allowed border-[#2a2e39] text-gray-500 bg-[#14171d]'
+                  : 'bg-[#14171d] hover:bg-[#1f242d] text-[#fa9549] border-[#fa9549]/60 hover:border-[#fa9549] hover:shadow-[0_0_8px_rgba(250,149,73,0.3)]'
+              }`}
+            >
+              <span>🔒</span>
+              <span>Зафиксировать постройку</span>
+            </button>
+          )
+        )}
 
         {/* Кнопка экспорта — крайний правый угол */}
         <ExportImageButton

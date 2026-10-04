@@ -23,14 +23,25 @@ import {
 import '@xyflow/react/dist/style.css';
 import { useFactoryStore } from '../../store/useFactoryStore';
 import MachineNode from './MachineNode';
+import SplitterNode from './SplitterNode';
+import MergerNode from './MergerNode';
+import PhysicalMachineNode from './PhysicalMachineNode';
+import OutputNode from './OutputNode';
 import FlowEdge from './FlowEdge';
 import { useGraphExport } from './useGraphExport';
 
-const nodeTypes = { machine: MachineNode };
+const nodeTypes = { 
+  machine: MachineNode,
+  splitter: SplitterNode,
+  merger: MergerNode,
+  physicalMachine: PhysicalMachineNode,
+  productItem: OutputNode,
+  output: OutputNode
+};
 const edgeTypes = { default: FlowEdge };
 
 const GraphCanvasInner = forwardRef(function GraphCanvasInner(_props, ref) {
-  const { nodes: storeNodes, edges: storeEdges, recalculateGraph } = useFactoryStore();
+  const { nodes: storeNodes, edges: storeEdges, recalculateGraph, layoutDirection, schematicMode } = useFactoryStore();
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -65,7 +76,7 @@ const GraphCanvasInner = forwardRef(function GraphCanvasInner(_props, ref) {
       }, 50);
       return () => clearTimeout(timer);
     }
-  }, [storeNodes, storeEdges, setNodes, setEdges, fitView]);
+  }, [storeNodes, storeEdges, layoutDirection, schematicMode, setNodes, setEdges, fitView]);
 
   return (
     <div ref={containerRef} className="w-full h-full scim-grid overflow-hidden">

@@ -12,6 +12,7 @@ export default function FlowEdge({
   targetY,
   sourcePosition,
   targetPosition,
+  markerEnd,
   style = {},
   data
 }) {
@@ -66,7 +67,11 @@ export default function FlowEdge({
 
   return (
     <>
-      <BaseEdge path={edgePath} style={{ ...style, stroke: edgeColor, strokeWidth: edgeWidth, filter: edgeFilter }} />
+      <BaseEdge 
+        path={edgePath} 
+        markerEnd={markerEnd}
+        style={{ ...style, stroke: edgeColor, strokeWidth: edgeWidth, filter: edgeFilter }} 
+      />
       <EdgeLabelRenderer>
         <div
           style={{
@@ -74,14 +79,11 @@ export default function FlowEdge({
             transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
             pointerEvents: 'all',
           }}
-          className="bg-[#14171d] border border-[#2a2e39] rounded px-2 py-1 text-xs text-[#e1e1e6] flex flex-col items-center shadow-lg"
+          className="bg-[#12161f]/90 px-2 py-0.5 rounded text-[11px] font-medium text-gray-200 border border-[#2a2e39]/60 shadow-sm flex items-center gap-1 whitespace-nowrap select-none"
           title={validation.message || 'Flow OK'}
         >
-          <div className="flex items-center gap-1">
-            {item && <img src={getAssetUrl(item.icon)} alt={item.name} className="w-4 h-4" />}
-            <span style={{ color: edgeColor }} className="font-bold">{rate.toFixed(1)}/m</span>
-          </div>
-          <div className="text-[10px] text-gray-400 mt-0.5">{validation.mk}</div>
+          {item && <img src={getAssetUrl(item.icon)} alt="" className="w-3.5 h-3.5 object-contain" />}
+          <span>{item?.name || data?.itemId} ({rate.toFixed(1)} units/min)</span>
         </div>
       </EdgeLabelRenderer>
     </>

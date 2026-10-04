@@ -112,8 +112,13 @@ export default function RightPanel() {
   const { 
     targets, addTarget, updateTarget, removeTarget,
     inputsLimit, addInputLimit, updateInputLimit, removeInputLimit,
-    options, toggleAltRecipe, setOptimizeMode, activePresetId
+    options, toggleAltRecipe, setOptimizeMode, activePresetId,
+    layoutDirection, setLayoutDirection,
+    schematicMode, setSchematicMode,
+    frozenStages, unfreezeStage
   } = useFactoryStore();
+
+  const isStageFrozen = !!(activePresetId && frozenStages[activePresetId]?.isFrozen);
 
   const [tab, setTab] = useState('outputs');
 
@@ -160,6 +165,28 @@ export default function RightPanel() {
   return (
     <div className="w-96 bg-[#14171d] border-l border-[#2a2e39] flex flex-col h-full shadow-lg z-20">
       {renderPowerInfo()}
+
+      {/* Баннер Read-Only режима для зафиксированного цеха */}
+      {isStageFrozen && (
+        <div className="bg-[#0f1f17] border border-[#22c55e] rounded p-3 m-4 mb-1 flex flex-col gap-1.5 shadow-[0_0_12px_rgba(34,197,94,0.15)] shrink-0">
+          <div className="flex items-center justify-between">
+            <span className="text-[#22c55e] font-bold text-xs uppercase tracking-wide flex items-center gap-1.5">
+              🔒 ЗАВОД ПОСТРОЕН
+            </span>
+            <button
+              type="button"
+              onClick={() => unfreezeStage(activePresetId)}
+              className="text-[11px] bg-[#1a2333] hover:bg-[#24334a] text-gray-200 hover:text-white border border-[#2a3b52] px-2 py-0.5 rounded font-semibold transition-colors flex items-center gap-1"
+            >
+              🔓 Разморозить
+            </button>
+          </div>
+          <span className="text-[10px] text-gray-400 leading-tight">
+            Схема зафиксирована в Read-Only. Рецепты и узлы защищены от случайных изменений.
+          </span>
+        </div>
+      )}
+
       <div className="flex border-b border-[#2a2e39] shrink-0 mt-2">
         <button onClick={() => setTab('outputs')} className={`flex-1 p-3 text-sm font-bold ${tab === 'outputs' ? 'text-[#f97316] border-b-2 border-[#f97316]' : 'text-gray-400 hover:text-gray-300'}`}>Продукция</button>
         <button onClick={() => setTab('inputs')} className={`flex-1 p-3 text-sm font-bold ${tab === 'inputs' ? 'text-[#f97316] border-b-2 border-[#f97316]' : 'text-gray-400 hover:text-gray-300'}`}>Сырье</button>
@@ -171,14 +198,37 @@ export default function RightPanel() {
           <>
             {targets.map(target => (
               <div key={target.id} className="flex items-center justify-between bg-[#0b0d10] p-2 rounded border border-[#2a2e39]">
-                <ItemSelect value={target.itemId} onChange={(newId) => updateTarget(target.id, { itemId: newId })} />
+                {isStageFrozen ? (
+                  <div className="flex items-center gap-2 px-2 py-1">
+                    {items[target.itemId]?.icon && (
+                      <img src={getAssetUrl(items[target.itemId].icon)} alt="" className="w-5 h-5 object-contain" />
+                    )}
+                    <span className="text-sm font-semibold text-gray-200">{items[target.itemId]?.name || target.itemId}</span>
+                  </div>
+                ) : (
+                  <ItemSelect value={target.itemId} onChange={(newId) => updateTarget(target.id, { itemId: newId })} />
+                )}
                 <div className="flex items-center gap-1">
-                  <input type="number" value={target.rate} onChange={(e) => updateTarget(target.id, { rate: Number(e.target.value) })} className="bg-[#14171d] border border-[#2a2e39] text-white px-2 py-1 rounded w-16 text-right" />
-                  <button onClick={() => removeTarget(target.id)} className="text-gray-500 hover:text-red-500 ml-1">×</button>
+                  <input 
+                    type="number" 
+                    disabled={isStageFrozen}
+                    value={target.rate} 
+                    onChange={(e) => updateTarget(target.id, { rate: Number(e.target.value) })} 
+                    className={`bg-[#14171d] border border-[#2a2e39] text-white px-2 py-1 rounded w-16 text-right ${isStageFrozen ? 'opacity-70 cursor-not-allowed' : ''}`} 
+                  />
+                  {!isStageFrozen && (
+                    <button onClick={() => removeTarget(target.id)} className="text-gray-500 hover:text-red-500 ml-1">×</button>
+                  )}
                 </div>
               </div>
             ))}
-            <button onClick={addTarget} className="w-full py-2 bg-[#f97316] text-black font-bold rounded hover:bg-[#fa9549]">+ ДОБАВИТЬ ПРОДУКТ</button>
+            {!isStageFrozen ? (
+              <button onClick={addTarget} className="w-full py-2 bg-[#f97316] text-black font-bold rounded hover:bg-[#fa9549]">+ ДОБАВИТЬ ПРОДУКТ</button>
+            ) : (
+              <div className="text-center text-xs text-gray-500 py-1 border border-dashed border-[#2a2e39] rounded">
+                🔒 Завод зафиксирован (добавление заблокировано)
+              </div>
+            )}
           </>
         )}
 
@@ -187,36 +237,131 @@ export default function RightPanel() {
             <div className="text-xs text-gray-400 mb-2">Лимиты доступного сырья (опционально):</div>
             {inputsLimit.map(inp => (
               <div key={inp.id} className="flex items-center justify-between bg-[#0b0d10] p-2 rounded border border-[#2a2e39]">
-                <ItemSelect value={inp.itemId} onChange={(newId) => updateInputLimit(inp.id, { itemId: newId })} />
+                {isStageFrozen ? (
+                  <div className="flex items-center gap-2 px-2 py-1">
+                    {items[inp.itemId]?.icon && (
+                      <img src={getAssetUrl(items[inp.itemId].icon)} alt="" className="w-5 h-5 object-contain" />
+                    )}
+                    <span className="text-sm font-semibold text-gray-200">{items[inp.itemId]?.name || inp.itemId}</span>
+                  </div>
+                ) : (
+                  <ItemSelect value={inp.itemId} onChange={(newId) => updateInputLimit(inp.id, { itemId: newId })} />
+                )}
                 <div className="flex items-center gap-1">
-                  <input type="number" value={inp.rate} onChange={(e) => updateInputLimit(inp.id, { rate: Number(e.target.value) })} className="bg-[#14171d] border border-[#2a2e39] text-white px-2 py-1 rounded w-16 text-right" />
-                  <button onClick={() => removeInputLimit(inp.id)} className="text-gray-500 hover:text-red-500 ml-1">×</button>
+                  <input 
+                    type="number" 
+                    disabled={isStageFrozen}
+                    value={inp.rate} 
+                    onChange={(e) => updateInputLimit(inp.id, { rate: Number(e.target.value) })} 
+                    className={`bg-[#14171d] border border-[#2a2e39] text-white px-2 py-1 rounded w-16 text-right ${isStageFrozen ? 'opacity-70 cursor-not-allowed' : ''}`} 
+                  />
+                  {!isStageFrozen && (
+                    <button onClick={() => removeInputLimit(inp.id)} className="text-gray-500 hover:text-red-500 ml-1">×</button>
+                  )}
                 </div>
               </div>
             ))}
-            <button onClick={addInputLimit} className="w-full py-2 bg-[#22c55e] text-black font-bold rounded hover:bg-green-400">+ ДОБАВИТЬ ЛИМИТ</button>
+            {!isStageFrozen ? (
+              <button onClick={addInputLimit} className="w-full py-2 bg-[#22c55e] text-black font-bold rounded hover:bg-green-400">+ ДОБАВИТЬ ЛИМИТ</button>
+            ) : (
+              <div className="text-center text-xs text-gray-500 py-1 border border-dashed border-[#2a2e39] rounded">
+                🔒 Завод зафиксирован
+              </div>
+            )}
           </>
         )}
 
         {tab === 'options' && (
           <>
             <div>
-              <div className="text-sm font-bold text-gray-300 mb-2">Критерий оптимизации</div>
-              <select value={options.optimize} onChange={e => setOptimizeMode(e.target.value)} className="w-full bg-[#0b0d10] border border-[#2a2e39] text-white p-2 rounded">
+              <div className="text-xs font-bold text-[#f97316] uppercase tracking-wider mb-2 border-b border-[#2a2e39] pb-1 flex items-center justify-between">
+                <span>Вид схемы</span>
+                <span className="text-[10px] text-gray-500 font-normal">Чертеж</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSchematicMode('simple')}
+                  className={`py-2 px-3 rounded text-xs font-bold border flex items-center justify-center transition-all ${
+                    schematicMode === 'simple'
+                      ? 'bg-[#f97316] text-black border-[#f97316] shadow-[0_0_8px_rgba(249,115,22,0.4)]'
+                      : 'bg-[#0b0d10] text-gray-300 border-[#2a2e39] hover:border-gray-500'
+                  }`}
+                >
+                  Обычный
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSchematicMode('realistic')}
+                  className={`py-2 px-3 rounded text-xs font-bold border flex items-center justify-center transition-all ${
+                    schematicMode === 'realistic'
+                      ? 'bg-[#22c55e] text-black border-[#22c55e] shadow-[0_0_8px_rgba(34,197,94,0.4)]'
+                      : 'bg-[#0b0d10] text-gray-300 border-[#2a2e39] hover:border-gray-500'
+                  }`}
+                >
+                  Реалистичный
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div className="text-xs font-bold text-[#f97316] uppercase tracking-wider mb-2 mt-4 border-b border-[#2a2e39] pb-1">
+                Направление схемы
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setLayoutDirection('LR')}
+                  className={`py-2 px-3 rounded text-xs font-bold border flex items-center justify-center transition-all ${
+                    layoutDirection === 'LR'
+                      ? 'bg-[#f97316] text-black border-[#f97316] shadow-[0_0_8px_rgba(249,115,22,0.4)]'
+                      : 'bg-[#0b0d10] text-gray-300 border-[#2a2e39] hover:border-gray-500'
+                  }`}
+                >
+                  Вправо
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLayoutDirection('TB')}
+                  className={`py-2 px-3 rounded text-xs font-bold border flex items-center justify-center transition-all ${
+                    layoutDirection === 'TB'
+                      ? 'bg-[#f97316] text-black border-[#f97316] shadow-[0_0_8px_rgba(249,115,22,0.4)]'
+                      : 'bg-[#0b0d10] text-gray-300 border-[#2a2e39] hover:border-gray-500'
+                  }`}
+                >
+                  Вниз
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div className="text-xs font-bold text-[#f97316] uppercase tracking-wider mb-2 mt-4 border-b border-[#2a2e39] pb-1">
+                Критерий оптимизации
+              </div>
+              <select 
+                disabled={isStageFrozen}
+                value={options.optimize} 
+                onChange={e => setOptimizeMode(e.target.value)} 
+                className={`w-full bg-[#0b0d10] border border-[#2a2e39] text-white p-2 rounded text-sm ${isStageFrozen ? 'opacity-70 cursor-not-allowed' : ''}`}
+              >
                 <option value="power">Минимизировать энергию (МВт)</option>
                 <option value="raw">Минимизировать сырье</option>
                 <option value="machines">Минимизировать число станков</option>
               </select>
             </div>
             <div>
-              <div className="text-sm font-bold text-[#f97316] mb-3 mt-4 flex items-center gap-2 border-b border-[#2a2e39] pb-1">Альтернативные рецепты</div>
+              <div className="text-sm font-bold text-[#f97316] mb-3 mt-4 flex items-center gap-2 border-b border-[#2a2e39] pb-1">
+                Альтернативные рецепты
+                {isStageFrozen && <span className="text-[10px] text-gray-500 font-normal ml-auto">🔒 Зафиксировано</span>}
+              </div>
               <div className="flex flex-col gap-1 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 {alts.map(alt => {
                   const outItem = alt.outputs?.[0] ? items[alt.outputs[0].itemId] : null;
                   return (
-                    <label key={alt.id} className="flex items-start gap-3 text-sm cursor-pointer hover:bg-[#2a2e39] p-2 rounded transition-colors border border-transparent hover:border-[#4b5563]">
+                    <label key={alt.id} className={`flex items-start gap-3 text-sm p-2 rounded transition-colors border border-transparent ${isStageFrozen ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer hover:bg-[#2a2e39] hover:border-[#4b5563]'}`}>
                       <input 
                         type="checkbox" 
+                        disabled={isStageFrozen}
                         checked={options.altRecipes.includes(alt.id)}
                         onChange={() => toggleAltRecipe(alt.id)}
                         className="accent-[#f97316] w-4 h-4 min-w-[16px] mt-1"
@@ -240,14 +385,18 @@ export default function RightPanel() {
 
             {converterRecipes.length > 0 && (
               <div>
-                <div className="text-sm font-bold text-[#a855f7] mb-3 mt-6 flex items-center gap-2 border-b border-[#2a2e39] pb-1">Рецепты конвертера</div>
+                <div className="text-sm font-bold text-[#a855f7] mb-3 mt-6 flex items-center gap-2 border-b border-[#2a2e39] pb-1">
+                  Рецепты конвертера
+                  {isStageFrozen && <span className="text-[10px] text-gray-500 font-normal ml-auto">🔒 Зафиксировано</span>}
+                </div>
                 <div className="flex flex-col gap-1 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                   {converterRecipes.map(alt => {
                     const outItem = alt.outputs?.[0] ? items[alt.outputs[0].itemId] : null;
                     return (
-                      <label key={alt.id} className="flex items-start gap-3 text-sm cursor-pointer hover:bg-[#2a2e39] p-2 rounded transition-colors border border-transparent hover:border-[#4b5563]">
+                      <label key={alt.id} className={`flex items-start gap-3 text-sm p-2 rounded transition-colors border border-transparent ${isStageFrozen ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer hover:bg-[#2a2e39] hover:border-[#4b5563]'}`}>
                         <input 
                           type="checkbox" 
+                          disabled={isStageFrozen}
                           checked={options.altRecipes.includes(alt.id)}
                           onChange={() => toggleAltRecipe(alt.id)}
                           className="accent-[#a855f7] w-4 h-4 min-w-[16px] mt-1"

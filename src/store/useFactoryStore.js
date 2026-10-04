@@ -1,15 +1,37 @@
 import { create } from 'zustand';
 import { solveProductionGraph } from '../engine/solver';
 import { calculateAllTransits } from '../engine/campaignTransitEngine';
+import { expandToRealisticGraph } from '../engine/realisticGraphEngine';
 import dagre from 'dagre';
 import recipesDB from '../database/recipes.json';
 import presets from '../database/campaignPresets.json';
 
 // Инициализация состояний всех этапов по умолчанию (все включены, масштаб 1.0)
+// Инициализация состояний всех этапов по умолчанию (все включены, масштаб 1.0)
 const initialCampaignStates = {};
 presets.forEach(p => {
   initialCampaignStates[p.id] = { enabled: true, scale: 1.0 };
 });
+
+const STORAGE_KEY = 'ficsit_frozen_stages_v1';
+
+function loadInitialFrozenStages() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    console.error('Failed to load frozen stages from localStorage:', e);
+    return {};
+  }
+}
+
+function saveFrozenStages(stages) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stages));
+  } catch (e) {
+    console.error('Failed to save frozen stages to localStorage:', e);
+  }
+}
 
 export const useFactoryStore = create((set, get) => ({
   // Graph state
@@ -30,15 +52,107 @@ export const useFactoryStore = create((set, get) => ({
   selectedPresetType: 'production', // 'production' or 'power'
   powerConfig: null,
   activePresetId: null,
+  layoutDirection: 'LR', // 'LR' (Вправо) | 'TB' (Вниз)
+  schematicMode: 'realistic', // 'simple' (Компактный SCIM) | 'realistic' (Реалистичный цех SCIM)
   
   // Campaign Stages State
   campaignStagesState: initialCampaignStates,
+  frozenStages: loadInitialFrozenStages(),
 
   // Results
   summary: null,
   activeTab: 'network', // 'network', 'tree', 'items', 'buildings'
 
+  setLayoutDirection: (dir) => {
+    set({ layoutDirection: dir });
+    get().recalculateGraph();
+  },
+
+  setSchematicMode: (mode) => {
+    set({ schematicMode: mode });
+    get().recalculateGraph();
+  },
+
+  freezeCurrentStage: () => {
+    const { activePresetId, nodes, edges, summary, targets, inputsLimit, options, layoutDirection, schematicMode, frozenStages } = get();
+    if (!activePresetId || !summary) return;
+
+    // Вычисляем фактические выходы этапа (outputs) для транзитной сети
+    const outputs = (summary.items || [])
+      .filter(item => (item.produced - item.consumed) > 0.001)
+      .map(item => ({
+        itemId: item.id,
+        rate: item.produced - item.consumed
+      }));
+
+    const snapshot = {
+      nodes: JSON.parse(JSON.stringify(nodes)),
+      edges: JSON.parse(JSON.stringify(edges)),
+      summary: JSON.parse(JSON.stringify(summary)),
+      outputs
+    };
+
+    const updatedFrozenStages = {
+      ...frozenStages,
+      [activePresetId]: {
+        isFrozen: true,
+        frozenAt: new Date().toISOString(),
+        targets: JSON.parse(JSON.stringify(targets)),
+        inputsLimit: JSON.parse(JSON.stringify(inputsLimit)),
+        options: JSON.parse(JSON.stringify(options)),
+        layoutDirection,
+        schematicMode,
+        snapshot
+      }
+    };
+
+    saveFrozenStages(updatedFrozenStages);
+    set({ frozenStages: updatedFrozenStages });
+  },
+
+  unfreezeStage: (stageId) => {
+    const { frozenStages, activePresetId } = get();
+    const targetId = stageId || activePresetId;
+    if (!targetId || !frozenStages[targetId]) return;
+
+    const updated = {
+      ...frozenStages,
+      [targetId]: {
+        ...frozenStages[targetId],
+        isFrozen: false
+      }
+    };
+
+    saveFrozenStages(updated);
+    set({ frozenStages: updated });
+
+    if (targetId === activePresetId) {
+      get().recalculateGraph();
+    }
+  },
+
   loadPreset: (preset) => {
+    const { frozenStages } = get();
+    const frozen = frozenStages[preset.id];
+
+    if (frozen && frozen.isFrozen) {
+      // LP SOLVER BYPASS (0 ms LOAD)
+      set({
+        selectedPresetType: preset.type === 'power' ? 'power' : 'production',
+        powerConfig: preset.powerConfig || null,
+        activePresetId: preset.id,
+        targets: frozen.targets,
+        inputsLimit: frozen.inputsLimit,
+        options: frozen.options,
+        layoutDirection: frozen.layoutDirection || get().layoutDirection,
+        schematicMode: frozen.schematicMode || get().schematicMode,
+        nodes: frozen.snapshot.nodes,
+        edges: frozen.snapshot.edges,
+        summary: frozen.snapshot.summary
+      });
+      return;
+    }
+
     if (preset.type === 'power') {
       set({
         selectedPresetType: 'power',
@@ -154,10 +268,15 @@ export const useFactoryStore = create((set, get) => ({
   },
 
   recalculateGraph: () => {
-    const { targets, inputsLimit, options, activePresetId, campaignStagesState } = get();
+    const { targets, inputsLimit, options, activePresetId, campaignStagesState, layoutDirection = 'LR', schematicMode = 'simple', frozenStages = {} } = get();
     
-    // Рассчитываем сквозной транзит
-    const transitsByTarget = calculateAllTransits(campaignStagesState);
+    // Если текущий этап заморожен, обходим солвер и сохраняем кэш
+    if (activePresetId && frozenStages[activePresetId]?.isFrozen) {
+      return;
+    }
+
+    // Рассчитываем сквозной транзит с гарантированным питанием от замороженных этапов
+    const transitsByTarget = calculateAllTransits(campaignStagesState, frozenStages);
     const myTransits = transitsByTarget[activePresetId] || [];
 
     // Применяем масштаб текущего этапа к его целям (targets)
@@ -193,43 +312,112 @@ export const useFactoryStore = create((set, get) => ({
     }
     
     if (result.feasible) {
+      let activeNodes = result.nodes;
+      let activeEdges = result.edges;
+
+      // Если включен Реалистичный вид — распаковываем станки, сплиттеры и мерджеры
+      if (schematicMode === 'realistic') {
+        const realistic = expandToRealisticGraph(result.nodes, result.edges, {
+          layoutDirection,
+          somersloopRecipes: options.somersloopRecipes,
+          maxBelt: options.maxBelt
+        });
+        activeNodes = realistic.nodes;
+        activeEdges = realistic.edges;
+      } else {
+        // В компактном режиме SCIM также подключаем 3D-иконки конечных предметов на выходе
+        activeNodes = [...result.nodes];
+        activeEdges = [...result.edges];
+
+        const consumedBySourceItem = {};
+        activeEdges.forEach(edge => {
+          const key = `${edge.source}_${edge.data?.itemId}`;
+          consumedBySourceItem[key] = (consumedBySourceItem[key] || 0) + (edge.data?.rate || 0);
+        });
+
+        result.nodes.forEach(node => {
+          if (!node.data?.outputs) return;
+          node.data.outputs.forEach(outItem => {
+            const itemId = outItem.itemId;
+            const consumed = consumedBySourceItem[`${node.id}_${itemId}`] || 0;
+            const surplus = (outItem.rate || 0) - consumed;
+            if (surplus > 0.001) {
+              const outNodeId = `out_${node.id}_${itemId}`;
+              activeNodes.push({
+                id: outNodeId,
+                type: 'productItem',
+                data: {
+                  itemId,
+                  rate: surplus,
+                  label: 'Конечный продукт',
+                  layoutDirection
+                }
+              });
+              activeEdges.push({
+                id: `edge_${node.id}_${outNodeId}_${itemId}`,
+                source: node.id,
+                sourceHandle: `out-${itemId}`,
+                target: outNodeId,
+                targetHandle: 'in',
+                data: { rate: surplus, itemId }
+              });
+            }
+          });
+        });
+      }
+
       const dagreGraph = new dagre.graphlib.Graph();
       dagreGraph.setDefaultEdgeLabel(() => ({}));
       
-      // 1. Конфигурация Dagre Graph (эвристическое упорядочивание слоев)
+      const isRealistic = schematicMode === 'realistic';
+      const nodeSep = isRealistic ? 50 : 50;
+      const rankSep = isRealistic ? 130 : 100;
+
+      // 1. Конфигурация Dagre Graph
       dagreGraph.setGraph({ 
-        rankdir: 'LR',
-        align: 'DL', // Выравнивание по базовой линии
-        nodesep: 40,  // Вертикальный зазор между нодами в одном ранге
-        ranksep: 80,  // Горизонтальный зазор между этапами (минимизирует растягивание)
-        ranker: 'tight-tree', // Критично: минимизирует длину ребер (компактная горизонтальная структура)
-        marginx: 50,
-        marginy: 50
+        rankdir: layoutDirection,
+        align: undefined,
+        nodesep: nodeSep,
+        ranksep: rankSep,
+        ranker: 'tight-tree',
+        marginx: 60,
+        marginy: 60
       });
 
-      // Добавляем ноды с точными габаритами (MachineNode: 340x220)
-      result.nodes.forEach(node => {
-        dagreGraph.setNode(node.id, { width: 340, height: 220 });
+      // Функция определения размеров ноды для Dagre (единый круговой SCIM стандарт)
+      const getNodeDimensions = (node) => {
+        if (node.type === 'splitter' || node.type === 'merger') {
+          return { width: 140, height: 100 };
+        }
+        if (node.type === 'output' || node.type === 'productItem') {
+          return { width: 80, height: 80 };
+        }
+        return { width: 150, height: 130 };
+      };
+
+      // Добавляем ноды с индивидуальными габаритами
+      activeNodes.forEach(node => {
+        const { width, height } = getNodeDimensions(node);
+        dagreGraph.setNode(node.id, { width, height });
       });
 
-      // 3. Группировка по производственным слоям (Ранжирование / Virtual Ranks)
-      // Вычисляем виртуальную глубину (Depth) каждой ноды от источников сырья
+      // 3. Группировка по производственным слоям (Ранжирование)
       const nodeDepth = {};
       let changed = true;
       let iterations = 0;
-      const MAX_DEPTH = 100; // Ограничитель на случай циклических зависимостей (например, вода в Алюминии)
+      const MAX_DEPTH = 100;
       
       while (changed && iterations < MAX_DEPTH) {
         changed = false;
         iterations++;
         
-        result.nodes.forEach(n => {
+        activeNodes.forEach(n => {
           if (nodeDepth[n.id] === undefined) {
-            nodeDepth[n.id] = 0; // Инициализация начальной глубины
+            nodeDepth[n.id] = 0;
             changed = true;
           }
         });
-        result.edges.forEach(e => {
+        activeEdges.forEach(e => {
           if (nodeDepth[e.source] !== undefined) {
             const newDepth = nodeDepth[e.source] + 1;
             if (nodeDepth[e.target] === undefined || newDepth > nodeDepth[e.target]) {
@@ -240,35 +428,48 @@ export const useFactoryStore = create((set, get) => ({
         });
       }
 
-      // 2. Веса и минимальная длина рёбер (Edge Minlen & Weight Tuning)
-      result.edges.forEach(edge => {
+      // 2. Веса и минимальная длина рёбер
+      activeEdges.forEach(edge => {
         const depthDiff = Math.abs((nodeDepth[edge.target] || 0) - (nodeDepth[edge.source] || 0));
-        // Длинные транзитные связи перепрыгивают больше 1 слоя (например, Вода/Пластик к финишным нодам)
         const isLongTransit = depthDiff > 1; 
         
         dagreGraph.setEdge(edge.source, edge.target, {
-          weight: isLongTransit ? 1 : 3, // Локальные связи (3) тянут узлы сильнее друг к другу
-          minlen: 1 // Предотвращает смещение финишных нод слишком далеко вправо из-за одного длинного ребра
+          weight: isLongTransit ? 1 : (isRealistic ? 2 : 3),
+          minlen: 1
         });
       });
 
       dagre.layout(dagreGraph);
 
-      const layoutedNodes = result.nodes.map(node => {
-        const nodeWithPosition = dagreGraph.node(node.id);
+      const layoutedNodes = activeNodes.map(node => {
+        const nodeWithPosition = dagreGraph.node(node.id) || { x: 0, y: 0 };
+        const { width, height } = getNodeDimensions(node);
         return {
           ...node,
+          data: {
+            ...node.data,
+            layoutDirection
+          },
           position: {
-            x: nodeWithPosition.x - 170, // Половина ширины 340
-            y: nodeWithPosition.y - 110  // Половина высоты 220
+            x: nodeWithPosition.x - (width / 2),
+            y: nodeWithPosition.y - (height / 2)
           }
         };
       });
 
-      const styledEdges = result.edges.map(edge => ({
-        ...edge,
-        type: 'default', // Custom edge type FlowEdge is named 'default' in edgeTypes mapping
-      }));
+      const styledEdges = activeEdges.map(edge => {
+        const isFluid = edge.data?.itemId === 'water' || edge.data?.itemId?.includes('oil') || edge.data?.itemId?.includes('fuel');
+        return {
+          ...edge,
+          type: 'default',
+          markerEnd: {
+            type: 'arrowclosed',
+            color: isFluid ? '#3b82f6' : '#f97316',
+            width: 14,
+            height: 14
+          }
+        };
+      });
 
       set({ nodes: layoutedNodes, edges: styledEdges, summary: result.summary });
     } else {

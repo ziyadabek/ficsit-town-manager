@@ -10,6 +10,25 @@ import { getAssetUrl } from '../../database/assets';
 export default function СтанокNode({ data }) {
   const somersloopRecipes = useFactoryStore(state => state.options.somersloopRecipes) || [];
   const toggleSomersloop = useFactoryStore(state => state.toggleSomersloop);
+  const storeDirection = useFactoryStore(state => state.layoutDirection);
+  const layoutDirection = data.layoutDirection || storeDirection || 'LR';
+  const isVertical = layoutDirection === 'TB';
+  const targetPos = isVertical ? Position.Top : Position.Left;
+  const sourcePos = isVertical ? Position.Bottom : Position.Right;
+
+  const getInputHandleStyle = (idx, total) => {
+    if (isVertical) {
+      return { left: `${(idx + 1) * 100 / (total + 1)}%`, top: 4 };
+    }
+    return { top: `${(idx + 1) * 100 / (total + 1)}%`, left: 4 };
+  };
+
+  const getOutputHandleStyle = (idx, total) => {
+    if (isVertical) {
+      return { left: `${(idx + 1) * 100 / (total + 1)}%`, bottom: 4 };
+    }
+    return { top: `${(idx + 1) * 100 / (total + 1)}%`, right: 4 };
+  };
 
   const isInput = data.isInput;
   const isVIP = data.isVIP;
@@ -35,8 +54,8 @@ export default function СтанокNode({ data }) {
           ⚠️ Рекомендуется подача через приоритетный клапан (VIP Junction) для предотвращения гидроудара.
         </div>
         
-        <Handle type="target" position={Position.Left} id={`in-${data.itemId}`} className="w-4 h-4 bg-[#f97316]" />
-        <Handle type="source" position={Position.Right} id={`out-${data.itemId}`} className="w-4 h-4 bg-[#38bdf8]" />
+        <Handle type="target" position={targetPos} id={`in-${data.itemId}`} className="w-4 h-4 bg-[#f97316]" />
+        <Handle type="source" position={sourcePos} id={`out-${data.itemId}`} className="w-4 h-4 bg-[#38bdf8]" />
       </div>
     );
   }
@@ -93,7 +112,7 @@ export default function СтанокNode({ data }) {
                 ⚠️ Дефицит транзита: -{data.deficit.toFixed(1)} / min
               </div>
             )}
-            <Handle type="source" position={Position.Right} id={`out-${data.itemId}`} className={`w-4 h-4 ${hasDeficit ? 'bg-[#f97316]' : 'bg-[#3b82f6]'}`} />
+            <Handle type="source" position={sourcePos} id={`out-${data.itemId}`} className={`w-4 h-4 ${hasDeficit ? 'bg-[#f97316]' : 'bg-[#3b82f6]'}`} />
           </div>
         );
       }
@@ -111,19 +130,44 @@ export default function СтанокNode({ data }) {
               <div className="text-xs text-[#22c55e] font-bold">+{data.rate.toFixed(1)} / min</div>
             </div>
           </div>
-          <Handle type="source" position={Position.Right} id={`out-${data.itemId}`} className="w-4 h-4 bg-[#3b82f6]" />
+          <Handle type="source" position={sourcePos} id={`out-${data.itemId}`} className="w-4 h-4 bg-[#3b82f6]" />
         </div>
       );
     }
 
+    const isFluid = item?.type === 'fluid';
+    const minerIcon = isFluid 
+      ? (data.itemId === 'crude_oil' ? '/icons/Buildings/OilPump.png' : '/icons/Buildings/Waterpump.png')
+      : '/icons/Buildings/MinerMk2.png';
+
     return (
-      <div className="bg-[#14171d] border border-[#2a2e39] rounded-md shadow-lg p-2 min-w-[150px] text-center text-[#e1e1e6] relative z-10">
-        <div className="text-xs text-gray-400 mb-1">{item ? item.name : 'Добыча'}</div>
-        <div className="flex items-center justify-center gap-2">
-          {item && <img src={getAssetUrl(item.icon)} alt={item.name} className="w-6 h-6" />}
-          <span className="font-bold text-[#f97316]">{data.rate.toFixed(1)} / min</span>
+      <div className="flex flex-col items-center justify-center relative select-none w-[150px] py-1">
+        <div 
+          className="w-20 h-20 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] border-[3.5px] border-[#f97316] transition-transform hover:scale-105"
+          style={{ boxShadow: '0 0 10px rgba(249,115,22,0.4)' }}
+        >
+          <img 
+            src={getAssetUrl(minerIcon)} 
+            alt="Miner" 
+            className="w-14 h-14 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" 
+            onError={e => { e.target.src = getAssetUrl(item?.icon); }}
+          />
+          <Handle 
+            type="source" 
+            position={sourcePos} 
+            id={`out-${data.itemId}`} 
+            style={isVertical ? { bottom: 4 } : { right: 4 }}
+            className="w-2.5 h-2.5 !bg-[#3b82f6] !border-none opacity-80" 
+          />
         </div>
-        <Handle type="source" position={Position.Right} id={`out-${data.itemId}`} className="w-3 h-3 bg-[#f97316]" />
+        <div className="flex flex-col items-center text-center mt-2 leading-tight">
+          <span className="text-xs font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+            {isFluid ? 'Экстрактор' : 'Буровая установка'}
+          </span>
+          <span className="text-[11px] text-gray-300 font-normal drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+            ({item ? item.name : data.itemId})
+          </span>
+        </div>
       </div>
     );
   }
@@ -161,9 +205,9 @@ export default function СтанокNode({ data }) {
           <Handle 
             key={`in-${inp.itemId}-${idx}`} 
             type="target" 
-            position={Position.Left} 
+            position={targetPos} 
             id={`in-${inp.itemId}`} 
-            style={{ top: `${(idx + 1) * 100 / (data.inputs.length + 1)}%` }} 
+            style={getInputHandleStyle(idx, data.inputs.length)} 
             className="w-4 h-4 bg-[#f97316]" 
           />
         ))}
@@ -172,9 +216,9 @@ export default function СтанокNode({ data }) {
             <Handle 
               key={`out-${out.itemId}-${idx}`} 
               type="source" 
-              position={Position.Right} 
+              position={sourcePos} 
               id={`out-${out.itemId}`} 
-              style={{ top: `${(idx + 1) * 100 / (data.outputs.length + 1)}%` }} 
+              style={getOutputHandleStyle(idx, data.outputs.length)} 
               className={`w-4 h-4 ${out.itemId === 'nuclear_waste' ? 'bg-[#22c55e]' : 'bg-[#3b82f6]'}`} 
             />
           )
@@ -186,87 +230,94 @@ export default function СтанокNode({ data }) {
   const supportsSomersloop = building?.somersloopSlots > 0;
   const isAmplified = somersloopRecipes.includes(data.recipeId);
 
+  const ringColor = isAmplified ? '#a855f7' : (data.machines >= 1 ? '#22c55e' : '#f97316');
+  const machineCountStr = data.machines ? ` (${data.machines.toFixed(1)} шт)` : '';
+
   return (
-    <div className={`bg-[#14171d] border rounded-md shadow-lg min-w-[250px] text-[#e1e1e6] relative z-10 transition-colors ${isAmplified ? 'border-[#a855f7] shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'border-[#2a2e39]'}`}>
-      {/* Header */}
-      <div className={`flex items-center justify-between p-2 border-b rounded-t-md ${isAmplified ? 'bg-[#a855f7]/20 border-[#a855f7]/50' : 'bg-[#0b0d10] border-[#2a2e39]'}`}>
-        <div className="flex items-center gap-2">
-          {building && <img src={getAssetUrl(building.icon)} alt={building.name} className="w-8 h-8 rounded bg-gray-800" />}
-          <span className="font-semibold">{building?.name || 'Станок'}</span>
-        </div>
-        <div className="flex gap-2 items-center">
-          {supportsSomersloop && (
-            <button 
-              onClick={() => toggleSomersloop(data.recipeId)}
-              title="Усилитель Somersloop"
-              className={`w-5 h-5 flex items-center justify-center rounded transition-all hover:scale-110 ${isAmplified ? 'opacity-100 shadow-[0_0_5px_rgba(168,85,247,1)]' : 'opacity-40 grayscale hover:grayscale-0 hover:opacity-100'}`}
-            >
-              <img src={getAssetUrl('/icons/Tools/somersloop.png')} className="w-4 h-4 object-contain" alt="S" />
-            </button>
-          )}
-          {isAmplified && (
-            <div className="text-[9px] bg-[#a855f7] text-white px-1.5 py-0.5 rounded font-black shadow-[0_0_5px_rgba(168,85,247,1)] flex items-center">
-              x2 AMPLIFIED
-            </div>
-          )}
-          <div className="text-xs bg-[#f97316] text-black px-1 rounded flex items-center">
-            {data.clockSpeed}%
-          </div>
-        </div>
+    <div className="flex flex-col items-center justify-center relative select-none w-[150px] py-1">
+      {/* Круглый узел станка в точности как в оригинале SCIM */}
+      <div 
+        className="w-20 h-20 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-transform hover:scale-105"
+        style={{
+          border: `3.5px solid ${ringColor}`,
+          boxShadow: `0 0 10px ${ringColor}40`
+        }}
+      >
+        {building?.icon && (
+          <img 
+            src={getAssetUrl(building.icon)} 
+            alt={building.name} 
+            className="w-14 h-14 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" 
+            onError={e => (e.target.style.display = 'none')}
+          />
+        )}
+
+        {/* Кнопка Somersloop */}
+        {supportsSomersloop && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); toggleSomersloop(data.recipeId); }}
+            title="Усилитель Somersloop"
+            className={`absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#0b0d10] border border-[#a855f7] flex items-center justify-center transition-transform hover:scale-125 z-20 ${
+              isAmplified ? 'shadow-[0_0_6px_#a855f7]' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
+            }`}
+          >
+            <img src={getAssetUrl('/icons/Tools/somersloop.png')} className="w-3.5 h-3.5 object-contain" alt="S" />
+          </button>
+        )}
+
+        {/* Input Handles на окружности */}
+        {data.inputs && data.inputs.map((inp, idx) => (
+          <Handle 
+            key={`in-${inp.itemId}-${idx}`} 
+            type="target" 
+            position={targetPos} 
+            id={`in-${inp.itemId}`} 
+            style={getInputHandleStyle(idx, data.inputs.length)} 
+            className="w-2.5 h-2.5 !bg-[#f97316] !border-none opacity-80" 
+          />
+        ))}
+        {(!data.inputs || data.inputs.length === 0) && (
+          <Handle 
+            type="target" 
+            position={targetPos} 
+            id="in-generic" 
+            style={isVertical ? { top: 4 } : { left: 4 }}
+            className="w-2.5 h-2.5 !bg-[#f97316] !border-none opacity-80" 
+          />
+        )}
+
+        {/* Output Handles на окружности */}
+        {data.outputs && data.outputs.map((out, idx) => (
+          <Handle 
+            key={`out-${out.itemId}-${idx}`} 
+            type="source" 
+            position={sourcePos} 
+            id={`out-${out.itemId}`} 
+            style={getOutputHandleStyle(idx, data.outputs.length)} 
+            className="w-2.5 h-2.5 !bg-[#3b82f6] !border-none opacity-80" 
+          />
+        ))}
+        {(!data.outputs || data.outputs.length === 0) && (
+          <Handle 
+            type="source" 
+            position={sourcePos} 
+            id="out-generic" 
+            style={isVertical ? { bottom: 4 } : { right: 4 }}
+            className="w-2.5 h-2.5 !bg-[#3b82f6] !border-none opacity-80" 
+          />
+        )}
       </div>
-      
-      {/* Body */}
-      <div className="p-3">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-400">Станков: {data.machines.toFixed(2)}</span>
-          <span className={`text-xs ${isAmplified ? 'text-[#ef4444] font-bold drop-shadow-[0_0_2px_rgba(239,68,68,1)]' : 'text-[#a855f7]'}`}>-{data.power.toFixed(1)} MW</span>
-        </div>
-        
-        {/* Progress Bar */}
-        <div className="w-full bg-gray-700 h-2 rounded mb-3 overflow-hidden">
-          <div className="bg-[#22c55e] h-full" style={{ width: '100%' }}></div>
-        </div>
 
-        {/* Recipe / Output */}
-        <div className="flex items-center justify-center gap-2 bg-[#0b0d10] p-2 rounded">
-          {item && <img src={getAssetUrl(item.icon)} alt={item.name} className="w-8 h-8" />}
-          <div className="text-right">
-            <div className="text-sm font-bold">{item?.name}</div>
-            <div className={`text-xs ${isAmplified ? 'text-[#a855f7] font-black text-[14px]' : 'text-[#f97316]'}`}>{data.rate.toFixed(1)} / min</div>
-          </div>
-        </div>
-
-        
+      {/* Подпись точно как в SCIM под кругом */}
+      <div className="flex flex-col items-center text-center mt-2 leading-tight">
+        <span className="text-xs font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+          {building?.name || data.label || 'Станок'}{machineCountStr}
+        </span>
+        <span className="text-[11px] text-gray-300 font-normal drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+          ({item ? item.name : data.itemId})
+        </span>
       </div>
-
-      {data.inputs && data.inputs.map((inp, idx) => (
-        <Handle 
-          key={`in-${inp.itemId}-${idx}`} 
-          type="target" 
-          position={Position.Left} 
-          id={`in-${inp.itemId}`} 
-          style={{ top: `${(idx + 1) * 100 / (data.inputs.length + 1)}%` }} 
-          className="w-3 h-3 bg-[#f97316]" 
-        />
-      ))}
-      
-      {data.outputs && data.outputs.map((out, idx) => (
-        <Handle 
-          key={`out-${out.itemId}-${idx}`} 
-          type="source" 
-          position={Position.Right} 
-          id={`out-${out.itemId}`} 
-          style={{ top: `${(idx + 1) * 100 / (data.outputs.length + 1)}%` }} 
-          className="w-3 h-3 bg-[#3b82f6]" 
-        />
-      ))}
-      
-      {(!data.inputs || data.inputs.length === 0) && (
-        <Handle type="target" position={Position.Left} id={`in-generic`} className="w-3 h-3 bg-[#f97316]" />
-      )}
-      {(!data.outputs || data.outputs.length === 0) && (
-        <Handle type="source" position={Position.Right} id={`out-generic`} className="w-3 h-3 bg-[#3b82f6]" />
-      )}
     </div>
   );
 }

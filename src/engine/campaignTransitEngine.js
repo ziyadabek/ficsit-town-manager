@@ -55,7 +55,7 @@ export const STAGE_TRANSIT_ROUTES = [
  * @param {Object} stagesState - состояние кампании: { [stageId]: { enabled: boolean, scale: number } }
  * @returns {Object} { [targetStageId]: [ { itemId, rate, deficit, sourceStageId, sourceStageName } ] }
  */
-export function calculateAllTransits(stagesState) {
+export function calculateAllTransits(stagesState, frozenStages = {}) {
   // 1. Собираем суммарный выпуск (Surplus) с каждого активного этапа
   // Предполагаем, что этап производит ровно столько, сколько от него требуется в сумме по маршрутам (при scale=1.0)
   const supplyPool = {}; 
@@ -65,12 +65,21 @@ export function calculateAllTransits(stagesState) {
     if (!supplyPool[route.source]) supplyPool[route.source] = {};
     if (!supplyPool[route.source][route.itemId]) supplyPool[route.source][route.itemId] = 0;
     
-    // Суммируем базовый выпуск для пула
-    const sourceState = stagesState[route.source] || { enabled: true, scale: 1.0 };
-    const multiplier = sourceState.enabled ? sourceState.scale : 0;
-    
-    // Добавляем долю этого маршрута в общий пул источника
-    supplyPool[route.source][route.itemId] += route.baseRate * multiplier;
+    // Если этап заморожен, он физически построен и гарантированно питает сеть
+    const isFrozen = frozenStages[route.source]?.isFrozen;
+    if (isFrozen) {
+      const frozenOutputs = frozenStages[route.source]?.snapshot?.outputs || [];
+      const itemOut = frozenOutputs.find(o => o.itemId === route.itemId);
+      const outputRate = itemOut ? itemOut.rate : route.baseRate;
+      supplyPool[route.source][route.itemId] += Math.min(outputRate, route.baseRate);
+    } else {
+      // Суммируем базовый выпуск для пула
+      const sourceState = stagesState[route.source] || { enabled: true, scale: 1.0 };
+      const multiplier = sourceState.enabled ? sourceState.scale : 0;
+      
+      // Добавляем долю этого маршрута в общий пул источника
+      supplyPool[route.source][route.itemId] += route.baseRate * multiplier;
+    }
   });
 
   // 2. Распределяем ресурсы по потребителям

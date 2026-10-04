@@ -67,3 +67,13 @@ body {
 .react-flow__attribution {
   display: none !important;
 }
+
+/* Сброс стандартных белых рамок и фона встроенных нод React Flow */
+.react-flow__node,
+.react-flow__node-output,
+.react-flow__node-productItem {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}

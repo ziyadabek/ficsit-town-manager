@@ -8,7 +8,7 @@ import PowerPlanner from './modules/power/PowerPlanner'
 import MacroView from './components/canvas/MacroView'
 
 function App() {
-  const { switchAppView, loadPreset, selectedPresetType, campaignStagesState, activePresetId, toggleStage, setStageScale } = useFactoryStore();
+  const { switchAppView, loadPreset, selectedPresetType, campaignStagesState, activePresetId, toggleStage, setStageScale, frozenStages } = useFactoryStore();
   const [view, setView] = useState('calculator');
   const [campaignMode, setCampaignMode] = useState('detail');
   const handleSetView = (newView) => {
@@ -71,6 +71,16 @@ function App() {
             {presets.map((preset, index) => {
               const state = campaignStagesState[preset.id] || { enabled: true, scale: 1.0 };
               const isActive = activePresetId === preset.id;
+              const isFrozen = !!frozenStages?.[preset.id]?.isFrozen;
+
+              let borderClass = 'border-[#2a2e39] bg-[#14171d]';
+              if (isActive && isFrozen) {
+                borderClass = 'border-[#22c55e] bg-[#13231a] shadow-[0_0_10px_rgba(34,197,94,0.35)]';
+              } else if (isActive) {
+                borderClass = 'border-[#3b82f6] bg-[#1a2333] shadow-[0_0_10px_rgba(59,130,246,0.3)]';
+              } else if (isFrozen) {
+                borderClass = 'border-[#22c55e]/50 bg-[#0f1a14]';
+              }
               
               return (
                 <React.Fragment key={preset.id}>
@@ -80,7 +90,7 @@ function App() {
                     </div>
                   )}
                   <div
-                    className={`flex flex-col border ${isActive ? 'border-[#3b82f6] bg-[#1a2333] shadow-[0_0_10px_rgba(59,130,246,0.3)]' : 'border-[#2a2e39] bg-[#14171d]'} rounded-md transition-colors shrink-0 overflow-hidden relative`}
+                    className={`flex flex-col border ${borderClass} rounded-md transition-colors shrink-0 overflow-hidden relative`}
                   >
                     {!state.enabled && (
                       <div className="absolute inset-0 bg-black/50 z-10 pointer-events-none" />
@@ -94,7 +104,12 @@ function App() {
                       <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${preset.type === 'power' ? 'bg-[#22c55e] text-black' : 'bg-[#f97316] text-black'}`}>
                         {preset.type === 'power' ? '⚡ ' + preset.tier : preset.tier}
                       </span>
-                      <span className={`text-xs font-bold text-[#e1e1e6]`}>{preset.name}</span>
+                      <span className="text-xs font-bold text-[#e1e1e6]">{preset.name}</span>
+                      {isFrozen && (
+                        <span className="text-[10px] text-[#22c55e] font-bold ml-1 flex items-center" title="Завод построен">
+                          🔒
+                        </span>
+                      )}
                     </button>
                   </div>
                 </React.Fragment>

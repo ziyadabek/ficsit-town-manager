@@ -15,6 +15,7 @@ import presets from '../../database/campaignPresets.json';
 import { STAGE_TRANSIT_ROUTES } from '../../engine/campaignTransitEngine';
 import items from '../../database/items.json';
 import MacroEdge from './MacroEdge';
+import { useFactoryStore } from '../../store/useFactoryStore';
 
 // ─── Корпоративная цветовая карта FICSIT ─────────────────────────────────────
 // Каждая категория ресурсов — свой технический цвет на дисплее SCADA
@@ -89,7 +90,11 @@ const MacroStageNode = ({ data }) => {
 
       <div className="px-3 py-2 bg-[#0b0d10] flex justify-between items-center">
         <span className="text-[10px] text-gray-500">Статус</span>
-        <span className="text-[10px] text-green-400 font-bold">● ОНЛАЙН</span>
+        {data.isFrozen ? (
+          <span className="text-[10px] text-[#22c55e] font-bold flex items-center gap-1">🔒 ПОСТРОЕН</span>
+        ) : (
+          <span className="text-[10px] text-[#fa9549] font-bold flex items-center gap-1">⚙️ В ПРОЕКТЕ</span>
+        )}
       </div>
 
       {/* Входные хэндлы — сверху */}
@@ -133,6 +138,7 @@ const edgeTypes = { macroEdge: MacroEdge };
 
 // ─── Основной компонент ───────────────────────────────────────────────────────
 export default function MacroView() {
+  const frozenStages = useFactoryStore(state => state.frozenStages);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -180,6 +186,7 @@ export default function MacroView() {
         data: {
           name: preset.name,
           stageType: preset.type,
+          isFrozen: !!frozenStages?.[preset.id]?.isFrozen,
           inputs:  Array.from(connections[preset.id]?.inputs  || []),
           outputs: Array.from(connections[preset.id]?.outputs || []),
         },
@@ -233,7 +240,7 @@ export default function MacroView() {
       return { ...node, position: { x: pos.x - pos.width / 2, y: pos.y - pos.height / 2 } };
     }));
     setEdges(newEdges);
-  }, [setNodes, setEdges]);
+  }, [setNodes, setEdges, frozenStages]);
 
   return (
     <div className="w-full h-full bg-[#0b0d10] relative">
