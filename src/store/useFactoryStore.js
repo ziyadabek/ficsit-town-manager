@@ -353,7 +353,8 @@ export const useFactoryStore = create((set, get) => ({
         const realistic = expandToRealisticGraph(result.nodes, result.edges, {
           layoutDirection,
           somersloopRecipes: options.somersloopRecipes,
-          maxBelt: options.maxBelt
+          maxBelt: options.maxBelt,
+          useSplitters: options.useSplitters !== false
         });
         activeNodes = realistic.nodes;
         activeEdges = realistic.edges;

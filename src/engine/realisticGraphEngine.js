@@ -7,21 +7,22 @@
  *  1. Абстрактные узлы рецептов (напр. Ассемблер x5.2) в физические станки:
  *     - N_full станков по 100% мощности
  *     - 1 станок с остаточным оверклоком (напр. 20%)
- *  2. Входные потоки разводятся через цепочки Конвейерных Разветвителей (Splitter Manifold).
- *  3. Выходные потоки собираются через цепочки Конвейерных Соединителей (Merger Manifold).
- *  4. Сохраняет корректные связи (Edges) с расчетом потоков и скоростей лент.
+ *  2. Входные потоки разводятся через конвейерные разветвители (Splitter Manifold)
+ *     или напрямую при useSplitters: false.
+ *  3. Выходные потоки собираются через соединители (Merger Manifold)
+ *     или направляются напрямую при useSplitters: false.
+ *  4. Сохраняет параллельное выравнивание станков в одном слое/колонке,
+ *     предотвращая диагональную лестницу ("ёлку") в Dagre.
  * ════════════════════════════════════════════════════════════════════════════════
  */
 
 export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {}) {
   const layoutDirection = options.layoutDirection || 'LR';
+  const useSplitters = options.useSplitters !== false;
   const realNodes = [];
   const realEdges = [];
 
-  // Карта входов для каждой группы рецептов: recipeId -> { itemId: [ { sourceNodeId, sourceHandle, rate } ] }
-  const recipeItemSources = {};
-
-  // Карта выходов для каждой группы рецептов: recipeId -> { itemId: { outputNodeId, outputHandle, totalRate } }
+  // Карта выходов для каждой группы рецептов: recipeId -> { itemId: { nodeId, handleId, rate, machines } }
   const recipeItemOutputs = {};
 
   // 1. Пропускаем входные узлы (mine_*, import_*) и VIP узлы без изменений
@@ -37,7 +38,7 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
     }
   });
 
-  // 2. Распаковываем производственные узлы
+  // 2. Распаковываем производственные узлы в физические машины
   const recipeGroups = {};
 
   abstractNodes.forEach(node => {
@@ -48,7 +49,6 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
     const isAmplified = options.somersloopRecipes?.includes(data.recipeId);
     const outMult = isAmplified ? 2.0 : 1.0;
 
-    // Определяем количество физических машин
     const fullCount = Math.floor(machinesCount);
     const remainder = machinesCount - fullCount;
     const hasFraction = remainder > 0.001;
@@ -135,7 +135,7 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
     };
   });
 
-  // 3. Строим выходные конвейерные соединители (Mergers) для каждого продукта каждого рецепта
+  // 3. Выходная логистика: соединители (Mergers) или прямые выходы станков
   Object.keys(recipeGroups).forEach(recipeNodeId => {
     const group = recipeGroups[recipeNodeId];
     const machines = group.machines;
@@ -145,95 +145,53 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
 
     outputs.forEach(outItem => {
       const itemId = outItem.itemId;
-      if (itemId === 'power') return; // Энергия передается без конвейеров
+      if (itemId === 'power') return;
 
-      if (machines.length === 1) {
-        // Если станок всего 1, соединители не нужны
+      const totalProduced = machines.reduce((sum, m) => {
+        const o = m.data.outputs.find(out => out.itemId === itemId);
+        return sum + (o?.rate || 0);
+      }, 0);
+
+      if (machines.length === 1 || !useSplitters) {
+        // Одиночный станок или режим без разветвителей/соединителей
         recipeItemOutputs[recipeNodeId][itemId] = {
           nodeId: machines[0].id,
           handleId: `out-${itemId}`,
-          rate: machines[0].data.outputs.find(o => o.itemId === itemId)?.rate || 0
+          rate: totalProduced,
+          isDirect: !useSplitters && machines.length > 1,
+          machines
         };
       } else {
-        // Создаем цепочку Merger (Merger Manifold)
-        // machines[0] + machines[1] -> Merger 1 -> Merger 2 (+ machines[2]) -> ...
-        let prevMergerId = null;
-        let cumulativeRate = 0;
-
-        for (let m = 0; m < machines.length - 1; m++) {
-          const mergerId = `mrg_${recipeNodeId}_${itemId}_${m + 1}`;
-          const currentMachine = machines[m];
-          const nextMachine = machines[m + 1];
-
-          const mRate = currentMachine.data.outputs.find(o => o.itemId === itemId)?.rate || 0;
-          const nextMRate = nextMachine.data.outputs.find(o => o.itemId === itemId)?.rate || 0;
-
-          if (m === 0) {
-            cumulativeRate = mRate + nextMRate;
-          } else {
-            cumulativeRate += nextMRate;
+        // Компактный SCIM соединитель (Merger) для всей группы станков
+        const mergerId = `mrg_${recipeNodeId}_${itemId}`;
+        const mergerNode = {
+          id: mergerId,
+          type: 'merger',
+          data: {
+            itemId,
+            rate: totalProduced,
+            subLabel: `Сбор (${machines.length} станков)`,
+            layoutDirection
           }
+        };
+        realNodes.push(mergerNode);
 
-          const mergerNode = {
-            id: mergerId,
-            type: 'merger',
-            data: {
-              itemId,
-              rate: cumulativeRate,
-              branchRate: nextMRate,
-              mainRate: m === 0 ? mRate : cumulativeRate - nextMRate,
-              subLabel: `Шаг ${m + 1} из ${machines.length - 1}`,
-              layoutDirection
-            }
-          };
-          realNodes.push(mergerNode);
-
-          if (m === 0) {
-            // Подключаем machine[0] и machine[1] к первому Merger
-            realEdges.push({
-              id: `edge_${currentMachine.id}_${mergerId}`,
-              source: currentMachine.id,
-              sourceHandle: `out-${itemId}`,
-              target: mergerId,
-              targetHandle: 'in',
-              data: { rate: mRate, itemId }
-            });
-            realEdges.push({
-              id: `edge_${nextMachine.id}_${mergerId}`,
-              source: nextMachine.id,
-              sourceHandle: `out-${itemId}`,
-              target: mergerId,
-              targetHandle: 'in-branch',
-              data: { rate: nextMRate, itemId }
-            });
-          } else {
-            // Подключаем предыдущий merger к текущему merger
-            realEdges.push({
-              id: `edge_${prevMergerId}_${mergerId}`,
-              source: prevMergerId,
-              sourceHandle: 'out',
-              target: mergerId,
-              targetHandle: 'in',
-              data: { rate: cumulativeRate - nextMRate, itemId }
-            });
-            // Подключаем nextMachine в боковой порт merger
-            realEdges.push({
-              id: `edge_${nextMachine.id}_${mergerId}`,
-              source: nextMachine.id,
-              sourceHandle: `out-${itemId}`,
-              target: mergerId,
-              targetHandle: 'in-branch',
-              data: { rate: nextMRate, itemId }
-            });
-          }
-
-          prevMergerId = mergerId;
-        }
+        machines.forEach((m, idx) => {
+          const mRate = m.data.outputs.find(o => o.itemId === itemId)?.rate || 0;
+          realEdges.push({
+            id: `edge_${m.id}_${mergerId}_${itemId}`,
+            source: m.id,
+            sourceHandle: `out-${itemId}`,
+            target: mergerId,
+            targetHandle: idx === 0 ? 'in' : 'in-branch',
+            data: { rate: mRate, itemId }
+          });
+        });
 
         recipeItemOutputs[recipeNodeId][itemId] = {
-          nodeId: prevMergerId,
+          nodeId: mergerId,
           handleId: 'out',
-          rate: cumulativeRate
+          rate: totalProduced
         };
       }
     });
@@ -253,7 +211,7 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
     }
   });
 
-  // 4. Анализируем абстрактные ребра, чтобы сгруппировать источники для каждого потребителя
+  // 4. Анализируем абстрактные ребра и собираем потоки к потребителям
   const incomingFlowsByTargetItem = {};
 
   abstractEdges.forEach(edge => {
@@ -269,7 +227,6 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
       incomingFlowsByTargetItem[targetId][itemId] = [];
     }
 
-    // Находим реальный узел-источник (мерджер или станок или входной узел)
     const sourceInfo = recipeItemOutputs[sourceId]?.[itemId] || {
       nodeId: sourceId,
       handleId: edge.sourceHandle || `out-${itemId}`,
@@ -278,13 +235,12 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
 
     incomingFlowsByTargetItem[targetId][itemId].push({
       abstractSourceId: sourceId,
-      realSourceId: sourceInfo.nodeId,
-      sourceHandle: sourceInfo.handleId,
+      sourceInfo,
       rate
     });
   });
 
-  // 5. Строим входные конвейерные разветвители (Splitters) для каждого рецепта
+  // 5. Входная логистика: разветвители (Splitters) или прямое подключение
   Object.keys(recipeGroups).forEach(recipeNodeId => {
     const group = recipeGroups[recipeNodeId];
     const machines = group.machines;
@@ -298,126 +254,82 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
         return sum + (inp?.rate || 0);
       }, 0);
 
-      if (machines.length === 1) {
-        // Всего 1 станок — разветвитель не нужен!
-        // Соединяем фиды напрямую со станком (или через мерджер фидов, если их несколько)
-        if (feeds.length === 1) {
-          realEdges.push({
-            id: `edge_${feeds[0].realSourceId}_${machines[0].id}_${itemId}`,
-            source: feeds[0].realSourceId,
-            sourceHandle: feeds[0].sourceHandle,
-            target: machines[0].id,
-            targetHandle: `in-${itemId}`,
-            data: { rate: feeds[0].rate, itemId }
-          });
-        } else if (feeds.length > 1) {
-          // Объединяем несколько фидов в один мерджер перед станком
-          const mergerId = `feed_mrg_${recipeNodeId}_${itemId}`;
-          const totalFeedRate = feeds.reduce((s, f) => s + f.rate, 0);
-          realNodes.push({
-            id: mergerId,
-            type: 'merger',
-            data: { itemId, rate: totalFeedRate, subLabel: 'Вход', layoutDirection }
-          });
-          feeds.forEach((f, idx) => {
-            realEdges.push({
-              id: `edge_${f.realSourceId}_${mergerId}_${idx}`,
-              source: f.realSourceId,
-              sourceHandle: f.sourceHandle,
-              target: mergerId,
-              targetHandle: idx === 0 ? 'in' : 'in-branch',
-              data: { rate: f.rate, itemId }
-            });
-          });
-          realEdges.push({
-            id: `edge_${mergerId}_${machines[0].id}`,
-            source: mergerId,
-            sourceHandle: 'out',
-            target: machines[0].id,
-            targetHandle: `in-${itemId}`,
-            data: { rate: totalFeedRate, itemId }
-          });
-        }
-      } else {
-        // Машин 2 или больше: строим Splitter Manifold
-        // Цепочка: Входной фид -> S_1 -> S_2 -> ... -> S_{M-1} -> machines
-        const splittersCount = machines.length - 1;
-        const splitterIds = [];
-        let remainingFlow = totalRequired;
+      if (machines.length === 1 || !useSplitters) {
+        // Прямое подключение к станкам без разветвителя
+        let currentFeedIdx = 0;
+        let feedRemaining = feeds[0]?.rate || 0;
 
-        for (let s = 0; s < splittersCount; s++) {
-          const sId = `spl_${recipeNodeId}_${itemId}_${s + 1}`;
-          splitterIds.push(sId);
+        machines.forEach(machine => {
+          let needed = machine.data.inputs.find(i => i.itemId === itemId)?.rate || 0;
 
-          const machineDemand = machines[s].data.inputs.find(i => i.itemId === itemId)?.rate || 0;
-          const nextRemaining = remainingFlow - machineDemand;
-          const passRate = s < splittersCount - 1 
-            ? nextRemaining 
-            : (machines[machines.length - 1].data.inputs.find(i => i.itemId === itemId)?.rate || 0);
+          while (needed > 0.001 && currentFeedIdx < feeds.length) {
+            const feed = feeds[currentFeedIdx];
+            const sourceInfo = feed.sourceInfo;
+            const take = Math.min(needed, feedRemaining);
 
-          realNodes.push({
-            id: sId,
-            type: 'splitter',
-            data: {
-              itemId,
-              rate: remainingFlow,
-              branchRate: machineDemand,
-              passRate: passRate,
-              subLabel: `Шаг ${s + 1} из ${splittersCount}`,
-              layoutDirection
+            if (sourceInfo.isDirect && sourceInfo.machines) {
+              // Если источник сам работает без сплиттеров/мерджеров
+              sourceInfo.machines.forEach(sm => {
+                const sRate = (take / sourceInfo.machines.length);
+                if (sRate > 0.001) {
+                  realEdges.push({
+                    id: `edge_${sm.id}_${machine.id}_${itemId}_${Math.random().toString(36).substr(2, 5)}`,
+                    source: sm.id,
+                    sourceHandle: `out-${itemId}`,
+                    target: machine.id,
+                    targetHandle: `in-${itemId}`,
+                    data: { rate: sRate, itemId }
+                  });
+                }
+              });
+            } else {
+              realEdges.push({
+                id: `edge_${sourceInfo.nodeId}_${machine.id}_${itemId}_${currentFeedIdx}`,
+                source: sourceInfo.nodeId,
+                sourceHandle: sourceInfo.handleId,
+                target: machine.id,
+                targetHandle: `in-${itemId}`,
+                data: { rate: take, itemId }
+              });
             }
-          });
 
-          // Отвод в машину s
-          realEdges.push({
-            id: `edge_${sId}_${machines[s].id}`,
-            source: sId,
-            sourceHandle: 'out-branch',
-            target: machines[s].id,
-            targetHandle: `in-${itemId}`,
-            data: { rate: machineDemand, itemId }
-          });
+            needed -= take;
+            feedRemaining -= take;
 
-          remainingFlow -= machineDemand;
-
-          // Соединение со следующим сплиттером
-          if (s < splittersCount - 1) {
-            const nextSId = `spl_${recipeNodeId}_${itemId}_${s + 2}`;
-            realEdges.push({
-              id: `edge_${sId}_${nextSId}`,
-              source: sId,
-              sourceHandle: 'out',
-              target: nextSId,
-              targetHandle: 'in',
-              data: { rate: remainingFlow, itemId }
-            });
-          } else {
-            // Последний сплиттер отдает прямой поток в последнюю машину
-            const lastMachineDemand = machines[machines.length - 1].data.inputs.find(i => i.itemId === itemId)?.rate || 0;
-            realEdges.push({
-              id: `edge_${sId}_${machines[machines.length - 1].id}`,
-              source: sId,
-              sourceHandle: 'out',
-              target: machines[machines.length - 1].id,
-              targetHandle: `in-${itemId}`,
-              data: { rate: lastMachineDemand, itemId }
-            });
+            if (feedRemaining <= 0.001) {
+              currentFeedIdx++;
+              feedRemaining = feeds[currentFeedIdx]?.rate || 0;
+            }
           }
-        }
+        });
+      } else {
+        // Компактный SCIM разветвитель (Splitter) для всей группы станков
+        const splitterId = `spl_${recipeNodeId}_${itemId}`;
+        const splitterNode = {
+          id: splitterId,
+          type: 'splitter',
+          data: {
+            itemId,
+            rate: totalRequired,
+            subLabel: `Раздача (${machines.length} станков)`,
+            layoutDirection
+          }
+        };
+        realNodes.push(splitterNode);
 
-        // Подключаем входящие фиды к первому сплиттеру S_1
-        const firstSplitterId = splitterIds[0];
+        // Подключаем входящие фиды к разветвителю
         if (feeds.length === 1) {
+          const feed = feeds[0];
           realEdges.push({
-            id: `edge_${feeds[0].realSourceId}_${firstSplitterId}_feed`,
-            source: feeds[0].realSourceId,
-            sourceHandle: feeds[0].sourceHandle,
-            target: firstSplitterId,
+            id: `edge_${feed.sourceInfo.nodeId}_${splitterId}_${itemId}`,
+            source: feed.sourceInfo.nodeId,
+            sourceHandle: feed.sourceInfo.handleId,
+            target: splitterId,
             targetHandle: 'in',
-            data: { rate: feeds[0].rate, itemId }
+            data: { rate: feed.rate, itemId }
           });
         } else if (feeds.length > 1) {
-          // Если фидов несколько, предварительно объединяем их через Merger
+          // Если фидов несколько, собираем их через входной мерджер
           const feedMergerId = `feed_mrg_${recipeNodeId}_${itemId}`;
           const totalFeedRate = feeds.reduce((s, f) => s + f.rate, 0);
           realNodes.push({
@@ -427,23 +339,38 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
           });
           feeds.forEach((f, idx) => {
             realEdges.push({
-              id: `edge_${f.realSourceId}_${feedMergerId}_${idx}`,
-              source: f.realSourceId,
-              sourceHandle: f.sourceHandle,
+              id: `edge_${f.sourceInfo.nodeId}_${feedMergerId}_${idx}`,
+              source: f.sourceInfo.nodeId,
+              sourceHandle: f.sourceInfo.handleId,
               target: feedMergerId,
               targetHandle: idx === 0 ? 'in' : 'in-branch',
               data: { rate: f.rate, itemId }
             });
           });
           realEdges.push({
-            id: `edge_${feedMergerId}_${firstSplitterId}`,
+            id: `edge_${feedMergerId}_${splitterId}`,
             source: feedMergerId,
             sourceHandle: 'out',
-            target: firstSplitterId,
+            target: splitterId,
             targetHandle: 'in',
             data: { rate: totalFeedRate, itemId }
           });
         }
+
+        // Подключаем разветвитель ко всем станкам группы
+        machines.forEach(machine => {
+          const mDemand = machine.data.inputs.find(i => i.itemId === itemId)?.rate || 0;
+          if (mDemand > 0.001) {
+            realEdges.push({
+              id: `edge_${splitterId}_${machine.id}_${itemId}`,
+              source: splitterId,
+              sourceHandle: 'out',
+              target: machine.id,
+              targetHandle: `in-${itemId}`,
+              data: { rate: mDemand, itemId }
+            });
+          }
+        });
       }
     });
   });
@@ -455,7 +382,7 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
     consumedRateBySourceItem[key] = (consumedRateBySourceItem[key] || 0) + (edge.data?.rate || 0);
   });
 
-  // 6.1. Выходы производственных рецептов (после Mergers или одиночных станков)
+  // 6.1. Выходы производственных рецептов
   Object.keys(recipeGroups).forEach(recipeNodeId => {
     const group = recipeGroups[recipeNodeId];
     const outputs = group.originalNode.data?.outputs || [];
@@ -481,22 +408,36 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
           }
         });
 
-        realEdges.push({
-          id: `edge_${sourceInfo.nodeId}_${outNodeId}_${itemId}`,
-          source: sourceInfo.nodeId,
-          sourceHandle: sourceInfo.handleId,
-          target: outNodeId,
-          targetHandle: 'in',
-          data: {
-            rate: surplus,
-            itemId
-          }
-        });
+        if (sourceInfo.isDirect && sourceInfo.machines) {
+          sourceInfo.machines.forEach(sm => {
+            const smRate = sm.data.outputs.find(o => o.itemId === itemId)?.rate || 0;
+            const portion = (surplus / sourceInfo.rate) * smRate;
+            if (portion > 0.001) {
+              realEdges.push({
+                id: `edge_${sm.id}_${outNodeId}_${itemId}`,
+                source: sm.id,
+                sourceHandle: `out-${itemId}`,
+                target: outNodeId,
+                targetHandle: 'in',
+                data: { rate: portion, itemId, isOutput: true }
+              });
+            }
+          });
+        } else {
+          realEdges.push({
+            id: `edge_${sourceInfo.nodeId}_${outNodeId}_${itemId}`,
+            source: sourceInfo.nodeId,
+            sourceHandle: sourceInfo.handleId,
+            target: outNodeId,
+            targetHandle: 'in',
+            data: { rate: surplus, itemId, isOutput: true }
+          });
+        }
       }
     });
   });
 
-  // 6.2. Выходы сырья/импорта (если само сырье является целевым продуктом)
+  // 6.2. Выходы сырья/импорта
   abstractNodes.forEach(node => {
     if (node.data?.isInput) {
       const itemId = node.data.itemId;
@@ -522,10 +463,7 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
           sourceHandle: `out-${itemId}`,
           target: outNodeId,
           targetHandle: 'in',
-          data: {
-            rate: surplus,
-            itemId
-          }
+          data: { rate: surplus, itemId, isOutput: true }
         });
       }
     }
