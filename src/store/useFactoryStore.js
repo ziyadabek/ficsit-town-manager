@@ -359,7 +359,7 @@ export const useFactoryStore = create((set, get) => ({
                 sourceHandle: `out-${itemId}`,
                 target: outNodeId,
                 targetHandle: 'in',
-                data: { rate: surplus, itemId }
+                data: { rate: surplus, itemId, isOutput: true }
               });
             }
           });
@@ -369,9 +369,8 @@ export const useFactoryStore = create((set, get) => ({
       const dagreGraph = new dagre.graphlib.Graph();
       dagreGraph.setDefaultEdgeLabel(() => ({}));
       
-      const isRealistic = schematicMode === 'realistic';
-      const nodeSep = isRealistic ? 50 : 50;
-      const rankSep = isRealistic ? 130 : 100;
+      const nodeSep = 80;
+      const rankSep = layoutDirection === 'LR' ? 220 : 180;
 
       // 1. Конфигурация Dagre Graph
       dagreGraph.setGraph({ 
@@ -379,7 +378,7 @@ export const useFactoryStore = create((set, get) => ({
         align: undefined,
         nodesep: nodeSep,
         ranksep: rankSep,
-        ranker: 'tight-tree',
+        ranker: 'network-simplex',
         marginx: 60,
         marginy: 60
       });

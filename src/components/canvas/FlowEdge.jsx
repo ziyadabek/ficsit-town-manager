@@ -82,8 +82,14 @@ export default function FlowEdge({
           className="bg-[#12161f]/90 px-2 py-0.5 rounded text-[11px] font-medium text-gray-200 border border-[#2a2e39]/60 shadow-sm flex items-center gap-1 whitespace-nowrap select-none"
           title={validation.message || 'Flow OK'}
         >
-          {item && <img src={getAssetUrl(item.icon)} alt="" className="w-3.5 h-3.5 object-contain" />}
-          <span>{item?.name || data?.itemId} ({rate.toFixed(1)} units/min)</span>
+          {data?.isOutput ? (
+            <span className="font-mono text-amber-300 font-semibold">{rate.toFixed(1)} units/min</span>
+          ) : (
+            <>
+              {item && <img src={getAssetUrl(item.icon)} alt="" className="w-3.5 h-3.5 object-contain" />}
+              <span>{item?.name || data?.itemId} ({rate.toFixed(1)} units/min)</span>
+            </>
+          )}
         </div>
       </EdgeLabelRenderer>
     </>
