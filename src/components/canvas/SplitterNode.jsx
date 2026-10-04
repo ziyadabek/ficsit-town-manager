@@ -55,20 +55,38 @@ export default function SplitterNode({ data }) {
         </span>
       </div>
 
-      {/* Source output handles */}
+      {/* Source output handles (3 выхода по правилам игры) */}
       <Handle 
         type="source" 
         position={sourcePos} 
         id="out" 
-        style={isVertical ? { left: '40%' } : { top: '40%' }}
+        style={isVertical ? { left: '25%' } : { top: '25%' }}
         className="w-2.5 h-2.5 !bg-[#3b82f6] !border-none opacity-80" 
+        title="Выход 1"
       />
       <Handle 
         type="source" 
         position={sourcePos} 
-        id="out-branch" 
-        style={isVertical ? { left: '60%' } : { top: '60%' }}
+        id="out-1" 
+        style={isVertical ? { left: '50%' } : { top: '50%' }}
         className="w-2.5 h-2.5 !bg-[#38bdf8] !border-none opacity-80" 
+        title="Выход 2"
+      />
+      <Handle 
+        type="source" 
+        position={sourcePos} 
+        id="out-2" 
+        style={isVertical ? { left: '75%' } : { top: '75%' }}
+        className="w-2.5 h-2.5 !bg-[#3b82f6] !border-none opacity-80" 
+        title="Выход 3"
+      />
+      {/* Совместимость с предыдущими id */}
+      <Handle 
+        type="source" 
+        position={sourcePos} 
+        id="out-branch" 
+        style={isVertical ? { left: '50%' } : { top: '50%' }}
+        className="w-0 h-0 opacity-0 pointer-events-none" 
       />
     </div>
   );

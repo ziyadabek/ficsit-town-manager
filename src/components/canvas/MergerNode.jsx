@@ -21,20 +21,38 @@ export default function MergerNode({ data }) {
 
   return (
     <div className="flex flex-col items-center justify-center relative select-none w-[140px] py-1">
-      {/* Target input handles */}
+      {/* Target input handles (3 входа по правилам игры) */}
       <Handle 
         type="target" 
         position={targetPos} 
         id="in" 
-        style={isVertical ? { left: '40%' } : { top: '40%' }}
+        style={isVertical ? { left: '25%' } : { top: '25%' }}
         className="w-2.5 h-2.5 !bg-[#f97316] !border-none opacity-80" 
+        title="Вход 1"
       />
       <Handle 
         type="target" 
         position={targetPos} 
-        id="in-branch" 
-        style={isVertical ? { left: '60%' } : { top: '60%' }}
+        id="in-1" 
+        style={isVertical ? { left: '50%' } : { top: '50%' }}
         className="w-2.5 h-2.5 !bg-[#eab308] !border-none opacity-80" 
+        title="Вход 2"
+      />
+      <Handle 
+        type="target" 
+        position={targetPos} 
+        id="in-2" 
+        style={isVertical ? { left: '75%' } : { top: '75%' }}
+        className="w-2.5 h-2.5 !bg-[#f97316] !border-none opacity-80" 
+        title="Вход 3"
+      />
+      {/* Совместимость с предыдущими id */}
+      <Handle 
+        type="target" 
+        position={targetPos} 
+        id="in-branch" 
+        style={isVertical ? { left: '50%' } : { top: '50%' }}
+        className="w-0 h-0 opacity-0 pointer-events-none" 
       />
 
       {/* 3D Model / Icon как в оригинале SCIM */}

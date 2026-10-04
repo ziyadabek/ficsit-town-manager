@@ -123,13 +123,13 @@ function App() {
               onClick={() => setCampaignMode('detail')} 
               className={`px-3 py-1 text-xs font-bold rounded ${campaignMode === 'detail' ? 'bg-[#f97316] text-black' : 'text-gray-400 hover:text-white'}`}
             >
-              🏭 ЦЕХА
+              ЦЕХА
             </button>
             <button 
               onClick={() => setCampaignMode('macro')} 
               className={`px-3 py-1 text-xs font-bold rounded ${campaignMode === 'macro' ? 'bg-[#3b82f6] text-white' : 'text-gray-400 hover:text-white'}`}
             >
-              🌍 КАРТА
+              КАРТА
             </button>
           </div>
           

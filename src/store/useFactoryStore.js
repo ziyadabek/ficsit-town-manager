@@ -487,6 +487,68 @@ export const useFactoryStore = create((set, get) => ({
         }
       }
 
+      // Подсчет и добавление логистических строений в сводку (Summary)
+      if (result.summary?.buildings) {
+        const logisticsCounts = {
+          splitter: 0,
+          merger: 0,
+          pipeline_junction: 0,
+          pipeline_t_junction: 0
+        };
+        activeNodes.forEach(node => {
+          if (node.type === 'splitter') {
+            const isFluid = items[node.data?.itemId]?.type === 'fluid';
+            if (isFluid) logisticsCounts.pipeline_junction++;
+            else logisticsCounts.splitter++;
+          } else if (node.type === 'merger') {
+            const isFluid = items[node.data?.itemId]?.type === 'fluid';
+            if (isFluid) logisticsCounts.pipeline_t_junction++;
+            else logisticsCounts.merger++;
+          }
+        });
+
+        result.summary.buildings = result.summary.buildings.filter(b => 
+          !['conveyor_splitter', 'conveyor_merger', 'pipeline_junction', 'pipeline_t_junction'].includes(b.id)
+        );
+
+        if (logisticsCounts.splitter > 0) {
+          result.summary.buildings.push({
+            id: 'conveyor_splitter',
+            name: 'Конвейерный разветвитель',
+            count: logisticsCounts.splitter,
+            power: 0,
+            icon: '/icons/Conveyor Supports/ConveyorSplitter.png'
+          });
+        }
+        if (logisticsCounts.merger > 0) {
+          result.summary.buildings.push({
+            id: 'conveyor_merger',
+            name: 'Конвейерный соединитель',
+            count: logisticsCounts.merger,
+            power: 0,
+            icon: '/icons/Conveyor Supports/ConveyorMerger.png'
+          });
+        }
+        if (logisticsCounts.pipeline_junction > 0) {
+          result.summary.buildings.push({
+            id: 'pipeline_junction',
+            name: 'Трубный перекресток',
+            count: logisticsCounts.pipeline_junction,
+            power: 0,
+            icon: '/icons/Conveyor Supports/PipelineJunction.png'
+          });
+        }
+        if (logisticsCounts.pipeline_t_junction > 0) {
+          result.summary.buildings.push({
+            id: 'pipeline_t_junction',
+            name: 'Трубный тройник',
+            count: logisticsCounts.pipeline_t_junction,
+            power: 0,
+            icon: '/icons/Conveyor Supports/PipelineTJunction.png'
+          });
+        }
+      }
+
       const dagreGraph = new dagre.graphlib.Graph();
       dagreGraph.setDefaultEdgeLabel(() => ({}));
       
