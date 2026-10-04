@@ -6,4 +6,15 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? '/ficsit-town-manager/' : '/',
   plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-flow': ['@xyflow/react', 'dagre'],
+          'vendor-solver': ['javascript-lp-solver']
+        }
+      }
+    }
+  }
 }))

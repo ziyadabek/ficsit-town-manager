@@ -1,11 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, Suspense, lazy } from 'react'
 import MainView from './components/canvas/MainView'
 import RightPanel from './components/complexes/RightPanel'
 import DeficitAlerts from './components/logistics/DeficitAlerts'
 import presets from './database/campaignPresets.json'
 import { useFactoryStore } from './store/useFactoryStore'
-import PowerPlanner from './modules/power/PowerPlanner'
-import MacroView from './components/canvas/MacroView'
+
+const PowerPlanner = lazy(() => import('./modules/power/PowerPlanner'))
+const MacroView = lazy(() => import('./components/canvas/MacroView'))
 
 function App() {
   const { switchAppView, loadPreset, selectedPresetType, campaignStagesState, activePresetId, toggleStage, setStageScale, frozenStages } = useFactoryStore();
@@ -137,16 +138,22 @@ function App() {
       )}
 
       <main className="flex-1 flex overflow-hidden">
-        {view === 'power' ? (
-          <PowerPlanner />
-        ) : view === 'campaign' && campaignMode === 'macro' ? (
-          <MacroView />
-        ) : (
-          <>
-            <MainView />
-            <RightPanel />
-          </>
-        )}
+        <Suspense fallback={
+          <div className="flex-1 flex items-center justify-center bg-[#0b0d10] text-gray-400 font-mono text-sm">
+            Загрузка модуля...
+          </div>
+        }>
+          {view === 'power' ? (
+            <PowerPlanner />
+          ) : view === 'campaign' && campaignMode === 'macro' ? (
+            <MacroView />
+          ) : (
+            <>
+              <MainView />
+              <RightPanel />
+            </>
+          )}
+        </Suspense>
       </main>
     </div>
   )

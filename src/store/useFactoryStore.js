@@ -13,14 +13,18 @@ presets.forEach(p => {
   initialCampaignStates[p.id] = { enabled: true, scale: 1.0 };
 });
 
-const STORAGE_KEY = 'ficsit_frozen_stages_v1';
+const STORAGE_KEY = 'ficsit_frozen_stages_v2';
+const LEGACY_STORAGE_KEY = 'ficsit_frozen_stages_v1';
 
 function loadInitialFrozenStages() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    let raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+    }
     return raw ? JSON.parse(raw) : {};
   } catch (e) {
-    console.error('Failed to load frozen stages from localStorage:', e);
+    console.warn('Failed to load frozen stages from localStorage:', e);
     return {};
   }
 }
@@ -28,8 +32,27 @@ function loadInitialFrozenStages() {
 function saveFrozenStages(stages) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stages));
+    return true;
   } catch (e) {
-    console.error('Failed to save frozen stages to localStorage:', e);
+    console.warn('Quota exceeded or failed to save full frozen snapshot, trying lightweight fallback...', e);
+    try {
+      const lightweight = {};
+      Object.keys(stages).forEach(k => {
+        const s = stages[k];
+        lightweight[k] = {
+          ...s,
+          snapshot: {
+            outputs: s.snapshot?.outputs || [],
+            summary: s.snapshot?.summary || {}
+          }
+        };
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(lightweight));
+      return true;
+    } catch (e2) {
+      console.error('Failed to save frozen stages to localStorage:', e2);
+      return false;
+    }
   }
 }
 
