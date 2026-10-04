@@ -68,7 +68,7 @@ const MacroStageNode = ({ data }) => {
     : 'bg-[repeating-linear-gradient(45deg,#f97316,#f97316_8px,#0b0d10_8px,#0b0d10_16px)]';
   const gradFrom = isPower ? 'from-[#22c55e]/15' : 'from-[#f97316]/15';
   const divider  = isPower ? 'border-[#22c55e]/30' : 'border-[#f97316]/30';
-  const typeTag  = isPower ? '⚡ ЭЛЕКТРОСТАНЦИЯ' : '🏭 ЦЕХ / ЗАВОД';
+  const typeTag  = isPower ? 'ЭЛЕКТРОСТАНЦИЯ' : 'ЦЕХ / ЗАВОД';
 
   return (
     <div
@@ -91,9 +91,17 @@ const MacroStageNode = ({ data }) => {
       <div className="px-3 py-2 bg-[#0b0d10] flex justify-between items-center">
         <span className="text-[10px] text-gray-500">Статус</span>
         {data.isFrozen ? (
-          <span className="text-[10px] text-[#22c55e] font-bold flex items-center gap-1">🔒 ПОСТРОЕН</span>
+          <span className="text-[10px] text-[#22c55e] font-bold flex items-center gap-1">
+            <svg className="w-3 h-3 text-[#22c55e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            ПОСТРОЕН
+          </span>
         ) : (
-          <span className="text-[10px] text-[#fa9549] font-bold flex items-center gap-1">⚙️ В ПРОЕКТЕ</span>
+          <span className="text-[10px] text-[#fa9549] font-bold flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#fa9549] animate-pulse"></span>
+            В ПРОЕКТЕ
+          </span>
         )}
       </div>
 
