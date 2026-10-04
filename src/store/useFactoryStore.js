@@ -4,9 +4,9 @@ import { calculateAllTransits } from '../engine/campaignTransitEngine';
 import { expandToRealisticGraph } from '../engine/realisticGraphEngine';
 import dagre from 'dagre';
 import recipesDB from '../database/recipes.json';
+import items from '../database/items.json';
 import presets from '../database/campaignPresets.json';
 
-// Инициализация состояний всех этапов по умолчанию (все включены, масштаб 1.0)
 // Инициализация состояний всех этапов по умолчанию (все включены, масштаб 1.0)
 const initialCampaignStates = {};
 presets.forEach(p => {
@@ -45,7 +45,17 @@ export const useFactoryStore = create((set, get) => ({
     altRecipes: [], // Array of recipe ids
     somersloopRecipes: [], // Array of amplified recipe ids
     optimize: 'raw', // 'power', 'raw', 'machines'
-    maxBelt: 5 // 1 to 6
+    maxBelt: 1200, // 60, 120, 270, 480, 780, 1200
+    maxPipe: 600, // 300, 600
+    useSplitters: true, // Использовать разветвитель/соединитель
+    minerPurity: 'normal',
+    oilPurity: 'normal',
+    waterPurity: 'normal',
+    gasPurity: 'normal',
+    powerShards: 0,
+    somersloops: 0,
+    reuseBuildings: true,
+    maxTier: 'unlimited'
   },
   
   // State for modes
@@ -210,9 +220,32 @@ export const useFactoryStore = create((set, get) => ({
     get().recalculateGraph();
   },
   
+  setOption: (key, value) => {
+    set(state => ({
+      options: {
+        ...state.options,
+        [key]: value
+      }
+    }));
+    get().recalculateGraph();
+  },
+
   updateTarget: (id, data) => {
     const targets = get().targets.map(t => t.id === id ? { ...t, ...data } : t);
-    set({ targets });
+    let updatedAltRecipes = [...get().options.altRecipes];
+    if (data.recipeId) {
+      const rec = recipesDB.find(r => r.id === data.recipeId);
+      if (rec && rec.isAlternate && !updatedAltRecipes.includes(data.recipeId)) {
+        updatedAltRecipes.push(data.recipeId);
+      }
+    }
+    set({ 
+      targets,
+      options: {
+        ...get().options,
+        altRecipes: updatedAltRecipes
+      }
+    });
     get().recalculateGraph();
   },
   
@@ -364,6 +397,70 @@ export const useFactoryStore = create((set, get) => ({
             }
           });
         });
+
+        // Вставка конвейерных разветвителей при опции "Использовать разветвитель/соединитель: Да" (SCIM)
+        if (options.useSplitters !== false) {
+          const edgesBySourceItem = {};
+          activeEdges.forEach(edge => {
+            const key = `${edge.source}_${edge.data?.itemId}`;
+            if (!edgesBySourceItem[key]) edgesBySourceItem[key] = [];
+            edgesBySourceItem[key].push(edge);
+          });
+
+          const newEdges = [];
+          const processedSplitterKeys = new Set();
+
+          Object.keys(edgesBySourceItem).forEach(key => {
+            const outgoingEdges = edgesBySourceItem[key];
+            if (outgoingEdges.length > 1) {
+              const firstEdge = outgoingEdges[0];
+              const sourceNodeId = firstEdge.source;
+              const itemId = firstEdge.data?.itemId;
+              const totalRate = outgoingEdges.reduce((sum, e) => sum + (e.data?.rate || 0), 0);
+              const splitterId = `spl_scim_${sourceNodeId}_${itemId}`;
+
+              activeNodes.push({
+                id: splitterId,
+                type: 'splitter',
+                data: {
+                  itemId,
+                  rate: totalRate,
+                  subLabel: `(${items[itemId]?.name || itemId})`,
+                  layoutDirection
+                }
+              });
+
+              newEdges.push({
+                id: `edge_${sourceNodeId}_${splitterId}`,
+                source: sourceNodeId,
+                sourceHandle: firstEdge.sourceHandle,
+                target: splitterId,
+                targetHandle: 'in',
+                data: { rate: totalRate, itemId }
+              });
+
+              outgoingEdges.forEach((outEdge, idx) => {
+                newEdges.push({
+                  id: `edge_${splitterId}_${outEdge.target}_${idx}`,
+                  source: splitterId,
+                  sourceHandle: 'out',
+                  target: outEdge.target,
+                  targetHandle: outEdge.targetHandle,
+                  data: { rate: outEdge.data?.rate, itemId }
+                });
+              });
+
+              processedSplitterKeys.add(key);
+            }
+          });
+
+          if (processedSplitterKeys.size > 0) {
+            activeEdges = [
+              ...activeEdges.filter(e => !processedSplitterKeys.has(`${e.source}_${e.data?.itemId}`)),
+              ...newEdges
+            ];
+          }
+        }
       }
 
       const dagreGraph = new dagre.graphlib.Graph();
