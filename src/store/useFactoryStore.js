@@ -369,6 +369,7 @@ export const useFactoryStore = create((set, get) => ({
       const dagreGraph = new dagre.graphlib.Graph();
       dagreGraph.setDefaultEdgeLabel(() => ({}));
       
+      const isRealistic = schematicMode === 'realistic';
       const nodeSep = 80;
       const rankSep = layoutDirection === 'LR' ? 220 : 180;
 
