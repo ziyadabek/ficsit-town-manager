@@ -117,7 +117,6 @@ export function solveProductionGraph(targets, inputsLimit, options) {
   const solution = lp_solver.Solve(model);
   
   if (!solution.feasible) {
-    console.log("INFEASIBLE MODEL:", JSON.stringify(model, null, 2));
     return { feasible: false, nodes: [], edges: [], summary: { items: [], buildings: [] } };
   }
 
