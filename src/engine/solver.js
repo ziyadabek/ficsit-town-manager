@@ -30,8 +30,23 @@ export function solveProductionGraph(targets, inputsLimit, options) {
   const allItems = new Set();
   targets.forEach(t => allItems.add(t.itemId));
 
-  // 2. Filter Recipes based on options
-  let activeRecipes = recipesDB.filter(r => !r.isAlternate || options.altRecipes.includes(r.id));
+  // 2. Filter Recipes based on options and explicit target recipe choices
+  const forcedRecipesByItem = {};
+  targets.forEach(t => {
+    if (t.recipeId) {
+      forcedRecipesByItem[t.itemId] = t.recipeId;
+    }
+  });
+
+  let activeRecipes = recipesDB.filter(r => {
+    // If user explicitly picked a recipe for an item produced by this recipe:
+    const producesForcedItem = r.outputs?.some(out => forcedRecipesByItem[out.itemId]);
+    if (producesForcedItem) {
+      // ONLY allow the forced recipe for this item!
+      return r.outputs.some(out => forcedRecipesByItem[out.itemId] === r.id);
+    }
+    return !r.isAlternate || (options.altRecipes && options.altRecipes.includes(r.id));
+  });
   
   if (options.generatorId) {
     activeRecipes = activeRecipes.filter(r => !r.id.startsWith('recipe_power_') || r.id === `recipe_power_${options.generatorId}`);
@@ -45,6 +60,11 @@ export function solveProductionGraph(targets, inputsLimit, options) {
     model.variables[r.id] = { cost: 1 }; // Minimize machines or raw by adjusting cost
     if (options.optimize === 'raw') model.variables[r.id].cost = 0.0001; // if raw, machine cost is 0, raw is high
     
+    // If alternate recipe is active, prefer it over standard
+    if (r.isAlternate && options.altRecipes && options.altRecipes.includes(r.id)) {
+      model.variables[r.id].cost *= 0.8;
+    }
+
     const isAmplified = options.somersloopRecipes && options.somersloopRecipes.includes(r.id);
     const outMult = isAmplified ? 2.0 : 1.0;
     

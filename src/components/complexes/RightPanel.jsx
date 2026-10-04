@@ -109,6 +109,7 @@ function ItemSelect({ value, onChange }) {
 function RecipeSelectorDropdown({ itemId, selectedRecipeId, onChange }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  const summary = useFactoryStore(state => state.summary);
   const matchingRecipes = recipesDB.filter(r => r.outputs?.some(o => o.itemId === itemId));
   
   useEffect(() => {
@@ -123,7 +124,11 @@ function RecipeSelectorDropdown({ itemId, selectedRecipeId, onChange }) {
 
   if (matchingRecipes.length <= 1) return null;
 
-  const currentRecipe = matchingRecipes.find(r => r.id === selectedRecipeId) || matchingRecipes[0];
+  const activeSummaryRecipeId = summary?.recipes?.find(sr => matchingRecipes.some(mr => mr.id === sr.id))?.id;
+  const currentRecipe = matchingRecipes.find(r => r.id === selectedRecipeId) 
+    || matchingRecipes.find(r => r.id === activeSummaryRecipeId)
+    || matchingRecipes.find(r => !r.isAlternate)
+    || matchingRecipes[0];
 
   return (
     <div className="relative mt-1" ref={ref}>
