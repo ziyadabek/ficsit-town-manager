@@ -13,37 +13,47 @@ export const PIPE_LIMITS = {
 };
 
 /**
- * Validates a conveyor or pipe flow and returns status
+ * Validates a conveyor or pipe flow and returns status based on user limits
  * @param {number} flow Rate in items per minute
  * @param {boolean} isFluid Whether the item is a fluid
+ * @param {number} maxBelt Selected max belt capacity
+ * @param {number} maxPipe Selected max pipe capacity
  * @returns {object} { alert: boolean, mk: string, lines: number, message: string }
  */
-export function validateLogistics(flow, isFluid = false) {
+export function validateLogistics(flow, isFluid = false, maxBelt = 1200, maxPipe = 600) {
+  const effectiveMaxPipe = maxPipe || 600;
+  const effectiveMaxBelt = maxBelt || 1200;
+
   if (isFluid) {
-    if (flow <= PIPE_LIMITS.mk1) return { alert: false, mk: 'Труба Mk.1', lines: 1 };
-    if (flow <= PIPE_LIMITS.mk2) return { alert: false, mk: 'Труба Mk.2', lines: 1 };
+    if (flow <= effectiveMaxPipe) {
+      const mk = flow <= PIPE_LIMITS.mk1 ? 'Труба Mk.1' : 'Труба Mk.2';
+      return { alert: false, mk, lines: 1 };
+    }
     
-    const lines = Math.ceil(flow / PIPE_LIMITS.mk2);
+    const lines = Math.ceil(flow / effectiveMaxPipe);
     return {
       alert: true,
-      mk: 'Труба Mk.2+',
+      mk: `Труба > ${effectiveMaxPipe} м³/мин`,
       lines,
-      message: `Внимание! Макс. поток трубы Mk.2 (600/мин) превышен. Требуется параллельных труб: ${lines}.`
+      message: `Внимание! Лимит трубы (${effectiveMaxPipe} м³/мин) превышен. Требуется параллельных труб: ${lines}.`
     };
   }
 
-  if (flow <= CONVEYOR_LIMITS.mk1) return { alert: false, mk: 'Mk.1', lines: 1 };
-  if (flow <= CONVEYOR_LIMITS.mk2) return { alert: false, mk: 'Mk.2', lines: 1 };
-  if (flow <= CONVEYOR_LIMITS.mk3) return { alert: false, mk: 'Mk.3', lines: 1 };
-  if (flow <= CONVEYOR_LIMITS.mk4) return { alert: false, mk: 'Mk.4', lines: 1 };
-  if (flow <= CONVEYOR_LIMITS.mk5) return { alert: false, mk: 'Mk.5', lines: 1 };
-  if (flow <= CONVEYOR_LIMITS.mk6) return { alert: false, mk: 'Mk.6', lines: 1 };
+  if (flow <= effectiveMaxBelt) {
+    let mk = 'Mk.6';
+    if (flow <= CONVEYOR_LIMITS.mk1) mk = 'Mk.1';
+    else if (flow <= CONVEYOR_LIMITS.mk2) mk = 'Mk.2';
+    else if (flow <= CONVEYOR_LIMITS.mk3) mk = 'Mk.3';
+    else if (flow <= CONVEYOR_LIMITS.mk4) mk = 'Mk.4';
+    else if (flow <= CONVEYOR_LIMITS.mk5) mk = 'Mk.5';
+    return { alert: false, mk, lines: 1 };
+  }
   
-  const lines = Math.ceil(flow / CONVEYOR_LIMITS.mk6);
+  const lines = Math.ceil(flow / effectiveMaxBelt);
   return { 
     alert: true, 
-    mk: 'Mk.6+', 
+    mk: `Лента > ${effectiveMaxBelt} шт/мин`, 
     lines, 
-    message: `Внимание! Макс. поток ленты Mk.6 (1200/мин) превышен. Требуется параллельных лент: ${lines}.` 
+    message: `Внимание! Лимит ленты (${effectiveMaxBelt} шт/мин) превышен. Требуется параллельных лент: ${lines}.` 
   };
 }

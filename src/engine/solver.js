@@ -10,7 +10,42 @@ export function getRecipe(recipeId) {
 
 const RAW_MATERIALS = ['limestone', 'iron_ore', 'copper_ore', 'coal', 'crude_oil', 'raw_quartz', 'water', 'bauxite', 'sulfur', 'nitrogen_gas', 'caterium_ore', 'sam_ore', 'uranium'];
 
-export function solveProductionGraph(targets, inputsLimit, options) {
+export const BUILDING_TIERS = {
+  smelter: 0,
+  constructor: 0,
+  miner_mk1: 0,
+  assembler: 2,
+  water_pump: 3,
+  foundry: 3,
+  miner_mk2: 3,
+  coal_generator: 3,
+  oil_pump: 5,
+  refinery: 5,
+  manufacturer: 5,
+  miner_mk3: 5,
+  fuel_generator: 5,
+  blender: 7,
+  particle_accelerator: 8,
+  nuclear_generator: 8,
+  converter: 9,
+  quantum_encoder: 9
+};
+
+export const MAX_TIER_LIMITS = {
+  tier1: 2,
+  tier2: 4,
+  tier3: 6,
+  tier4: 8,
+  unlimited: 99
+};
+
+export const PURITY_MULTIPLIERS = {
+  impure: 0.5,
+  normal: 1.0,
+  pure: 2.0
+};
+
+export function solveProductionGraph(targets, inputsLimit, options = {}) {
   const model = {
     optimize: 'cost',
     opType: 'min',
@@ -39,6 +74,12 @@ export function solveProductionGraph(targets, inputsLimit, options) {
   });
 
   let activeRecipes = recipesDB.filter(r => {
+    // If maxTier is set, exclude recipes requiring higher tier buildings
+    if (options.maxTier && options.maxTier !== 'unlimited') {
+      const allowedTier = MAX_TIER_LIMITS[options.maxTier] ?? 99;
+      const bTier = BUILDING_TIERS[r.buildingId] ?? 0;
+      if (bTier > allowedTier) return false;
+    }
     // If user explicitly picked a recipe for an item produced by this recipe:
     const producesForcedItem = r.outputs?.some(out => forcedRecipesByItem[out.itemId]);
     if (producesForcedItem) {
@@ -199,14 +240,42 @@ export function solveProductionGraph(targets, inputsLimit, options) {
     if (!summaryItems[raw]) summaryItems[raw] = { id: raw, produced: 0, consumed: 0 };
     summaryItems[raw].produced += rate;
     
-    // Water Pump / Miner count logic approx (Optional, simplified)
+    // Water Pump / Miner count logic based on purity and maxTier
+    const maxTierLimit = MAX_TIER_LIMITS[options?.maxTier] ?? 99;
     let bId = 'miner_mk3';
-    if (raw === 'water') bId = 'water_pump';
-    if (raw === 'crude_oil') bId = 'oil_pump';
+    let baseRate = 240;
+
+    if (maxTierLimit <= 2) {
+      bId = 'miner_mk1';
+      baseRate = 60;
+    } else if (maxTierLimit <= 4) {
+      bId = 'miner_mk2';
+      baseRate = 120;
+    } else {
+      bId = 'miner_mk3';
+      baseRate = 240;
+    }
+
+    let extRate = baseRate;
+    if (raw === 'water') {
+      bId = 'water_pump';
+      const waterMult = PURITY_MULTIPLIERS[options?.waterPurity] || 1.0;
+      extRate = 120 * waterMult;
+    } else if (raw === 'crude_oil') {
+      bId = 'oil_pump';
+      const oilMult = PURITY_MULTIPLIERS[options?.oilPurity] || 1.0;
+      extRate = 120 * oilMult;
+    } else if (raw === 'nitrogen_gas') {
+      bId = 'oil_pump';
+      const gasMult = PURITY_MULTIPLIERS[options?.gasPurity] || 1.0;
+      extRate = 120 * gasMult;
+    } else {
+      const oreMult = PURITY_MULTIPLIERS[options?.minerPurity] || 1.0;
+      extRate = baseRate * oreMult;
+    }
     
     const bData = buildings[bId];
-    if (bData) {
-      const extRate = raw === 'water' ? 120 : (raw === 'crude_oil' ? 120 : 240); // default extraction rates
+    if (bData && extRate > 0) {
       const machines = rate / extRate;
       const power = (bData.power || 0) * machines;
       totalPowerUsage += power;

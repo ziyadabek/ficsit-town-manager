@@ -77,6 +77,20 @@
     "inputs": 1,
     "somersloopSlots": 0
   },
+  "miner_mk1": {
+    "name": "Буровой комплекс Mk.1",
+    "icon": "/icons/Buildings/MinerMk1.png",
+    "power": 5,
+    "outputs": 1,
+    "somersloopSlots": 0
+  },
+  "miner_mk2": {
+    "name": "Буровой комплекс Mk.2",
+    "icon": "/icons/Buildings/MinerMk2.png",
+    "power": 12,
+    "outputs": 1,
+    "somersloopSlots": 0
+  },
   "miner_mk3": {
     "name": "Буровой комплекс Mk.3",
     "icon": "/icons/Buildings/MinerMk3.png",

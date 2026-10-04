@@ -3,6 +3,7 @@ import { BaseEdge, getSmoothStepPath, EdgeLabelRenderer } from '@xyflow/react';
 import { validateLogistics } from '../../engine/logistics';
 import items from '../../database/items.json';
 import { getAssetUrl } from '../../database/assets';
+import { useFactoryStore } from '../../store/useFactoryStore';
 
 export default function FlowEdge({
   id,
@@ -16,6 +17,7 @@ export default function FlowEdge({
   style = {},
   data
 }) {
+  const options = useFactoryStore(s => s.options);
   const baseOffset = 25;
   const step = 15;
   const slotIndex = data?.slotIndex || 0;
@@ -35,7 +37,7 @@ export default function FlowEdge({
   const rate = data?.rate || 0;
   const item = items[data?.itemId];
   const isFluid = item?.type === 'fluid';
-  const validation = validateLogistics(rate, isFluid);
+  const validation = validateLogistics(rate, isFluid, options?.maxBelt, options?.maxPipe);
   
   let edgeColor = isFluid ? '#3b82f6' : '#4a5568';
   let edgeWidth = 2;
@@ -58,7 +60,7 @@ export default function FlowEdge({
         edgeWidth = 2.5;
         edgeFilter = 'drop-shadow(0 0 5px rgba(250, 149, 73, 0.4))'; 
       }
-      if (validation.alert && rate > 1200) {
+      if (validation.alert) {
         edgeColor = '#ef4444';
         edgeFilter = 'drop-shadow(0 0 5px rgba(239, 68, 68, 0.6))';
       }
