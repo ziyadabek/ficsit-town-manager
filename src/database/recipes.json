@@ -1,7 +1,7 @@
 [
   {
     "id": "standard_concrete",
-    "name": "Standard Concrete",
+    "name": "Бетон",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 4,
@@ -43,7 +43,7 @@
   },
   {
     "id": "standard_steel_ingot",
-    "name": "Standard Steel Ingot",
+    "name": "Стальной слиток",
     "buildingId": "foundry",
     "isAlternate": false,
     "duration": 4,
@@ -89,7 +89,7 @@
   },
   {
     "id": "steel_pipe",
-    "name": "Steel Pipe",
+    "name": "Стальная труба",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 6,
@@ -108,7 +108,7 @@
   },
   {
     "id": "steel_beam",
-    "name": "Steel Beam",
+    "name": "Стальная балка",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 4,
@@ -127,7 +127,7 @@
   },
   {
     "id": "iron_ingot",
-    "name": "Iron Ingot",
+    "name": "Железный слиток",
     "buildingId": "smelter",
     "isAlternate": false,
     "duration": 2,
@@ -169,7 +169,7 @@
   },
   {
     "id": "iron_beam",
-    "name": "Iron Beam",
+    "name": "Железная балка",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 4,
@@ -188,7 +188,7 @@
   },
   {
     "id": "iron_plate",
-    "name": "Iron Plate",
+    "name": "Железная пластина",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 6,
@@ -207,7 +207,7 @@
   },
   {
     "id": "iron_rod",
-    "name": "Iron Rod",
+    "name": "Железный прут",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 4,
@@ -226,7 +226,7 @@
   },
   {
     "id": "screws",
-    "name": "Screw",
+    "name": "Винты",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 6,
@@ -264,7 +264,7 @@
   },
   {
     "id": "reinforced_iron_plate",
-    "name": "Reinforced Iron Plate",
+    "name": "Укрепленная железная пластина",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 12,
@@ -287,7 +287,7 @@
   },
   {
     "id": "modular_frame",
-    "name": "Modular Frame",
+    "name": "Модульный каркас",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 60,
@@ -310,7 +310,7 @@
   },
   {
     "id": "plastic",
-    "name": "Plastic",
+    "name": "Пластик",
     "buildingId": "refinery",
     "isAlternate": false,
     "duration": 6,
@@ -333,7 +333,7 @@
   },
   {
     "id": "rubber",
-    "name": "Rubber",
+    "name": "Резина",
     "buildingId": "refinery",
     "isAlternate": false,
     "duration": 6,
@@ -356,7 +356,7 @@
   },
   {
     "id": "residual_fuel",
-    "name": "Residual Fuel",
+    "name": "Остаточное топливо",
     "buildingId": "refinery",
     "isAlternate": false,
     "duration": 6,
@@ -429,7 +429,7 @@
   },
   {
     "id": "motor",
-    "name": "Motor",
+    "name": "Мотор",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 12,
@@ -475,7 +475,7 @@
   },
   {
     "id": "stator",
-    "name": "Stator",
+    "name": "Статор",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 12,
@@ -521,7 +521,7 @@
   },
   {
     "id": "computer",
-    "name": "Computer",
+    "name": "Компьютер",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 24,
@@ -552,7 +552,7 @@
   },
   {
     "id": "wire",
-    "name": "Wire",
+    "name": "Проволока",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 4,
@@ -571,7 +571,7 @@
   },
   {
     "id": "cable",
-    "name": "Cable",
+    "name": "Кабель",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 2,
@@ -590,7 +590,7 @@
   },
   {
     "id": "silica",
-    "name": "Silica",
+    "name": "Кварцевый песок",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 1.6,
@@ -609,7 +609,7 @@
   },
   {
     "id": "alumina_solution",
-    "name": "Alumina Solution",
+    "name": "Раствор глинозема",
     "buildingId": "refinery",
     "isAlternate": false,
     "duration": 6,
@@ -636,7 +636,7 @@
   },
   {
     "id": "aluminum_scrap",
-    "name": "Aluminum Scrap",
+    "name": "Алюминиевый лом",
     "buildingId": "refinery",
     "isAlternate": false,
     "duration": 4,
@@ -663,7 +663,7 @@
   },
   {
     "id": "aluminum_ingot",
-    "name": "Aluminum Ingot",
+    "name": "Алюминиевый слиток",
     "buildingId": "foundry",
     "isAlternate": false,
     "duration": 4,
@@ -686,7 +686,7 @@
   },
   {
     "id": "copper_ingot",
-    "name": "Copper Ingot",
+    "name": "Медный слиток",
     "buildingId": "smelter",
     "isAlternate": false,
     "duration": 2,
@@ -705,7 +705,7 @@
   },
   {
     "id": "copper_sheet",
-    "name": "Copper Sheet",
+    "name": "Медный лист",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 6,
@@ -724,7 +724,7 @@
   },
   {
     "id": "circuit_board",
-    "name": "Circuit Board",
+    "name": "Печатная плата",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 8,
@@ -747,7 +747,7 @@
   },
   {
     "id": "rotor",
-    "name": "Rotor",
+    "name": "Ротор",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 15,
@@ -770,7 +770,7 @@
   },
   {
     "id": "encased_industrial_beam",
-    "name": "Encased Industrial Beam",
+    "name": "Железобетонная балка",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 10,
@@ -793,7 +793,7 @@
   },
   {
     "id": "heavy_modular_frame",
-    "name": "Heavy Modular Frame",
+    "name": "Тяжелый модульный каркас",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 30,
@@ -824,7 +824,7 @@
   },
   {
     "id": "petroleum_coke",
-    "name": "Petroleum Coke",
+    "name": "Нефтяной кокс",
     "buildingId": "refinery",
     "isAlternate": false,
     "duration": 6,
@@ -843,7 +843,7 @@
   },
   {
     "id": "aluminum_casing",
-    "name": "Aluminum Casing",
+    "name": "Алюминиевый корпус",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 2,
@@ -862,7 +862,7 @@
   },
   {
     "id": "aluminum_sheet",
-    "name": "Aluminum Sheet",
+    "name": "Алюминиевый лист",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 2,
@@ -885,7 +885,7 @@
   },
   {
     "id": "copper_powder",
-    "name": "Copper Powder",
+    "name": "Медная пыль",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 6,
@@ -904,7 +904,7 @@
   },
   {
     "id": "caterium_ingot",
-    "name": "Caterium Ingot",
+    "name": "Катериевый слиток",
     "buildingId": "smelter",
     "isAlternate": false,
     "duration": 4,
@@ -923,7 +923,7 @@
   },
   {
     "id": "quickwire",
-    "name": "Quickwire",
+    "name": "Катериевая проволока",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 5,
@@ -942,7 +942,7 @@
   },
   {
     "id": "quartz_crystal",
-    "name": "Quartz Crystal",
+    "name": "Кварцевый кристалл",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 8,
@@ -961,7 +961,7 @@
   },
   {
     "id": "crystal_oscillator",
-    "name": "Crystal Oscillator",
+    "name": "Кристаллический осциллятор",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 120,
@@ -988,7 +988,7 @@
   },
   {
     "id": "sulfuric_acid",
-    "name": "Sulfuric Acid",
+    "name": "Серная кислота",
     "buildingId": "refinery",
     "isAlternate": false,
     "duration": 6,
@@ -1011,7 +1011,7 @@
   },
   {
     "id": "battery",
-    "name": "Battery",
+    "name": "Аккумулятор",
     "buildingId": "blender",
     "isAlternate": false,
     "duration": 6,
@@ -1042,7 +1042,7 @@
   },
   {
     "id": "ai_limiter",
-    "name": "AI Limiter",
+    "name": "Ограничитель ИИ",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 12,
@@ -1065,7 +1065,7 @@
   },
   {
     "id": "electromagnetic_control_rod",
-    "name": "EM Control Rod",
+    "name": "ЭМ-стержень управления",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 30,
@@ -1088,7 +1088,7 @@
   },
   {
     "id": "high_speed_connector",
-    "name": "High-Speed Connector",
+    "name": "Высокоскоростной коннектор",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 16,
@@ -1115,7 +1115,7 @@
   },
   {
     "id": "supercomputer",
-    "name": "Supercomputer",
+    "name": "Суперкомпьютер",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 32,
@@ -1146,7 +1146,7 @@
   },
   {
     "id": "radio_control_unit",
-    "name": "Radio Control Unit",
+    "name": "Блок радиоуправления",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 48,
@@ -1173,7 +1173,7 @@
   },
   {
     "id": "heatsink",
-    "name": "Heat Sink",
+    "name": "Радиатор",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 8,
@@ -1196,7 +1196,7 @@
   },
   {
     "id": "cooling_system",
-    "name": "Cooling System",
+    "name": "Система охлаждения",
     "buildingId": "blender",
     "isAlternate": false,
     "duration": 10,
@@ -1227,7 +1227,7 @@
   },
   {
     "id": "fused_modular_frame",
-    "name": "Fused Modular Frame",
+    "name": "Сплавленный модульный каркас",
     "buildingId": "blender",
     "isAlternate": false,
     "duration": 60,
@@ -1254,7 +1254,7 @@
   },
   {
     "id": "turbo_motor",
-    "name": "Turbo Motor",
+    "name": "Турбомотор",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 32,
@@ -1285,7 +1285,7 @@
   },
   {
     "id": "pressure_conversion_cube",
-    "name": "Pressure Conversion Cube",
+    "name": "Куб преобразования давления",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 60,
@@ -1308,7 +1308,7 @@
   },
   {
     "id": "smart_plating",
-    "name": "Smart Plating",
+    "name": "Умная обшивка",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 30,
@@ -1331,7 +1331,7 @@
   },
   {
     "id": "versatile_framework",
-    "name": "Versatile Framework",
+    "name": "Универсальный каркас",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 24,
@@ -1354,7 +1354,7 @@
   },
   {
     "id": "automated_wiring",
-    "name": "Automated Wiring",
+    "name": "Автоматизированная проводка",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 24,
@@ -1377,7 +1377,7 @@
   },
   {
     "id": "modular_engine",
-    "name": "Modular Engine",
+    "name": "Модульный двигатель",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 60,
@@ -1404,7 +1404,7 @@
   },
   {
     "id": "adaptive_control_unit",
-    "name": "Adaptive Control Unit",
+    "name": "Адаптивный блок управления",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 60,
@@ -1435,7 +1435,7 @@
   },
   {
     "id": "nuclear_pasta",
-    "name": "Nuclear Pasta",
+    "name": "Ядерная паста",
     "buildingId": "particle_accelerator",
     "isAlternate": false,
     "duration": 120,
@@ -1458,7 +1458,7 @@
   },
   {
     "id": "magnetic_field_generator",
-    "name": "Magnetic Field Generator",
+    "name": "Генератор магнитного поля",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 120,
@@ -1485,7 +1485,7 @@
   },
   {
     "id": "thermal_propulsion_rocket",
-    "name": "Thermal Propulsion Rocket",
+    "name": "Тепловая ракета",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 120,
@@ -1516,7 +1516,7 @@
   },
   {
     "id": "assembly_director_system",
-    "name": "Assembly Director System",
+    "name": "Система управления сборкой",
     "buildingId": "assembler",
     "isAlternate": false,
     "duration": 80,
@@ -1539,7 +1539,7 @@
   },
   {
     "id": "reanimated_sam",
-    "name": "Reanimated SAM",
+    "name": "Реанированная СИМ",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 2,
@@ -1558,7 +1558,7 @@
   },
   {
     "id": "diamonds",
-    "name": "Diamonds",
+    "name": "Алмазы",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 6,
@@ -1577,7 +1577,7 @@
   },
   {
     "id": "dark_energy",
-    "name": "Dark Energy",
+    "name": "Темная энергия",
     "buildingId": "blender",
     "isAlternate": false,
     "duration": 6,
@@ -1600,7 +1600,7 @@
   },
   {
     "id": "time_crystal",
-    "name": "Time Crystal",
+    "name": "Кристалл времени",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 6,
@@ -1623,7 +1623,7 @@
   },
   {
     "id": "singularity_cell",
-    "name": "Singularity Cell",
+    "name": "Сингулярная ячейка",
     "buildingId": "quantum_encoder",
     "isAlternate": false,
     "duration": 60,
@@ -1654,7 +1654,7 @@
   },
   {
     "id": "ficsonium",
-    "name": "Ficsonium",
+    "name": "Фиксоний",
     "buildingId": "particle_accelerator",
     "isAlternate": false,
     "duration": 60,
@@ -1677,7 +1677,7 @@
   },
   {
     "id": "recipe_power_coal",
-    "name": "Генерация: Уголь",
+    "name": "Электроэнергия",
     "buildingId": "coal_generator",
     "isAlternate": false,
     "inputs": [
@@ -1699,7 +1699,7 @@
   },
   {
     "id": "recipe_power_fuel",
-    "name": "Генерация: Топливо",
+    "name": "Электроэнергия",
     "buildingId": "fuel_generator",
     "isAlternate": false,
     "inputs": [
@@ -1717,7 +1717,7 @@
   },
   {
     "id": "recipe_power_nuclear",
-    "name": "Генерация: Уран",
+    "name": "Электроэнергия",
     "buildingId": "nuclear_generator",
     "isAlternate": false,
     "inputs": [
@@ -1743,7 +1743,7 @@
   },
   {
     "id": "encased_uranium_cell",
-    "name": "Encased Uranium Cell",
+    "name": "Обетонированная урановая ячейка",
     "buildingId": "blender",
     "isAlternate": false,
     "inputs": [
@@ -1769,7 +1769,7 @@
   },
   {
     "id": "uranium_fuel_rod",
-    "name": "Uranium Fuel Rod",
+    "name": "Урановый топливный стержень",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "inputs": [
@@ -1795,7 +1795,7 @@
   },
   {
     "id": "fuel",
-    "name": "Fuel",
+    "name": "Топливо",
     "buildingId": "refinery",
     "isAlternate": false,
     "inputs": [
@@ -1817,7 +1817,7 @@
   },
   {
     "id": "sam_fluctuator",
-    "name": "SAM Fluctuator",
+    "name": "Флуктуатор СИМ",
     "buildingId": "assembler",
     "isAlternate": false,
     "inputs": [
@@ -1861,7 +1861,7 @@
   },
   {
     "id": "ficsite_trigon",
-    "name": "Ficsite Trigon",
+    "name": "Тригон Фиксита",
     "buildingId": "constructor",
     "isAlternate": false,
     "inputs": [
@@ -1879,7 +1879,7 @@
   },
   {
     "id": "dark_matter_crystal",
-    "name": "Dark Matter Crystal",
+    "name": "Кристалл темной материи",
     "buildingId": "particle_accelerator",
     "isAlternate": false,
     "inputs": [
@@ -1901,7 +1901,7 @@
   },
   {
     "id": "superposition_oscillator",
-    "name": "Superposition Oscillator",
+    "name": "Суперпозиционный осциллятор",
     "buildingId": "quantum_encoder",
     "isAlternate": false,
     "inputs": [
@@ -1935,7 +1935,7 @@
   },
   {
     "id": "quantum_computer",
-    "name": "Quantum Computer",
+    "name": "Квантовый компьютер",
     "buildingId": "quantum_encoder",
     "isAlternate": false,
     "inputs": [
@@ -1969,7 +1969,7 @@
   },
   {
     "id": "ai_expansion_server",
-    "name": "AI Expansion Server",
+    "name": "Сервер расширения ИИ",
     "buildingId": "assembler",
     "isAlternate": false,
     "inputs": [
@@ -1991,7 +1991,7 @@
   },
   {
     "id": "biochemical_spacesuit",
-    "name": "Biochemical Spacesuit",
+    "name": "Биохимический скафандр",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "inputs": [
@@ -2021,7 +2021,7 @@
   },
   {
     "id": "ballistic_warp_drive",
-    "name": "Ballistic Warp Drive",
+    "name": "Баллистический варп-двигатель",
     "buildingId": "quantum_encoder",
     "isAlternate": false,
     "inputs": [
@@ -2059,7 +2059,7 @@
   },
   {
     "id": "ficsonium_fuel_rod",
-    "name": "Ficsonium Fuel Rod",
+    "name": "Фиксониевый топливный стержень",
     "buildingId": "manufacturer",
     "isAlternate": false,
     "inputs": [
@@ -2446,7 +2446,7 @@
   },
   {
     "id": "ficsite_ingot_iron",
-    "name": "Слиток FICSIT (железо)",
+    "name": "Слиток FICSIT",
     "buildingId": "converter",
     "isAlternate": false,
     "inputs": [

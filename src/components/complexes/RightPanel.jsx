@@ -167,7 +167,7 @@ function RecipeSelectorDropdown({ itemId, selectedRecipeId, onChange }) {
                     {items[inp.itemId]?.icon && (
                       <img src={getAssetUrl(items[inp.itemId].icon)} alt="" className="w-3.5 h-3.5 object-contain" />
                     )}
-                    <span>{items[inp.itemId]?.name || inp.itemId} ({inp.rate}/min)</span>
+                    <span>{items[inp.itemId]?.name || inp.itemId} ({inp.rate}/мин)</span>
                   </span>
                 ))}
                 <span className="text-gray-500 font-bold">➜</span>
@@ -176,7 +176,7 @@ function RecipeSelectorDropdown({ itemId, selectedRecipeId, onChange }) {
                     {items[out.itemId]?.icon && (
                       <img src={getAssetUrl(items[out.itemId].icon)} alt="" className="w-3.5 h-3.5 object-contain" />
                     )}
-                    <span>{out.rate}/min</span>
+                    <span>{out.rate}/мин</span>
                   </span>
                 ))}
               </div>
@@ -283,7 +283,7 @@ export default function RightPanel() {
           <>
             {/* Синяя плашка с подсказкой SCIM */}
             <div className="bg-[#1a3860]/70 border border-[#2b568e] text-cyan-200 text-xs p-3 rounded-md leading-relaxed shadow-sm">
-              Enter the number you wish to produce per minute. The system calculates the optimal valid production chain.
+              Введите количество, которое вы хотите производить в минуту. Система рассчитает оптимальную цепочку производства.
             </div>
 
             {targets.map(target => {
@@ -519,9 +519,9 @@ export default function RightPanel() {
               </div>
             </div>
 
-            {/* Секция: Purity and Speed */}
+            {/* Секция: Чистота месторождений и скорость */}
             <div className="pt-2 border-t border-[#2d3340]">
-              <div className="text-[#f97316] font-bold text-sm mb-2">Purity and Speed</div>
+              <div className="text-[#f97316] font-bold text-sm mb-2">Чистота месторождений и скорость</div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-gray-200">Добыча руды</span>
@@ -593,9 +593,9 @@ export default function RightPanel() {
               </div>
             </div>
 
-            {/* Секция: Overclocking (Experimental) */}
+            {/* Секция: Разгон станков (Экспериментально) */}
             <div className="pt-2 border-t border-[#2d3340]">
-              <div className="text-[#f97316] font-bold text-sm mb-2">Overclocking (Experimental)</div>
+              <div className="text-[#f97316] font-bold text-sm mb-2">Разгон станков (Экспериментально)</div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-gray-200">Доступные энергомодули</span>
