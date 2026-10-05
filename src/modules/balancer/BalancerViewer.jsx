@@ -55,10 +55,6 @@ function BalancerViewerInner() {
       preset.edges.map(e => ({
         ...e,
         animated: true,
-        style: {
-          ...e.style,
-          strokeDasharray: '8, 6',
-        },
       }))
     );
   }, [setNodes, setEdges]);

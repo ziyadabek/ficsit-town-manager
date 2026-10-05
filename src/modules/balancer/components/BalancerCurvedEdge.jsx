@@ -35,7 +35,6 @@ export default function BalancerCurvedEdge({
         ...style,
         stroke: color,
         strokeWidth: width,
-        strokeLinecap: 'round',
       }}
     />
   );
