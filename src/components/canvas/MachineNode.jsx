@@ -177,7 +177,7 @@ export default function MachineNode({ data }) {
   const isGenerator = data.outputs?.some(out => out.itemId === 'power');
 
   if (isGenerator) {
-    const powerOut = data.outputs.find(out => out.itemId === 'power').rate;
+    const powerOut = (data.outputs.find(out => out.itemId === 'power')?.rate || 0) * (data.machines || 1);
     return (
       <div className="bg-[#1a202c] border-2 border-[#facc15] rounded-md shadow-[0_0_20px_rgba(250,204,21,0.3)] min-w-[280px] text-[#e1e1e6] relative z-10 overflow-hidden">
         {/* Header */}

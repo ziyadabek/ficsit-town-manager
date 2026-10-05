@@ -45,6 +45,7 @@ const ITEM_COLORS = {
 
   // Ядерные материалы — радиационный зелёный
   uranium:                 '#4ade80',
+  nuclear_pasta:           '#c084fc',
 };
 
 const LEGEND = [

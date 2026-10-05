@@ -217,7 +217,10 @@ export const useFactoryStore = create((set, get) => ({
         selectedPresetType: 'power',
         powerConfig: preset.powerConfig,
         activePresetId: preset.id,
-        targets: [{ id: `target_power_${preset.id}`, itemId: 'power', rate: preset.powerConfig.targetMW }],
+        targets: [
+          { id: `target_power_${preset.id}`, itemId: 'power', rate: preset.powerConfig.targetMW },
+          ...(preset.targets || [])
+        ],
         inputsLimit: preset.inputsLimit || [],
         options: { ...get().options, generatorId: preset.powerConfig.generatorId, altRecipes: preset.options?.altRecipes || get().options.altRecipes }
       });
@@ -433,10 +436,12 @@ export const useFactoryStore = create((set, get) => ({
 
         result.nodes.forEach(node => {
           if (!node.data?.outputs) return;
+          const machines = node.data?.machines || 1;
           node.data.outputs.forEach(outItem => {
             const itemId = outItem.itemId;
             const consumed = consumedBySourceItem[`${node.id}_${itemId}`] || 0;
-            const surplus = (outItem.rate || 0) - consumed;
+            const totalProduced = (outItem.rate || 0) * machines;
+            const surplus = totalProduced - consumed;
             if (surplus > 0.001) {
               const outNodeId = `out_${node.id}_${itemId}`;
               activeNodes.push({

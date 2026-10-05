@@ -4,13 +4,13 @@
     "type": "production",
     "tier": "Тир 1-2",
     "name": "ЭТАП 1: Бетонный хаб",
-    "description": "Базовая инфраструктура по World Grid. Расход: ~280 МВт.",
+    "description": "Базовая инфраструктура по World Grid. Обеспечивает стройку и тяжелое машиностроение. Расход: ~280 МВт.",
     "inputsLimit": [],
     "targets": [
       {
         "id": "t1",
         "itemId": "concrete",
-        "rate": 440
+        "rate": 540
       }
     ],
     "options": {
@@ -37,13 +37,13 @@
     "type": "production",
     "tier": "Тир 3-4",
     "name": "ЭТАП 3: Тяжелая металлургия",
-    "description": "46 литейных, стальные трубы и балки. Расход: ~1392 МВт.",
+    "description": "Литейные цеха, стальные трубы и балки. Снабжение машиностроения и метизов. Расход: ~1450 МВт.",
     "inputsLimit": [],
     "targets": [
       {
         "id": "t1",
         "itemId": "steel_pipe",
-        "rate": 780
+        "rate": 880
       },
       {
         "id": "t2",
@@ -67,8 +67,8 @@
     "id": "complex_3",
     "type": "production",
     "tier": "Тир 2-4",
-    "name": "ЭТАП 4: Сборочно-метизный хаб",
-    "description": "Пластины, винты, каркасы. Расход: ~2008 МВт.",
+    "name": "ЭТАП 4: Сборочно-метизный хаб (Фазы 1-2 Лифта)",
+    "description": "Пластины, винты, каркасы, Умная обшивка и Универсальные каркасы для Фаз 1-2 Лифта. Расход: ~2100 МВт.",
     "inputsLimit": [
       {
         "id": "inp1",
@@ -96,6 +96,21 @@
         "id": "t4",
         "itemId": "modular_frame",
         "rate": 120
+      },
+      {
+        "id": "t5",
+        "itemId": "smart_plating",
+        "rate": 5
+      },
+      {
+        "id": "t6",
+        "itemId": "versatile_framework",
+        "rate": 5
+      },
+      {
+        "id": "t7",
+        "itemId": "automated_wiring",
+        "rate": 2.5
       }
     ],
     "options": {
@@ -109,25 +124,37 @@
     "id": "power_4a",
     "type": "power",
     "tier": "Тир 5-6",
-    "name": "ЭТАП 5: Топливный энергоблок",
-    "description": "Выпуск полимеров и второй рубеж энергонезависимости. Генерация: +2500 МВт.",
+    "name": "ЭТАП 5: Топливный энергокомплекс и полимеры",
+    "description": "Выпуск полимеров, кокса и второй рубеж энергонезависимости. Генерация: +2500 МВт.",
     "powerConfig": {
       "targetMW": 2500,
       "generatorId": "fuel",
       "fuelId": "fuel"
-    }
+    },
+    "targets": [
+      {
+        "id": "t1",
+        "itemId": "plastic",
+        "rate": 160
+      },
+      {
+        "id": "t2",
+        "itemId": "petroleum_coke",
+        "rate": 300
+      }
+    ]
   },
   {
     "id": "complex_5",
     "type": "production",
     "tier": "Тир 5-6",
     "name": "ЭТАП 6: Тяжелое машиностроение",
-    "description": "Тяжелые каркасы, моторы. Расход: ~895 МВт.",
+    "description": "Тяжелые каркасы, ж/б балки, моторы для Фазы 3 и Лифта. Расход: ~980 МВт.",
     "inputsLimit": [
       {
         "id": "inp1",
         "itemId": "steel_pipe",
-        "rate": 780
+        "rate": 880
       },
       {
         "id": "inp2",
@@ -137,7 +164,7 @@
       {
         "id": "inp3",
         "itemId": "concrete",
-        "rate": 344
+        "rate": 494
       }
     ],
     "targets": [
@@ -154,7 +181,7 @@
       {
         "id": "t3",
         "itemId": "motor",
-        "rate": 50
+        "rate": 10
       }
     ],
     "options": {
@@ -170,8 +197,8 @@
     "id": "complex_6",
     "type": "production",
     "tier": "Тир 7-8",
-    "name": "ЭТАП 7: Электроника и вычислительный хаб",
-    "description": "Компьютеры, печатные платы, кабели. Расход: ~376 МВт.",
+    "name": "ЭТАП 7: Электроника и суперкомпьютеры",
+    "description": "Компьютеры, суперкомпьютеры, печатные платы, кабели. Расход: ~520 МВт.",
     "inputsLimit": [
       {
         "id": "inp1",
@@ -199,6 +226,11 @@
         "id": "t3",
         "itemId": "cable",
         "rate": 180
+      },
+      {
+        "id": "t4",
+        "itemId": "supercomputer",
+        "rate": 5
       }
     ],
     "options": {
@@ -212,8 +244,8 @@
     "id": "complex_7",
     "type": "production",
     "tier": "Тир 7-8",
-    "name": "ЭТАП 8: Алюминиевый завод",
-    "description": "Критический материал для АЭС. Расход: ~518 МВт.",
+    "name": "ЭТАП 8: Алюминиевый завод и системы охлаждения",
+    "description": "Листы, гильзы и охладители на коксовом скрапе. Расход: ~760 МВт.",
     "inputsLimit": [
       {
         "id": "inp1",
@@ -231,11 +263,19 @@
         "id": "t2",
         "itemId": "aluminum_casing",
         "rate": 150
+      },
+      {
+        "id": "t3",
+        "itemId": "cooling_system",
+        "rate": 10
       }
     ],
     "options": {
       "optimize": "power",
-      "altRecipes": []
+      "altRecipes": [
+        "electrode_aluminum_scrap",
+        "alt_heat_exchanger"
+      ]
     }
   },
   {
@@ -247,11 +287,6 @@
     "inputsLimit": [
       {
         "id": "inp1",
-        "itemId": "aluminum_casing",
-        "rate": 60
-      },
-      {
-        "id": "inp2",
         "itemId": "encased_industrial_beam",
         "rate": 15
       }
@@ -266,8 +301,8 @@
     "id": "complex_8b",
     "type": "production",
     "tier": "Тир 8-9",
-    "name": "ЭТАП 10: Верфь Космического Лифта",
-    "description": "Ускорители частиц, Квантовые энкодеры. Пиковый расход: ~3800 МВт.",
+    "name": "ЭТАП 10: Верфь Космического Лифта (Фаза 4)",
+    "description": "Все 4 компонента Фазы 4 Лифта: Ядерная паста, Магнитные генераторы, Ракеты и Системы управления сборкой. Пиковый расход: ~3800 МВт.",
     "inputsLimit": [
       {
         "id": "inp1",
@@ -287,17 +322,12 @@
       {
         "id": "inp4",
         "itemId": "aluminum_casing",
-        "rate": 90
+        "rate": 150
       },
       {
         "id": "inp5",
         "itemId": "aluminum_sheet",
         "rate": 60
-      },
-      {
-        "id": "inp6",
-        "itemId": "copper_ingot",
-        "rate": 600
       }
     ],
     "targets": [
@@ -318,8 +348,8 @@
       },
       {
         "id": "t4",
-        "itemId": "singularity_cell",
-        "rate": 1
+        "itemId": "assembly_director_system",
+        "rate": 0.75
       }
     ],
     "options": {
@@ -331,40 +361,55 @@
     "id": "phase_5",
     "type": "production",
     "tier": "Тир 9",
-    "name": "ЭТАП 11: Квантовая верфь (Фаза 5 Лифта)",
+    "name": "ЭТАП 11: Квантовая верфь (Фаза 5 Лифта - Финал)",
+    "description": "Финальные компоненты Фазы 5 для полного прохождения игры Satisfactory 1.0. Пиковый расход: ~5200 МВт.",
+    "inputsLimit": [
+      {
+        "id": "inp1",
+        "itemId": "heavy_modular_frame",
+        "rate": 5
+      },
+      {
+        "id": "inp2",
+        "itemId": "supercomputer",
+        "rate": 5
+      },
+      {
+        "id": "inp3",
+        "itemId": "cooling_system",
+        "rate": 10
+      },
+      {
+        "id": "inp4",
+        "itemId": "nuclear_pasta",
+        "rate": 1
+      }
+    ],
     "targets": [
       {
+        "id": "t1",
         "itemId": "ai_expansion_server",
         "rate": 2.5
       },
       {
+        "id": "t2",
         "itemId": "biochemical_spacesuit",
         "rate": 2.5
       },
       {
+        "id": "t3",
         "itemId": "ballistic_warp_drive",
+        "rate": 1
+      },
+      {
+        "id": "t4",
+        "itemId": "nuclear_pasta",
         "rate": 1
       }
     ],
-    "transits": [
-      {
-        "itemId": "supercomputer",
-        "maxRate": 20,
-        "stageName": "Комплекс №8 (Электроника)",
-        "transport": "train"
-      },
-      {
-        "itemId": "cooling_system",
-        "maxRate": 10,
-        "stageName": "Комплекс №9 (Турбомоторы)",
-        "transport": "train"
-      },
-      {
-        "itemId": "heavy_modular_frame",
-        "maxRate": 10,
-        "stageName": "Комплекс №5 (Тяжелые каркасы)",
-        "transport": "train"
-      }
-    ]
+    "options": {
+      "optimize": "power",
+      "altRecipes": []
+    }
   }
 ]

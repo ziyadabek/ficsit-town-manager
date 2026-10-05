@@ -14,7 +14,7 @@ describe('Campaign Transit Engine', () => {
     // Stage 1 produces concrete for Stage 5
     const concreteTransit = transits.complex_5.find(t => t.itemId === 'concrete');
     expect(concreteTransit).toBeDefined();
-    expect(concreteTransit.rate).toBeCloseTo(344, 1);
+    expect(concreteTransit.rate).toBeCloseTo(494, 1);
     expect(concreteTransit.deficit).toBe(0);
   });
 
@@ -28,7 +28,7 @@ describe('Campaign Transit Engine', () => {
     const concreteTransit = transits.complex_5?.find(t => t.itemId === 'concrete');
     expect(concreteTransit).toBeDefined();
     expect(concreteTransit.rate).toBe(0);
-    expect(concreteTransit.deficit).toBeCloseTo(344, 1);
+    expect(concreteTransit.deficit).toBeCloseTo(494, 1);
   });
 
   it('scales transit rates proportionally to source scale', () => {
@@ -40,8 +40,8 @@ describe('Campaign Transit Engine', () => {
     const transits = calculateAllTransits(stagesState, {});
     const concreteTransit = transits.complex_5?.find(t => t.itemId === 'concrete');
     expect(concreteTransit).toBeDefined();
-    expect(concreteTransit.rate).toBeCloseTo(344 * 0.5, 1);
-    expect(concreteTransit.deficit).toBeCloseTo(344 * 0.5, 1); // 50% deficit
+    expect(concreteTransit.rate).toBeCloseTo(494 * 0.5, 1);
+    expect(concreteTransit.deficit).toBeCloseTo(494 * 0.5, 1); // 50% deficit
   });
 
   it('uses frozen stage outputs as guaranteed supply', () => {
@@ -61,7 +61,7 @@ describe('Campaign Transit Engine', () => {
     const transits = calculateAllTransits(stagesState, frozenStages);
     const concreteTransit = transits.complex_5?.find(t => t.itemId === 'concrete');
     expect(concreteTransit).toBeDefined();
-    expect(concreteTransit.rate).toBeCloseTo(344, 1);
+    expect(concreteTransit.rate).toBeCloseTo(494, 1);
     expect(concreteTransit.deficit).toBe(0); // Supplied by frozen factory!
   });
 });
