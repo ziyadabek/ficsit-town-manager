@@ -129,23 +129,23 @@ function BalancerViewerInner() {
         <div className="absolute bottom-3 right-3 bg-[#14171d]/90 backdrop-blur-md border border-[#2a2e39] rounded-lg p-3 text-[11px] shadow-2xl flex flex-col gap-1.5 pointer-events-none z-10 max-w-xs">
           <div className="font-bold text-gray-300 border-b border-[#2a2e39] pb-1 mb-0.5 flex items-center justify-between">
             <span>Условные обозначения</span>
-            <span className="text-[10px] text-[#f97316] font-normal">Satisfactory Belts</span>
+            <span className="text-[10px] text-[#f97316] font-normal">Конвейеры Satisfactory</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 flex items-center justify-center text-[#ef4444] font-bold">▲</span>
-            <span className="text-gray-300">Вход конвейера (Input Flow)</span>
+            <span className="text-gray-300">Вход конвейера (Входящий поток)</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 flex items-center justify-center text-[#60a5fa] font-bold">◆</span>
-            <span className="text-gray-300">Выход конвейера (Output Flow)</span>
+            <span className="text-gray-300">Выход конвейера (Исходящий поток)</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 bg-gray-700 rounded-sm inline-block border border-gray-500"></span>
-            <span className="text-gray-300">Conveyor Splitter (1 вход → 3 выхода)</span>
+            <span className="text-gray-300">Разветвитель (1 вход → 3 выхода)</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 bg-gray-700 rounded-sm inline-block border border-gray-500"></span>
-            <span className="text-gray-300">Conveyor Merger (3 входа → 1 выход)</span>
+            <span className="text-gray-300">Соединитель (3 входа → 1 выход)</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-5 h-0.5 bg-gradient-to-r from-red-500 via-green-500 to-blue-500 rounded"></span>

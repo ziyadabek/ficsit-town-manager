@@ -31,8 +31,8 @@ function ItemsTable({ summary, tableRef }) {
         <thead>
           <tr className="border-b border-[#2a2e39] text-gray-400">
             <th className="p-2">Предмет</th>
-            <th className="p-2">Produced / min</th>
-            <th className="p-2">Consumed / min</th>
+            <th className="p-2">Производство / мин</th>
+            <th className="p-2">Потребление / мин</th>
             <th className="p-2">Логистический маршрут</th>
             <th className="p-2">Баланс</th>
           </tr>

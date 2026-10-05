@@ -127,7 +127,7 @@ function App() {
                     </svg>
                     <div>
                       <div className="text-xs font-bold">Производство</div>
-                      <div className="text-[10px] text-gray-400 font-normal">Production planner</div>
+                      <div className="text-[10px] text-gray-400 font-normal">Калькулятор фабрик и станков</div>
                     </div>
                   </button>
 
@@ -142,7 +142,7 @@ function App() {
                     </svg>
                     <div>
                       <div className="text-xs font-bold">Электропитание</div>
-                      <div className="text-[10px] text-gray-400 font-normal">Power planner</div>
+                      <div className="text-[10px] text-gray-400 font-normal">Расчёт электростанций</div>
                     </div>
                   </button>
                 </div>
@@ -249,7 +249,7 @@ function App() {
                     </svg>
                     <div>
                       <div className="text-xs font-bold">Балансировщики</div>
-                      <div className="text-[10px] text-gray-400 font-normal">Conveyor Balancers</div>
+                      <div className="text-[10px] text-gray-400 font-normal">Схемы балансировки конвейеров</div>
                     </div>
                   </button>
                 </div>
