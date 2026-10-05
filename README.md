@@ -1,52 +1,116 @@
 # 🏭 FICSIT Architect & Production Calculator (Satisfactory 1.0)
 
-Welcome to **FICSIT Architect** — a specialized web-based CAD and planning tool designed for *Satisfactory 1.0*. 
+**FICSIT Architect** — это веб-САПР и интерактивный калькулятор производственных цепочек нового поколения, созданный специально для **Satisfactory 1.0** в аутентичном индустриальном стиле SCIM (*Satisfactory Calculator Interactive Map*).
 
-Unlike standard "raw numbers" calculators, FICSIT Architect is built to feel like actual corporate software. It helps you visualize your world's logistics at a macro level, and design physical factories (manifolds, belts, and mergers) at a micro level.
+В отличие от простых табличных калькуляторов, FICSIT Architect объединяет **математическую оптимизацию линейного программирования** с **физическим проектированием цехов** (поштучная развертка станков, сплиттерные и мерджерные коллекторы, балансировщики потоков и глобальная логистика Main Bus).
 
-🌐 **[Live Demo (Play Here)](https://ziyadabek.github.io/ficsit-town-manager/)**
-
-## ✨ Core Features
-
-### 🌍 Global Logistics Map (Main Bus Routing)
-A zoomed-out view of your entire campaign. By utilizing advanced orthogonal routing, it organizes parallel inputs and outputs into a neat, massive **"Main Bus"** (just like a PCB circuit board). Track exactly where your resources are flowing globally without messy, overlapping lines!
-
-### 🏭 Interactive Floor Planner
-Plan your factories as actual DAG (Directed Acyclic Graph) blueprints. The built-in Linear Programming solver breaks down your target items and recipes into the exact physical machines you need (e.g. `10.4 Smelters`).
-
-### ⚡ Smart Power Planner
-Plan your power infrastructure end-to-end. Input your target Megawatts, and the solver calculates everything from the crude oil extractor straight to the fuel generator, presented in an industrial SCADA dashboard.
-
-### 🔒 Freeze & Lock Stages *(In Development)*
-Finished building a factory in-game? "Lock" the stage. The solver will cache its production and bypass it when you unlock new alternative recipes, ensuring your physical factories don't theoretically break when global math changes.
-
-## 🛠️ Tech Stack
-- **React 19** + **Vite**
-- **TailwindCSS** (Industrial FICSIT styling)
-- **Zustand** (Global state management)
-- **@xyflow/react** (React Flow) + **Dagre** (Graph visualization & Auto-layout)
-- **javascript-lp-solver** (Simplex algorithm for recipe optimization)
-
-## 🤝 Contributing & Feedback
-
-**First and foremost:** If you find a bug, please tell me first by opening an Issue!
-
-Have a cool idea or suggestion? You have two options:
-1. **Share your idea:** Open an Issue here and let's discuss it.
-2. **Code it yourself:** Fork the repo, create a new branch, make your changes, and submit a Pull Request.
-
-Whether you are a UI/UX designer, a React developer, or a math wizard who loves optimization algorithms, your contributions are highly welcome.
-
-### Getting Started Locally:
-1. Clone the repository: `git clone https://github.com/ziyadabek/ficsit-town-manager.git`
-2. Install dependencies: `npm install`
-3. Run the dev server: `npm run dev`
-
-## 📜 Roadmap
-Check out our [ROADMAP.md](./ROADMAP.md) for planned features including:
-- Drill-down Micro Layouts (generating 2D manifold blueprints)
-- AWESOME Sink Economy tracker
-- 3D Blueprint `.sbp` viewer
+🌐 **[Открыть Live Demo онлайн](https://ziyadabek.github.io/ficsit-town-manager/)**
 
 ---
-*FICSIT Inc. does not endorse spaghetti factories. Stay Effective.*
+
+## ⚡ Ключевые возможности
+
+### 📊 1. Планировщик Производства (Production Planner)
+* **Simplex LP-Солвер:** Быстрый математический расчет оптимального расхода сырья, промежуточных компонентов и количества станков.
+* **Альтернативные рецепты:** Гибкое включение и отключение альтернативных рецептов с мгновенным пересчетом графа.
+* **Учет игровых ограничений:** Настройка чистоты месторождений (бедные, обычные, богатые), лимитов конвейеров (Mk.1 – Mk.6 до 1200 предм/мин), труб (Mk.1 – Mk.2) и максимального тира технологий (Tier 1–9).
+* **Сводка сырья и энергии:** Точный подсчет суммарной потребляемой мощности (МВт) и необходимых входящих потоков.
+
+### 🏭 2. Модуль «Реалистичный цех» (Micro Layout / Manifolds)
+* **Физическая развертка станков:** Переключение из абстрактной схемы (например, `10.4 плавильни`) в физический 2D-чертеж цеха с показом каждого отдельного станка (10 шт. по 100% + 1 станок с разгоном 40%).
+* **3-портовые сплиттерные деревья:** Автоматическая генерация коллекторов подачи сырья (*Splitter Manifolds*) по реальным правилам Satisfactory (максимум 3 выхода на разветвитель).
+* **Мерджерные коллекторы:** Сбор готовой продукции со станков в единые магистрали (*Merger Manifolds*).
+* **Смена направления графа:** Поддержка компоновки как слева направо (➡️ `LR`), так и сверху вниз (⬇️ `TB`).
+
+### ⚡ 3. Умный Планировщик Электропитания (Power Planner)
+* **Сквозной расчет:** Расчет энергетических цепочек «под ключ» — от добычи нефти/угля и водяных помп до топливных, угольных и атомных электростанций.
+* **SCADA-интерфейс:** Индустриальная панель с мониторингом целевой выработки мощности (МВт) и динамическим оверклокингом энергоблоков.
+
+### 🔀 4. Верстак Балансировщиков (Conveyor Balancers)
+* **Интерактивный каталог балансировщиков:** Готовые компактные схемы распределения потоков: `1:2`, `1:3`, `2:2`, `2:3`, `3:3`, `4:4` и другие.
+* **Наглядная визуализация:** Сплиттеры, мерджеры, изогнутые конвейеры с индикацией портов входа и выхода для быстрого копирования в игру.
+
+### 🗺️ 5. План Кампании и Макро-Логистика (Main Bus Map)
+* **Этапы прохождения:** Пресеты по фазам Космического Лифта и тирам.
+* **Макро-карта логистики:** Обзор транспортных связей между удаленными цехами и выявление дефицитов сырья без визуального мусора.
+* **Фиксация этапов (Freeze Stage):** Закрепление уже построенных в игре заводов для предотвращения случайного пересчета при открытии новых альт-рецептов.
+
+### 💾 6. Локальное хранилище и Экспорт
+* **IndexedDB (Dexie):** Все проекты, фабрики и настройки надежно сохраняются в локальной базе данных браузера без ограничений `localStorage`.
+* **Экспорт схем:** Сохранение графов в высоком разрешении в форматах **PNG**, **SVG** и экспорт/импорт конфигураций в **JSON**.
+
+### 🇷🇺 7. Полная русская локализация
+* 100% перевод рецептов, зданий, ресурсов, тиров технологий и элементов интерфейса.
+
+---
+
+## 🛠️ Технологический стек
+
+* **Фронтенд:** [React 19](https://react.dev/) + [Vite 5](https://vitejs.dev/)
+* **Стилизация:** [TailwindCSS v4](https://tailwindcss.com/) (кастомная палитра в стиле FICSIT / SCIM)
+* **Графы и визуализация:** [@xyflow/react (React Flow)](https://reactflow.dev/) + [Dagre](https://github.com/dagrejs/dagre)
+* **Математический движок:** [javascript-lp-solver](https://github.com/JWally/jsLPSolver) (симплекс-метод оптимизации)
+* **Управление состоянием:** [Zustand](https://github.com/pmndrs/zustand)
+* **Хранение данных:** [IndexedDB](https://developer.mozilla.org/ru/docs/Web/API/IndexedDB_API) (Storage Service)
+* **Тестирование:** [Vitest](https://vitest.dev/)
+
+---
+
+## 🚀 Быстрый старт
+
+### Требования
+* **Node.js** версии 18+
+* Менеджер пакетов **npm** (или pnpm / yarn)
+
+### Установка и запуск
+
+1. Клонируйте репозиторий:
+   ```bash
+   git clone https://github.com/ziyadabek/ficsit-town-manager.git
+   cd ficsit-town-manager
+   ```
+
+2. Установите зависимости:
+   ```bash
+   npm install
+   ```
+
+3. Запустите локальный сервер разработки:
+   ```bash
+   npm run dev
+   ```
+   Приложение откроется по адресу `http://localhost:5173`.
+
+4. Запуск тестов:
+   ```bash
+   npm test
+   ```
+
+5. Сборка для продакшена:
+   ```bash
+   npm run build
+   ```
+
+---
+
+## 🗺️ Планы развития (Roadmap)
+
+Подробный план развития архитектуры и будущих обновлений доступен в файле [ROADMAP.md](./ROADMAP.md):
+* [x] Глобальная макро-карта кампании и транзитная логистика
+* [x] Физическая 2D-развертка станков и сплиттерных коллекторов
+* [x] Верстак балансировщиков конвейеров
+* [x] Миграция базы данных на IndexedDB
+* [ ] Трекер экономики утилизатора (AWESOME Sink)
+* [ ] Просмотрщик 3D-чертежей чертежного стола (`.sbp` Blueprint Viewer)
+
+---
+
+## 🤝 Вклад в проект и обратная связь
+
+Если вы нашли ошибку или у вас есть предложения по улучшению:
+1. Создайте **Issue** с описанием проблемы или идеи.
+2. Создайте форк, внесите изменения в отдельной ветке и отправьте **Pull Request**.
+
+---
+
+*FICSIT Inc. напоминает: порядок на конвейерах — залог максимальной эффективности!*
