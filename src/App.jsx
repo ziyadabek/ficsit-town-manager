@@ -157,12 +157,7 @@ function App() {
               onMouseLeave={() => setCampaignOpen(false)}
             >
               <button
-                onClick={() => {
-                  setCampaignOpen(!campaignOpen);
-                  if (view !== 'campaign') {
-                    handleSetView('campaign');
-                  }
-                }}
+                onClick={() => setCampaignOpen(!campaignOpen)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold tracking-wider uppercase transition-all cursor-pointer ${
                   view === 'campaign'
                     ? 'text-[#f97316] bg-[#1e232e]' 
@@ -227,9 +222,7 @@ function App() {
               onMouseLeave={() => setWorkbenchOpen(false)}
             >
               <button
-                onClick={() => {
-                  handleSetView('balancer');
-                }}
+                onClick={() => setWorkbenchOpen(!workbenchOpen)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold tracking-wider uppercase transition-all cursor-pointer ${
                   isWorkbenchActive
                     ? 'text-[#f97316] bg-[#1e232e]' 
