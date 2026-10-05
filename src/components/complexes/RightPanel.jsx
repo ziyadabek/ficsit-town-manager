@@ -26,7 +26,8 @@ export default function RightPanel() {
     setOption,
     activePresetId,
     frozenStages,
-    unfreezeStage
+    unfreezeStage,
+    resetToFreeMode
   } = useFactoryStore();
 
   const isStageFrozen = Boolean(activePresetId && frozenStages[activePresetId]?.isFrozen);
@@ -103,11 +104,13 @@ export default function RightPanel() {
         {tab === 'targets' && (
           <TargetsTab 
             targets={targets}
+            activePresetId={activePresetId}
             isStageFrozen={isStageFrozen}
             onRemoveTarget={removeTarget}
             onUpdateTarget={updateTarget}
             onAddTarget={handleAddTargetWithItem}
             onStep={handleStep}
+            onClearAll={resetToFreeMode}
           />
         )}
 

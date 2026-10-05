@@ -259,7 +259,8 @@ export default function MainView() {
     activePresetId,
     frozenStages,
     freezeCurrentStage,
-    unfreezeStage
+    unfreezeStage,
+    addTarget
   } = useFactoryStore();
 
   const isStageFrozen = !!(activePresetId && frozenStages[activePresetId]?.isFrozen);
@@ -374,6 +375,14 @@ export default function MainView() {
             <p className="mt-2 text-center max-w-md">
               Ваш список производства пуст. {activePresetId ? 'Переключитесь на другой этап кампании или добавьте целевой продукт.' : 'Нажмите кнопку + ДОБАВИТЬ ПРОДУКТ на панели справа, чтобы начать проектирование фабрики.'}
             </p>
+            {!activePresetId && (
+              <button
+                onClick={() => addTarget()}
+                className="mt-5 px-5 py-2.5 bg-[#f97316] text-black font-bold text-xs uppercase tracking-wider rounded hover:bg-[#fa9549] transition-all shadow-lg hover:shadow-orange-500/20 cursor-pointer flex items-center gap-2"
+              >
+                <span>+ ДОБАВИТЬ ПРОДУКТ</span>
+              </button>
+            )}
           </div>
         ) : !summary ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center p-8 bg-[#0b0d10] text-[#ef4444]">

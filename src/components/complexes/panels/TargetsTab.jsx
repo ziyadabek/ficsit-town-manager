@@ -42,11 +42,13 @@ function DebouncedRateInput({ initialValue, onChange, disabled }) {
 
 export default function TargetsTab({
   targets,
+  activePresetId,
   isStageFrozen,
   onRemoveTarget,
   onUpdateTarget,
   onAddTarget,
-  onStep
+  onStep,
+  onClearAll
 }) {
   return (
     <>
@@ -54,6 +56,18 @@ export default function TargetsTab({
       <div className="bg-[#1a3860]/70 border border-[#2b568e] text-cyan-200 text-xs p-3 rounded-md leading-relaxed shadow-sm">
         Введите количество, которое вы хотите производить в минуту. Система рассчитает оптимальную цепочку производства.
       </div>
+
+      {targets.length > 0 && !isStageFrozen && !activePresetId && onClearAll && (
+        <div className="flex justify-end pt-1">
+          <button
+            onClick={onClearAll}
+            className="text-[11px] text-gray-400 hover:text-red-400 underline transition-colors cursor-pointer"
+            title="Очистить все целевые продукты и вернуть чистый лист"
+          >
+            Очистить список
+          </button>
+        </div>
+      )}
 
       {targets.map(target => {
         const item = items[target.itemId];
@@ -164,7 +178,7 @@ export default function TargetsTab({
             onClick={() => onAddTarget('concrete')} 
             className="w-full py-2.5 bg-[#f97316] text-black font-bold text-xs uppercase tracking-wider rounded hover:bg-[#fa9549] transition-colors shadow-md cursor-pointer"
           >
-            + ДОБАВИТЬ ПРОДУКТ ПО УМОЛЧАНИЮ
+            + ДОБАВИТЬ ПРОДУКТ
           </button>
         </div>
       ) : (

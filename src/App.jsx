@@ -10,7 +10,7 @@ const MacroView = lazy(() => import('./components/canvas/MacroView'))
 const BalancerViewer = lazy(() => import('./modules/balancer/BalancerViewer'))
 
 function App() {
-  const { loadPreset, campaignStagesState, activePresetId, frozenStages, initStorage } = useFactoryStore();
+  const { loadPreset, resetToFreeMode, campaignStagesState, activePresetId, frozenStages, initStorage } = useFactoryStore();
   const [view, setView] = useState('calculator');
   const [campaignMode, setCampaignMode] = useState('detail');
   const [plannersOpen, setPlannersOpen] = useState(false);
@@ -48,7 +48,7 @@ function App() {
     if (newView === 'campaign' && !activePresetId && presets.length > 0) {
       loadPreset(presets[0]);
     } else if (newView === 'calculator' && activePresetId) {
-      useFactoryStore.setState({ activePresetId: null });
+      resetToFreeMode();
     }
   };
 
@@ -63,8 +63,11 @@ function App() {
           {/* SCIM Логотип */}
           <div 
             className="flex items-center gap-2 select-none cursor-pointer group" 
-            onClick={() => handleSetView('calculator')}
-            title="Satisfactory Calculator"
+            onClick={() => {
+              resetToFreeMode();
+              handleSetView('calculator');
+            }}
+            title="Satisfactory Calculator - На главную (Свободный режим)"
           >
             <div className="flex flex-col leading-none">
               <div className="flex items-center tracking-tight">
@@ -109,9 +112,14 @@ function App() {
               {plannersOpen && (
                 <div className="absolute left-0 mt-0.5 w-60 bg-[#161920] border border-[#2a2e39] rounded-md shadow-2xl py-1.5 z-50">
                   <button
-                    onClick={() => handleSetView('calculator')}
+                    onClick={() => {
+                      if (activePresetId) {
+                        resetToFreeMode();
+                      }
+                      handleSetView('calculator');
+                    }}
                     className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
-                      view === 'calculator' ? 'bg-[#242b38] text-[#f97316] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
+                      view === 'calculator' && !activePresetId ? 'bg-[#242b38] text-[#f97316] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
                     }`}
                   >
                     <svg className="w-4 h-4 opacity-80 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">

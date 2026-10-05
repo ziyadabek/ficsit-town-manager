@@ -234,6 +234,19 @@ export const useFactoryStore = create((set, get) => ({
     }
   },
 
+  resetToFreeMode: () => {
+    set({
+      selectedPresetType: 'production',
+      powerConfig: null,
+      activePresetId: null,
+      targets: [],
+      inputsLimit: [],
+      nodes: [],
+      edges: [],
+      summary: null
+    });
+  },
+
   // Actions
   setActiveTab: (tab) => set({ activeTab: tab }),
 
