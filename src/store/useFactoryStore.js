@@ -13,9 +13,18 @@ presets.forEach(p => {
   initialCampaignStates[p.id] = { enabled: true, scale: 1.0 };
 });
 
+import { 
+  loadFrozenStages as loadIDBFrozenStages, 
+  saveFrozenStages as saveIDBFrozenStages, 
+  requestPersistence, 
+  exportBackupJSON, 
+  importBackupJSON 
+} from '../services/storageService';
+
 const STORAGE_KEY = 'ficsit_frozen_stages_v2';
 const LEGACY_STORAGE_KEY = 'ficsit_frozen_stages_v1';
 
+// Синхронный мгновенный снимок из localStorage для моментального старта UI
 function loadInitialFrozenStages() {
   try {
     let raw = localStorage.getItem(STORAGE_KEY);
@@ -24,36 +33,14 @@ function loadInitialFrozenStages() {
     }
     return raw ? JSON.parse(raw) : {};
   } catch (e) {
-    console.warn('Failed to load frozen stages from localStorage:', e);
     return {};
   }
 }
 
 function saveFrozenStages(stages) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stages));
-    return true;
-  } catch (e) {
-    console.warn('Quota exceeded or failed to save full frozen snapshot, trying lightweight fallback...', e);
-    try {
-      const lightweight = {};
-      Object.keys(stages).forEach(k => {
-        const s = stages[k];
-        lightweight[k] = {
-          ...s,
-          snapshot: {
-            outputs: s.snapshot?.outputs || [],
-            summary: s.snapshot?.summary || {}
-          }
-        };
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(lightweight));
-      return true;
-    } catch (e2) {
-      console.error('Failed to save frozen stages to localStorage:', e2);
-      return false;
-    }
-  }
+  // Асинхронно сохраняем в IndexedDB (без лимитов памяти)
+  saveIDBFrozenStages(stages);
+  return true;
 }
 
 export const useFactoryStore = create((set, get) => ({
@@ -86,7 +73,7 @@ export const useFactoryStore = create((set, get) => ({
   powerConfig: null,
   activePresetId: null,
   layoutDirection: 'LR', // 'LR' (Вправо) | 'TB' (Вниз)
-  schematicMode: 'realistic', // 'simple' (Компактный SCIM) | 'realistic' (Реалистичный цех SCIM)
+  schematicMode: 'simple', // 'simple' (Компактный SCIM) | 'realistic' (Реалистичный цех SCIM)
   
   // Campaign Stages State
   campaignStagesState: initialCampaignStates,
@@ -161,6 +148,45 @@ export const useFactoryStore = create((set, get) => ({
 
     if (targetId === activePresetId) {
       get().recalculateGraph();
+    }
+  },
+
+  initStorage: async () => {
+    requestPersistence();
+    try {
+      const stages = await loadIDBFrozenStages();
+      if (stages && typeof stages === 'object' && Object.keys(stages).length > 0) {
+        set({ frozenStages: stages });
+        const { activePresetId } = get();
+        if (activePresetId && stages[activePresetId]) {
+          const currentPreset = presets.find(p => p.id === activePresetId);
+          if (currentPreset) get().loadPreset(currentPreset);
+        }
+      }
+    } catch (e) {
+      console.warn('initStorage failed:', e);
+    }
+  },
+
+  exportBackup: () => {
+    exportBackupJSON(get().frozenStages);
+  },
+
+  importBackup: async (file) => {
+    try {
+      const stages = await importBackupJSON(file);
+      await saveIDBFrozenStages(stages);
+      set({ frozenStages: stages });
+      const { activePresetId } = get();
+      if (activePresetId && stages[activePresetId]) {
+        const currentPreset = presets.find(p => p.id === activePresetId);
+        if (currentPreset) get().loadPreset(currentPreset);
+      }
+      get().recalculateGraph();
+      return { success: true };
+    } catch (err) {
+      console.error('Import failed:', err);
+      return { success: false, error: err.message };
     }
   },
 
@@ -567,13 +593,13 @@ export const useFactoryStore = create((set, get) => ({
         marginy: 60
       });
 
-      // Функция определения размеров ноды для Dagre (единый круговой SCIM стандарт)
+      // Функция определения размеров ноды для Dagre (единый SCIM стандарт высоты 130px для идеального выравнивания портов)
       const getNodeDimensions = (node) => {
         if (node.type === 'splitter' || node.type === 'merger') {
-          return { width: 140, height: 100 };
+          return { width: 140, height: 130 };
         }
         if (node.type === 'output' || node.type === 'productItem') {
-          return { width: 80, height: 80 };
+          return { width: 80, height: 130 };
         }
         return { width: 150, height: 130 };
       };

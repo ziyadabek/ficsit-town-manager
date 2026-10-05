@@ -82,6 +82,27 @@ export function downloadDataUrl(dataUrl, filename) {
   setTimeout(() => document.body.removeChild(a), 500);
 }
 
+// ─── getAdaptivePixelRatio ───────────────────────────────────────────────────
+/**
+ * Вычисляет безопасный pixelRatio во избежание Out of Memory при больших размерах схемы.
+ * @param {HTMLElement} element
+ * @param {number}      [requested=3]
+ * @returns {number}
+ */
+export function getAdaptivePixelRatio(element, requested = 3) {
+  if (!element) return requested;
+  const maxDim = Math.max(
+    element.offsetWidth || 0,
+    element.offsetHeight || 0,
+    element.scrollWidth || 0,
+    element.scrollHeight || 0
+  );
+  if (maxDim > 4000) return 1.0;
+  if (maxDim > 2500) return 1.5;
+  if (maxDim > 1600) return 2.0;
+  return requested;
+}
+
 // ─── captureElement ───────────────────────────────────────────────────────────
 /**
  * Захватывает DOM-элемент в PNG.
@@ -92,9 +113,12 @@ export function downloadDataUrl(dataUrl, filename) {
 export async function captureElement(element, overrides = {}) {
   if (!element) throw new Error('captureElement: element is null');
 
+  const pixelRatio = overrides.pixelRatio ?? getAdaptivePixelRatio(element, DEFAULT_CAPTURE_OPTIONS.pixelRatio);
+
   const options = {
     ...DEFAULT_CAPTURE_OPTIONS,
     ...overrides,
+    pixelRatio,
   };
 
   // html-to-image может упасть на первом вызове из-за CORS-кэша иконок.

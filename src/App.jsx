@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react'
+import React, { useState, useEffect, Suspense, lazy } from 'react'
 import MainView from './components/canvas/MainView'
 import RightPanel from './components/complexes/RightPanel'
 import DeficitAlerts from './components/logistics/DeficitAlerts'
@@ -9,9 +9,13 @@ const PowerPlanner = lazy(() => import('./modules/power/PowerPlanner'))
 const MacroView = lazy(() => import('./components/canvas/MacroView'))
 
 function App() {
-  const { switchAppView, loadPreset, selectedPresetType, campaignStagesState, activePresetId, toggleStage, setStageScale, frozenStages } = useFactoryStore();
+  const { loadPreset, campaignStagesState, activePresetId, frozenStages, initStorage } = useFactoryStore();
   const [view, setView] = useState('calculator');
   const [campaignMode, setCampaignMode] = useState('detail');
+
+  useEffect(() => {
+    initStorage();
+  }, [initStorage]);
   const handleSetView = (newView) => {
     setView(newView);
     if (newView === 'campaign' && !activePresetId && presets.length > 0) {

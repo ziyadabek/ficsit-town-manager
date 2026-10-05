@@ -19,18 +19,31 @@ export default function MacroEdge({
 
   // Разводим параллельные рёбра по вертикальным полосам (lanes).
   // Смещение по Y устраняет наложение рёбер между одной парой узлов.
-  const midY = (sourceY + targetY) / 2;
+  const isHorizontal = Math.abs(targetX - sourceX) >= Math.abs(targetY - sourceY);
+  let adjTargetY = targetY;
+  let adjTargetX = targetX;
+
+  if (totalTracks === 1) {
+    if (isHorizontal && Math.abs(targetY - sourceY) <= 28) {
+      adjTargetY = sourceY;
+    } else if (!isHorizontal && Math.abs(targetX - sourceX) <= 28) {
+      adjTargetX = sourceX;
+    }
+  }
+
+  const isSnapped = totalTracks === 1 && ((isHorizontal && Math.abs(targetY - sourceY) <= 28) || (!isHorizontal && Math.abs(targetX - sourceX) <= 28));
+  const midY = (sourceY + adjTargetY) / 2;
   const laneSpacing = 18;
   const offset = (trackIndex - (totalTracks - 1) / 2) * laneSpacing;
-  const centerY = midY + offset;
+  const centerY = isSnapped ? undefined : midY + offset;
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     centerY,
     sourceX,
     sourceY,
     sourcePosition,
-    targetX,
-    targetY,
+    targetX: adjTargetX,
+    targetY: adjTargetY,
     targetPosition,
     borderRadius: 18,
   });

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import recipesDB from '../../../database/recipes.json';
+import { useFactoryStore } from '../../../store/useFactoryStore';
 
 export default function SettingsTab({
   layoutDirection,
@@ -12,6 +13,24 @@ export default function SettingsTab({
   onSetOption,
   onSetOptimizeMode
 }) {
+  const activePresetId = useFactoryStore(s => s.activePresetId);
+  const exportBackup = useFactoryStore(s => s.exportBackup);
+  const importBackup = useFactoryStore(s => s.importBackup);
+  const fileInputRef = useRef(null);
+  const [importStatus, setImportStatus] = useState(null);
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const res = await importBackup(file);
+    if (res.success) {
+      setImportStatus({ type: 'success', msg: 'Сохранение успешно загружено!' });
+    } else {
+      setImportStatus({ type: 'error', msg: res.error || 'Ошибка загрузки файла' });
+    }
+    setTimeout(() => setImportStatus(null), 4000);
+    e.target.value = '';
+  };
   return (
     <div className="space-y-4 text-xs">
       {/* Верхние выпадающие списки: Направление и Вид схемы */}
@@ -27,7 +46,6 @@ export default function SettingsTab({
             <option value="TB">Стрелка вниз</option>
           </select>
         </div>
-
         <div className="flex items-center justify-between gap-3">
           <span className="text-gray-200 font-medium">Вид схемы</span>
           <select 
@@ -166,7 +184,7 @@ export default function SettingsTab({
               type="number" 
               min="0"
               value={options.powerShards || 0}
-              onChange={e => onSetOption('powerShards', Number(e.target.value))}
+              onChange={e => onSetOption('powerShards', Math.max(0, Math.floor(Number(e.target.value) || 0)))}
               className="bg-white text-black font-bold font-mono px-3 py-1 rounded w-48 text-center text-xs shadow-inner"
             />
           </div>
@@ -177,7 +195,7 @@ export default function SettingsTab({
               type="number" 
               min="0"
               value={options.somersloops || 0}
-              onChange={e => onSetOption('somersloops', Number(e.target.value))}
+              onChange={e => onSetOption('somersloops', Math.max(0, Math.floor(Number(e.target.value) || 0)))}
               className="bg-white text-black font-bold font-mono px-3 py-1 rounded w-48 text-center text-xs shadow-inner"
             />
           </div>
@@ -238,6 +256,46 @@ export default function SettingsTab({
           <option value="machines">Минимизировать число станков</option>
         </select>
       </div>
+
+      {/* Секция: Постоянное хранилище и бэкап (только в режиме План кампании) */}
+      {activePresetId && (
+        <div className="pt-2 border-t border-[#2d3340]">
+          <div className="text-[#f97316] font-bold text-sm mb-2">Хранилище и бэкап</div>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={exportBackup}
+              className="px-2.5 py-1.5 bg-[#2a2e39] hover:bg-[#3f4452] text-white font-semibold rounded text-center transition-colors cursor-pointer text-xs"
+              title="Скачивает .json файл со всеми замороженными цехами"
+            >
+              Экспорт сохранения
+            </button>
+
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="px-2.5 py-1.5 bg-[#1e293b] hover:bg-[#334155] text-[#38bdf8] border border-[#38bdf8]/40 font-semibold rounded text-center transition-colors cursor-pointer text-xs"
+              title="Позволяет восстановить цеха из файла на любом устройстве"
+            >
+              Импорт сохранения
+            </button>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              accept=".json,application/json" 
+              className="hidden" 
+            />
+          </div>
+          {importStatus && (
+            <div className={`mt-2 p-1.5 rounded text-[11px] font-medium text-center ${
+              importStatus.type === 'success' ? 'bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/40' : 'bg-[#ef4444]/20 text-[#ef4444] border border-[#ef4444]/40'
+            }`}>
+              {importStatus.msg}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

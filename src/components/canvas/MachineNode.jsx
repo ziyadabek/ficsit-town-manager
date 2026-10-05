@@ -7,7 +7,7 @@ import { useFactoryStore } from '../../store/useFactoryStore';
 import { getAssetUrl } from '../../database/assets';
 
 
-export default function СтанокNode({ data }) {
+export default function MachineNode({ data }) {
   const somersloopRecipes = useFactoryStore(state => state.options.somersloopRecipes) || [];
   const toggleSomersloop = useFactoryStore(state => state.toggleSomersloop);
   const storeDirection = useFactoryStore(state => state.layoutDirection);
@@ -174,9 +174,9 @@ export default function СтанокNode({ data }) {
 
   const building = buildings[data.buildingId];
   const item = items[data.itemId];
-  const isГенератор = data.outputs?.some(out => out.itemId === 'power');
+  const isGenerator = data.outputs?.some(out => out.itemId === 'power');
 
-  if (isГенератор) {
+  if (isGenerator) {
     const powerOut = data.outputs.find(out => out.itemId === 'power').rate;
     return (
       <div className="bg-[#1a202c] border-2 border-[#facc15] rounded-md shadow-[0_0_20px_rgba(250,204,21,0.3)] min-w-[280px] text-[#e1e1e6] relative z-10 overflow-hidden">

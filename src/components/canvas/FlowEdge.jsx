@@ -23,12 +23,24 @@ export default function FlowEdge({
   const slotIndex = data?.slotIndex || 0;
   const dynamicOffset = baseOffset + (slotIndex * step);
 
+  // Устраняем микро-перепады (до 45px) между портами станков, сплиттеров и конечных продуктов,
+  // чтобы линии на прямых связях были идеально ровными без паразитных ступенек
+  const isHorizontal = Math.abs(targetX - sourceX) >= Math.abs(targetY - sourceY);
+  let adjTargetY = targetY;
+  let adjTargetX = targetX;
+
+  if (isHorizontal && Math.abs(targetY - sourceY) <= 45) {
+    adjTargetY = sourceY;
+  } else if (!isHorizontal && Math.abs(targetX - sourceX) <= 45) {
+    adjTargetX = sourceX;
+  }
+
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
     sourcePosition,
-    targetX,
-    targetY,
+    targetX: adjTargetX,
+    targetY: adjTargetY,
     targetPosition,
     borderRadius: 8,
     offset: dynamicOffset

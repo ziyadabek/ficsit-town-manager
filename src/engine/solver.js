@@ -397,7 +397,7 @@ export function solveProductionGraph(targets, inputsLimit, options = {}) {
         const cleanItem = item.replace('_vip_in', '');
 
         edges.push({
-          id: `edge_${producer.nodeId}_${consumer.nodeId}_${item}_${Date.now()}_${Math.floor(Math.random()*1000)}`,
+          id: `edge_${producer.nodeId}_${consumer.nodeId}_${cleanItem}_${currentSlot}`,
           source: producer.nodeId,
           sourceHandle: `out-${cleanItem}`,
           target: consumer.nodeId,

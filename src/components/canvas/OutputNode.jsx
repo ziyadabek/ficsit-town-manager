@@ -13,25 +13,28 @@ export default function OutputNode({ data }) {
   const targetPos = isVertical ? Position.Top : Position.Left;
 
   return (
-    <div className="relative flex items-center justify-center select-none w-16 h-16 !bg-transparent !p-0 !border-none !shadow-none">
-      {/* Невидимый целевой порт для подключения конвейерной ленты */}
-      <Handle 
-        type="target" 
-        position={targetPos} 
-        id="in" 
-        className="!w-2 !h-2 !opacity-0 !border-none !bg-transparent pointer-events-none" 
-      />
-
-      {/* Оригинальная 3D-иконка произведенного предмета без кругов, рамок и подписей */}
-      {item?.icon && (
-        <img 
-          src={getAssetUrl(item.icon)} 
-          alt={item.name} 
-          title={`${item.name} (${data.rate ? data.rate.toFixed(1) : ''} / мин)`}
-          className="w-16 h-16 object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] transition-transform hover:scale-110" 
-          onError={e => (e.target.style.display = 'none')}
+    <div className="flex flex-col items-center justify-start select-none w-20 py-1 relative !bg-transparent !p-0 !border-none !shadow-none">
+      <div className="w-20 h-20 relative flex items-center justify-center">
+        {/* Невидимый целевой порт для подключения конвейерной ленты */}
+        <Handle 
+          type="target" 
+          position={targetPos} 
+          id="in" 
+          style={isVertical ? { top: 4 } : { left: 4 }}
+          className="!w-2 !h-2 !opacity-0 !border-none !bg-transparent pointer-events-none" 
         />
-      )}
+
+        {/* Оригинальная 3D-иконка произведенного предмета без кругов, рамок и подписей */}
+        {item?.icon && (
+          <img 
+            src={getAssetUrl(item.icon)} 
+            alt={item.name} 
+            title={`${item.name} (${data.rate ? data.rate.toFixed(1) : ''} / мин)`}
+            className="w-16 h-16 object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] transition-transform hover:scale-110" 
+            onError={e => (e.target.style.display = 'none')}
+          />
+        )}
+      </div>
     </div>
   );
 }
