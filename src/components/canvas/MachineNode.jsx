@@ -66,25 +66,37 @@ export default function MachineNode({ data }) {
     if (data.isImport) {
       if (data.isTransit) {
         // Special UI for Inter-Stage Transit
-        const hasDeficit = data.deficit && data.deficit > 0.001;
+        const hasDeficit = Boolean(data.deficit && data.deficit > 0.001);
         
         let transTitle = "Входящий транзит";
         let transIcon = "/icons/Vehicles/tractor.png";
         let transSub = "";
         
         if (data.transport) {
+          const tpm = data.transport.tripsPerMinute || 0;
+          let freqStr = "";
+          if (tpm >= 1) {
+            freqStr = `${tpm.toFixed(1)} рейс/м`;
+          } else if (tpm >= 0.1) {
+            freqStr = `${tpm.toFixed(2)} рейс/м`;
+          } else if (tpm > 0) {
+            freqStr = `1 рейс / ${(1 / tpm).toFixed(0)} мин`;
+          } else {
+            freqStr = `0 рейс/м`;
+          }
+
           if (data.transport.type === 'tractor') {
             transTitle = `Трактор (25 слотов)`;
             transIcon = "/icons/Vehicles/tractor.png";
-            transSub = `${data.transport.vehicleCount} маш. [${data.transport.tripsPerMinute.toFixed(1)} рейс/м]`;
+            transSub = `${data.transport.vehicleCount} маш. [${freqStr}]`;
           } else if (data.transport.type === 'train_fluid') {
             transTitle = `Ж/Д Состав: ${data.transport.vehicleCount} цистерн`;
             transIcon = "/icons/Vehicles/fluid_freight_car.png";
-            transSub = `(1600 м³ / вагон)`;
+            transSub = `(1600 м³ / вагон) [${freqStr}]`;
           } else if (data.transport.type === 'train_nuclear') {
             transTitle = `Ядерный экспресс: ${data.transport.vehicleCount} вагон`;
             transIcon = "/icons/Vehicles/locomotive.png";
-            transSub = `(Радиационная изоляция)`;
+            transSub = `(Радиационная изоляция) [${freqStr}]`;
           }
         }
 

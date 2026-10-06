@@ -657,13 +657,21 @@ export const useFactoryStore = create((set, get) => ({
       }
 
       // 2. Веса и минимальная длина рёбер
+      const inputNodeIds = new Set(activeNodes.filter(n => n.data?.isInput).map(n => n.id));
+
       activeEdges.forEach(edge => {
-        const depthDiff = Math.abs((nodeDepth[edge.target] || 0) - (nodeDepth[edge.source] || 0));
+        const srcDepth = nodeDepth[edge.source] || 0;
+        const tgtDepth = nodeDepth[edge.target] || 0;
+        const depthDiff = Math.max(1, tgtDepth - srcDepth);
         const isLongTransit = depthDiff > 1; 
         
+        // Для входных узлов (шахты, тракторы) minlen фиксирует их слева на входе завода
+        const isFromInput = inputNodeIds.has(edge.source);
+        const minlen = isFromInput ? depthDiff : 1;
+
         dagreGraph.setEdge(edge.source, edge.target, {
-          weight: isLongTransit ? 1 : (isRealistic ? 2 : 3),
-          minlen: 1
+          weight: isFromInput ? 4 : (isLongTransit ? 1 : (isRealistic ? 2 : 3)),
+          minlen
         });
       });
 
