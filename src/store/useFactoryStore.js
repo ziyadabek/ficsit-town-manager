@@ -630,22 +630,31 @@ export const useFactoryStore = create((set, get) => ({
       });
 
       // 3. Группировка по производственным слоям (Ранжирование)
+      // Определение обратных ребер рециркуляции (например, возврат побочной воды в VIP гидроконтур)
+      const isRecycleEdge = (edge) => {
+        const tgtNode = activeNodes.find(n => n.id === edge.target);
+        if (tgtNode?.data?.isVIP && !edge.source.startsWith('mine_') && !edge.source.startsWith('import_')) {
+          return true;
+        }
+        return false;
+      };
+
+      const forwardEdges = activeEdges.filter(e => !isRecycleEdge(e));
+
       const nodeDepth = {};
+      activeNodes.forEach(n => {
+        nodeDepth[n.id] = 0;
+      });
+
       let changed = true;
       let iterations = 0;
-      const MAX_DEPTH = 100;
+      const MAX_DEPTH = 30;
       
       while (changed && iterations < MAX_DEPTH) {
         changed = false;
         iterations++;
         
-        activeNodes.forEach(n => {
-          if (nodeDepth[n.id] === undefined) {
-            nodeDepth[n.id] = 0;
-            changed = true;
-          }
-        });
-        activeEdges.forEach(e => {
+        forwardEdges.forEach(e => {
           if (nodeDepth[e.source] !== undefined) {
             const newDepth = nodeDepth[e.source] + 1;
             if (nodeDepth[e.target] === undefined || newDepth > nodeDepth[e.target]) {
@@ -660,6 +669,16 @@ export const useFactoryStore = create((set, get) => ({
       const inputNodeIds = new Set(activeNodes.filter(n => n.data?.isInput).map(n => n.id));
 
       activeEdges.forEach(edge => {
+        const recycle = isRecycleEdge(edge);
+        if (recycle) {
+          // Обратное ребро рециркуляции воды направляется назад с минимальным весом
+          dagreGraph.setEdge(edge.source, edge.target, {
+            weight: 0.1,
+            minlen: 1
+          });
+          return;
+        }
+
         const srcDepth = nodeDepth[edge.source] || 0;
         const tgtDepth = nodeDepth[edge.target] || 0;
         const depthDiff = Math.max(1, tgtDepth - srcDepth);
