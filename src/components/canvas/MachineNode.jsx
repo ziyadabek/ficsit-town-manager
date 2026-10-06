@@ -108,113 +108,52 @@ export default function MachineNode({ data }) {
   if (isInput) {
     const item = items[data.itemId];
     
-    if (data.isImport) {
-      if (data.isTransit) {
-        // Компактный минималистичный SCIM-дизайн узла транзита (80x80px круг)
-        const hasDeficit = Boolean(data.deficit && data.deficit > 0.001);
-        const ringColor = hasDeficit ? '#f97316' : '#38bdf8';
-        const shadowColor = hasDeficit ? 'rgba(249,115,22,0.4)' : 'rgba(56,189,248,0.4)';
+    if (data.isImport || data.isTransit) {
+      // ЕДИНЫЙ SCIM-СТАНДАРТ ТРАНСПОРТНЫХ И ТРАНЗИТНЫХ УЗЛОВ ДЛЯ ВСЕХ ЭТАПОВ
+      const hasDeficit = Boolean(data.deficit && data.deficit > 0.001);
+      const ringColor = hasDeficit ? '#f97316' : '#38bdf8';
+      const shadowColor = hasDeficit ? 'rgba(249,115,22,0.4)' : 'rgba(56,189,248,0.4)';
 
-        const tpm = data.transport?.tripsPerMinute || 0;
-        let freqStr = "";
-        if (tpm >= 1) freqStr = `${tpm.toFixed(1)} рейс/м`;
-        else if (tpm >= 0.1) freqStr = `${tpm.toFixed(2)} рейс/м`;
-        else if (tpm > 0) freqStr = `1 рейс / ${(1 / tpm).toFixed(0)} мин`;
+      const tpm = data.transport?.tripsPerMinute || 0;
+      let freqStr = "";
+      if (tpm >= 1) freqStr = `${tpm.toFixed(1)} рейс/м`;
+      else if (tpm >= 0.1) freqStr = `${tpm.toFixed(2)} рейс/м`;
+      else if (tpm > 0) freqStr = `1 рейс / ${(1 / tpm).toFixed(0)} мин`;
 
-        let vehicleIcon = '/icons/Vehicles/tractor.png';
-        let vehicleName = 'Трактор';
-        if (data.transport?.type === 'train_fluid') {
-          vehicleIcon = '/icons/Vehicles/fluid_freight_car.png';
-          vehicleName = 'Ж/Д Цистерна';
-        } else if (data.transport?.type === 'train_nuclear' || data.transport?.type === 'train') {
-          vehicleIcon = '/icons/Vehicles/locomotive.png';
-          vehicleName = 'Ж/Д Поезд';
-        }
+      const isFluid = item?.type === 'fluid';
+      let vehicleIcon = isFluid ? '/icons/Vehicles/fluid_freight_car.png' : '/icons/Vehicles/tractor.png';
+      let vehicleName = isFluid ? 'Ж/Д Цистерна' : 'Трактор';
+      let vehicleCount = data.transport?.vehicleCount || 1;
 
-        const tooltip = `${vehicleName}: ${data.transport?.vehicleCount || 1} маш. [${freqStr || 'в пути'}] из «${data.sourceStageName || ''}»`;
-
-        return (
-          <div className="flex flex-col items-center justify-center relative select-none w-[150px] py-1">
-            {/* Круглый SCIM-узел транзита */}
-            <div 
-              className="w-20 h-20 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-transform hover:scale-105"
-              style={{
-                border: `3.5px solid ${ringColor}`,
-                boxShadow: `0 0 10px ${shadowColor}`
-              }}
-              title={tooltip}
-            >
-              {/* 3D Иконка перевозимого ресурса */}
-              {item?.icon && (
-                <img 
-                  src={getAssetUrl(item.icon)} 
-                  alt={item.name} 
-                  className="w-14 h-14 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" 
-                  onError={e => (e.target.style.display = 'none')}
-                />
-              )}
-
-              {/* Мини-бейдж транспорта в правом верхнем углу */}
-              <div 
-                className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#0b0e14] border flex items-center justify-center shadow-md z-10 p-0.5"
-                style={{ borderColor: ringColor }}
-                title={tooltip}
-              >
-                <img src={getAssetUrl(vehicleIcon)} alt="Vehicle" className="w-4 h-4 object-contain" />
-              </div>
-
-              {/* Пилл-бейдж количества машин на верхнем краю */}
-              {data.transport?.vehicleCount && (
-                <div 
-                  className="absolute -top-2 left-1 px-1.5 py-0.2 rounded-full bg-[#0b0e14] border text-[8px] font-mono font-bold shadow-md z-10 text-cyan-300"
-                  style={{ borderColor: ringColor }}
-                >
-                  {data.transport.vehicleCount} маш.
-                </div>
-              )}
-
-              {/* Пилл-бейдж скорости на нижнем краю круга */}
-              <div 
-                className="absolute -bottom-2 px-2 py-0.5 rounded-full bg-[#0b0e14] border text-[10px] font-black font-mono shadow-lg z-10 whitespace-nowrap text-[#22c55e]"
-                style={{ borderColor: ringColor }}
-              >
-                +{data.rate.toFixed(1)}/м
-              </div>
-
-              {/* Порт конвейерного выхода */}
-              <Handle 
-                type="source" 
-                position={sourcePos} 
-                id={`out-${data.itemId}`} 
-                style={isVertical ? { bottom: 4 } : { right: 4 }}
-                className={`w-2.5 h-2.5 !border-none opacity-80 ${hasDeficit ? '!bg-[#f97316]' : '!bg-[#38bdf8]'}`} 
-              />
-            </div>
-
-            {/* Подпись под кругом: название ресурса и этап-источник */}
-            <div className="flex flex-col items-center text-center mt-2 leading-tight w-full px-1">
-              <span className="text-xs font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] truncate w-full" title={item?.name || data.itemId}>
-                {item?.name || data.itemId}
-              </span>
-              <span className="text-[10px] text-cyan-400 font-medium truncate w-full mt-0.5" title={data.sourceStageName}>
-                ← {data.sourceStageName ? data.sourceStageName.replace('ЭТАП ', 'Эт. ') : 'Транзит'}
-              </span>
-              {hasDeficit && (
-                <span className="text-[9px] text-[#f97316] font-bold mt-0.5">
-                  ⚠️ Дефицит -{data.deficit.toFixed(1)}
-                </span>
-              )}
-            </div>
-          </div>
-        );
+      if (data.transport?.type === 'tractor') {
+        vehicleIcon = '/icons/Vehicles/tractor.png';
+        vehicleName = 'Трактор (25 слотов)';
+      } else if (data.transport?.type === 'train_fluid') {
+        vehicleIcon = '/icons/Vehicles/fluid_freight_car.png';
+        vehicleName = 'Ж/Д Цистерна';
+      } else if (data.transport?.type === 'train_nuclear' || data.transport?.type === 'train') {
+        vehicleIcon = '/icons/Vehicles/locomotive.png';
+        vehicleName = 'Ж/Д Состав';
       }
+
+      const stageSrc = data.sourceStageName 
+        ? (data.sourceStageName.replace('ЭТАП ', 'Эт. '))
+        : (data.transport?.type ? 'Межцеховой транзит' : 'Входящий логистический маршрут');
+
+      const tooltip = `${vehicleName}: ${vehicleCount} маш. [${freqStr || 'активный маршрут'}] ${data.sourceStageName ? `из «${data.sourceStageName}»` : ''}`;
 
       return (
         <div className="flex flex-col items-center justify-center relative select-none w-[150px] py-1">
+          {/* Круглый SCIM-узел транзита */}
           <div 
-            className="w-20 h-20 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] border-[3.5px] border-[#3b82f6] transition-transform hover:scale-105"
-            style={{ boxShadow: '0 0 10px rgba(59,130,246,0.4)' }}
+            className="w-20 h-20 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-transform hover:scale-105"
+            style={{
+              border: `3.5px solid ${ringColor}`,
+              boxShadow: `0 0 10px ${shadowColor}`
+            }}
+            title={tooltip}
           >
+            {/* 3D Иконка перевозимого ресурса */}
             {item?.icon && (
               <img 
                 src={getAssetUrl(item.icon)} 
@@ -223,25 +162,55 @@ export default function MachineNode({ data }) {
                 onError={e => (e.target.style.display = 'none')}
               />
             )}
-            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#0b0e14] border border-[#3b82f6] flex items-center justify-center shadow-md z-10 p-0.5">
-              <img src={getAssetUrl('/icons/Conveyor Supports/TrainStation.png')} alt="Train" className="w-4 h-4 object-contain" />
+
+            {/* Мини-бейдж транспорта в правом верхнем углу */}
+            <div 
+              className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#0b0e14] border flex items-center justify-center shadow-md z-10 p-0.5"
+              style={{ borderColor: ringColor }}
+              title={tooltip}
+            >
+              <img src={getAssetUrl(vehicleIcon)} alt="Vehicle" className="w-4 h-4 object-contain" />
             </div>
-            <div className="absolute -bottom-2 px-2 py-0.5 rounded-full bg-[#0b0e14] border border-[#3b82f6] text-[10px] font-black font-mono shadow-lg z-10 whitespace-nowrap text-[#22c55e]">
+
+            {/* Пилл-бейдж количества машин на верхнем краю */}
+            <div 
+              className="absolute -top-2 left-1 px-1.5 py-0.2 rounded-full bg-[#0b0e14] border text-[8px] font-mono font-bold shadow-md z-10 text-cyan-300"
+              style={{ borderColor: ringColor }}
+            >
+              {vehicleCount} маш.
+            </div>
+
+            {/* Пилл-бейдж скорости на нижнем краю круга */}
+            <div 
+              className="absolute -bottom-2 px-2 py-0.5 rounded-full bg-[#0b0e14] border text-[10px] font-black font-mono shadow-lg z-10 whitespace-nowrap text-[#22c55e]"
+              style={{ borderColor: ringColor }}
+            >
               +{data.rate.toFixed(1)}/м
             </div>
+
+            {/* Порт конвейерного выхода */}
             <Handle 
               type="source" 
               position={sourcePos} 
               id={`out-${data.itemId}`} 
               style={isVertical ? { bottom: 4 } : { right: 4 }}
-              className="w-2.5 h-2.5 !bg-[#3b82f6] !border-none opacity-80" 
+              className={`w-2.5 h-2.5 !border-none opacity-80 ${hasDeficit ? '!bg-[#f97316]' : isFluid ? '!bg-[#0ea5e9]' : '!bg-[#38bdf8]'}`} 
             />
           </div>
+
+          {/* Подпись под кругом: название ресурса и этап-источник */}
           <div className="flex flex-col items-center text-center mt-2 leading-tight w-full px-1">
-            <span className="text-xs font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] truncate w-full">
+            <span className="text-xs font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] truncate w-full" title={item?.name || data.itemId}>
               {item?.name || data.itemId}
             </span>
-            <span className="text-[10px] text-gray-400 font-medium">Ж/Д Импорт</span>
+            <span className="text-[10px] text-cyan-400 font-medium truncate w-full mt-0.5" title={data.sourceStageName || 'Логистический транзит'}>
+              ← {stageSrc}
+            </span>
+            {hasDeficit && (
+              <span className="text-[9px] text-[#f97316] font-bold mt-0.5">
+                ⚠️ Дефицит -{data.deficit.toFixed(1)}
+              </span>
+            )}
           </div>
         </div>
       );
