@@ -222,11 +222,9 @@ function App() {
                       view === 'campaign' && campaignMode === 'elevator' ? 'bg-[#242b38] text-[#f59e0b] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
                     }`}
                   >
-                    <img
-                      src="/icons/Buildings/SpaceElevator.png"
-                      alt="Космический лифт"
-                      className="w-4 h-4 object-contain shrink-0 filter drop-shadow"
-                    />
+                    <svg className="w-4 h-4 opacity-80 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.63 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.58-5.84a14.927 14.927 0 00-2.58 5.84" />
+                    </svg>
                     <div>
                       <div className="text-xs font-bold text-[#f59e0b]">Проект «Сборка»</div>
                       <div className="text-[10px] text-gray-400 font-normal">Космический Лифт (5 фаз)</div>
@@ -358,13 +356,8 @@ function App() {
                 title="Орбитальный Космический Лифт: Проект «Сборка» (5 фаз)"
               >
                 <span className="text-[9px] font-black px-1.5 py-0.5 rounded tracking-wide bg-[#f59e0b] text-black">
-                  ПРОЕКТ
+                  ФИНАЛ
                 </span>
-                <img
-                  src="/icons/Buildings/SpaceElevator.png"
-                  alt="Космический лифт"
-                  className="w-4 h-4 object-contain shrink-0 filter drop-shadow"
-                />
                 <span className="text-xs font-bold text-[#f59e0b]">Проект «Сборка»</span>
               </button>
             </div>
