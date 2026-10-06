@@ -630,10 +630,50 @@ export const useFactoryStore = create((set, get) => ({
       });
 
       // 3. Группировка по производственным слоям (Ранжирование)
-      // Определение обратных ребер рециркуляции (например, возврат побочной воды в VIP гидроконтур)
+      // Определение обратных рёбер и циклов рециркуляции (например, темная материя, возврат воды в VIP гидроконтур)
+      const fullAdj = {};
+      activeEdges.forEach(e => {
+        fullAdj[e.source] = fullAdj[e.source] || [];
+        fullAdj[e.source].push(e);
+      });
+
+      const cycleEdgeIds = new Set();
+      const dfsVisited = {};
+      const dfsStack = {};
+
+      function detectCycles(u) {
+        dfsVisited[u] = true;
+        dfsStack[u] = true;
+        for (const e of (fullAdj[u] || [])) {
+          if (!dfsVisited[e.target]) {
+            detectCycles(e.target);
+          } else if (dfsStack[e.target]) {
+            cycleEdgeIds.add(e.id);
+          }
+        }
+        dfsStack[u] = false;
+      }
+
+      // Обходим граф, начиная со входных узлов (шахты, транзит), затем остальные
+      activeNodes.filter(n => n.data?.isInput).forEach(n => {
+        if (!dfsVisited[n.id]) detectCycles(n.id);
+      });
+      activeNodes.forEach(n => {
+        if (!dfsVisited[n.id]) detectCycles(n.id);
+      });
+
       const isRecycleEdge = (edge) => {
+        // 1. Побочные продукты замкнутых циклов (например, остаток темной материи из суперпозиционного осциллятора)
+        if (edge.data?.itemId === 'dark_matter_residue') {
+          return true;
+        }
+        // 2. Возврат побочной воды в VIP гидроконтур
         const tgtNode = activeNodes.find(n => n.id === edge.target);
         if (tgtNode?.data?.isVIP && !edge.source.startsWith('mine_') && !edge.source.startsWith('import_')) {
+          return true;
+        }
+        // 3. Обратные ребра циклов, обнаруженные DFS
+        if (cycleEdgeIds.has(edge.id)) {
           return true;
         }
         return false;
@@ -666,12 +706,10 @@ export const useFactoryStore = create((set, get) => ({
       }
 
       // 2. Веса и минимальная длина рёбер
-      const inputNodeIds = new Set(activeNodes.filter(n => n.data?.isInput).map(n => n.id));
-
       activeEdges.forEach(edge => {
         const recycle = isRecycleEdge(edge);
         if (recycle) {
-          // Обратное ребро рециркуляции воды направляется назад с минимальным весом
+          // Обратное ребро рециркуляции направляется назад с минимальным весом
           dagreGraph.setEdge(edge.source, edge.target, {
             weight: 0.1,
             minlen: 1
@@ -684,12 +722,13 @@ export const useFactoryStore = create((set, get) => ({
         const depthDiff = Math.max(1, tgtDepth - srcDepth);
         const isLongTransit = depthDiff > 1; 
         
-        // Для входных узлов (шахты, тракторы) minlen фиксирует их слева на входе завода
-        const isFromInput = inputNodeIds.has(edge.source);
-        const minlen = isFromInput ? depthDiff : 1;
+        // Для сырьевых шахт (mine_) minlen фиксирует их слева (не более 1-2 рангов)
+        // Для импорта/транзита (import_) minlen = 1 позволяет разместить узел ближе к целевому цеху
+        const isRawMine = edge.source.startsWith('mine_');
+        const minlen = isRawMine ? Math.min(depthDiff, 2) : 1;
 
         dagreGraph.setEdge(edge.source, edge.target, {
-          weight: isFromInput ? 4 : (isLongTransit ? 1 : (isRealistic ? 2 : 3)),
+          weight: isRawMine ? 3 : (isLongTransit ? 1 : (isRealistic ? 2 : 3)),
           minlen
         });
       });
