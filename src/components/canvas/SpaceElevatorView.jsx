@@ -8,39 +8,22 @@ import {
   MarkerType,
   useNodesState,
   useEdgesState,
+  BaseEdge,
+  getSmoothStepPath,
+  EdgeLabelRenderer,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import dagre from 'dagre';
 import items from '../../database/items.json';
 import presets from '../../database/campaignPresets.json';
 import { getAssetUrl } from '../../database/assets';
-import MacroEdge from './MacroEdge';
 
-// ─── Цветовая схема деталей Проекта «Сборка» ──────────────────────────────────
-export const ITEM_COLORS = {
-  smart_plating:            '#38bdf8', // Неоновый голубой
-  versatile_framework:      '#fbbf24', // Янтарный
-  automated_wiring:         '#818cf8', // Индиго
-  modular_engine:           '#34d399', // Изумрудный
-  adaptive_control_unit:    '#22d3ee', // Бирюзовый
-  assembly_director_system: '#c084fc', // Сиреневый
-  magnetic_field_generator: '#f43f5e', // Розово-красный
-  thermal_propulsion_rocket:'#fb923c', // Оранжевый
-  nuclear_pasta:            '#a855f7', // Фиолетовый
-  biochemical_spacesuit:    '#ec4899', // Неоновый розовый
-  ai_expansion_server:      '#e879f9', // Маджента
-  ballistic_warp_drive:     '#38bdf8', // Квантовый голубой
-};
-
-export const getEdgeColor = (itemId) => ITEM_COLORS[itemId] || '#f59e0b';
-
-// ─── Фазы Космического Лифта (Satisfactory 1.0) ──────────────────────────────
+// ─── 5 Фаз Космического Лифта (Satisfactory 1.0) ──────────────────────────────
 export const SPACE_ELEVATOR_PHASES = [
   {
     phase: 1,
     title: 'Фаза 1: Платформа',
     tier: 'Тир 1-2',
-    color: '#38bdf8',
+    color: '#38bdf8', // Неоновый голубой
     reward: 'Доступ к Тирам 3 и 4',
     requirements: [
       { itemId: 'smart_plating', count: 50, stageId: 'complex_3', rate: 2 },
@@ -50,7 +33,7 @@ export const SPACE_ELEVATOR_PHASES = [
     phase: 2,
     title: 'Фаза 2: Каркас',
     tier: 'Тир 3-4',
-    color: '#fbbf24',
+    color: '#fbbf24', // Янтарный
     reward: 'Доступ к Тирам 5 и 6',
     requirements: [
       { itemId: 'smart_plating', count: 1000, stageId: 'complex_3', rate: 2 },
@@ -62,7 +45,7 @@ export const SPACE_ELEVATOR_PHASES = [
     phase: 3,
     title: 'Фаза 3: Системы',
     tier: 'Тир 5-6',
-    color: '#34d399',
+    color: '#34d399', // Изумрудный
     reward: 'Доступ к Тирам 7 и 8',
     requirements: [
       { itemId: 'versatile_framework', count: 2500, stageId: 'complex_3', rate: 5 },
@@ -74,7 +57,7 @@ export const SPACE_ELEVATOR_PHASES = [
     phase: 4,
     title: 'Фаза 4: Двигатели',
     tier: 'Тир 7-8',
-    color: '#a855f7',
+    color: '#a855f7', // Фиолетовый
     reward: 'Доступ к Тиру 9 (Квантовые технологии)',
     requirements: [
       { itemId: 'assembly_director_system', count: 500, stageId: 'complex_8b', rate: 1.5 },
@@ -87,7 +70,7 @@ export const SPACE_ELEVATOR_PHASES = [
     phase: 5,
     title: 'Фаза 5: Сборка (Финал)',
     tier: 'Тир 9',
-    color: '#ec4899',
+    color: '#ec4899', // Неоновый розовый
     reward: 'Кружка «Лучший работник планеты» (Завершение игры)',
     requirements: [
       { itemId: 'nuclear_pasta', count: 1000, stageId: 'complex_8b', rate: 1 },
@@ -98,211 +81,265 @@ export const SPACE_ELEVATOR_PHASES = [
   },
 ];
 
-// Фабрики-поставщики
-const SUPPLIER_FACTORIES = [
-  {
-    id: 'complex_3',
-    name: 'ЭТАП 4: СБОРОЧНО-МЕТИЗНЫЙ ХАБ',
-    tier: 'Тир 1-4',
-    accent: '#38bdf8',
-    items: ['smart_plating', 'versatile_framework', 'automated_wiring'],
-  },
-  {
-    id: 'complex_5',
-    name: 'ЭТАП 6: МАШИНОСТРОИТЕЛЬНЫЙ КОМПЛЕКС',
-    tier: 'Тир 5-6',
-    accent: '#34d399',
-    items: ['modular_engine', 'adaptive_control_unit'],
-  },
-  {
-    id: 'complex_8b',
-    name: 'ЭТАП 10: ВЕРФЬ КОСМИЧЕСКОГО ЛИФТА',
-    tier: 'Тир 7-8',
-    accent: '#a855f7',
-    items: [
-      'assembly_director_system',
-      'magnetic_field_generator',
-      'thermal_propulsion_rocket',
-      'nuclear_pasta',
-    ],
-  },
-  {
-    id: 'phase_5',
-    name: 'ЭТАП 11: КВАНТОВАЯ ВЕРФЬ',
-    tier: 'Тир 9',
-    accent: '#ec4899',
-    items: ['biochemical_spacesuit', 'ai_expansion_server', 'ballistic_warp_drive'],
-  },
-];
+const STAGE_NAMES = {
+  complex_3: 'Эт. 4: Сборочный хаб',
+  complex_5: 'Эт. 6: Машиностроение',
+  complex_8b: 'Эт. 10: Верфь Лифта',
+  phase_5: 'Эт. 11: Квантовая верфь',
+};
 
-// Все транзитные маршруты в Лифт
-export const ELEVATOR_ROUTES = [
-  // Этап 4
-  { source: 'complex_3', target: 'space_elevator', itemId: 'smart_plating', phase: [1, 2], rate: 2 },
-  { source: 'complex_3', target: 'space_elevator', itemId: 'versatile_framework', phase: [2, 3], rate: 5 },
-  { source: 'complex_3', target: 'space_elevator', itemId: 'automated_wiring', phase: [2], rate: 2.5 },
-  // Этап 6
-  { source: 'complex_5', target: 'space_elevator', itemId: 'modular_engine', phase: [3], rate: 2.5 },
-  { source: 'complex_5', target: 'space_elevator', itemId: 'adaptive_control_unit', phase: [3], rate: 1 },
-  // Этап 10
-  { source: 'complex_8b', target: 'space_elevator', itemId: 'assembly_director_system', phase: [4], rate: 1.5 },
-  { source: 'complex_8b', target: 'space_elevator', itemId: 'magnetic_field_generator', phase: [4], rate: 2 },
-  { source: 'complex_8b', target: 'space_elevator', itemId: 'thermal_propulsion_rocket', phase: [4], rate: 1 },
-  { source: 'complex_8b', target: 'space_elevator', itemId: 'nuclear_pasta', phase: [4, 5], rate: 1 },
-  // Этап 11
-  { source: 'phase_5', target: 'space_elevator', itemId: 'biochemical_spacesuit', phase: [5], rate: 2.5 },
-  { source: 'phase_5', target: 'space_elevator', itemId: 'ai_expansion_server', phase: [5], rate: 2.5 },
-  { source: 'phase_5', target: 'space_elevator', itemId: 'ballistic_warp_drive', phase: [5], rate: 1 },
-];
+// ─── Узел 1: Деталь Проекта (Круг SCIM 80×80) ─────────────────────────────────
+function ScimPartNode({ data }) {
+  const item = items[data.itemId] || { name: data.itemId, icon: '' };
+  const color = data.color || '#38bdf8';
 
-const LEGEND = [
-  { color: '#38bdf8', label: 'Фаза 1: Платформа' },
-  { color: '#fbbf24', label: 'Фаза 2: Каркас' },
-  { color: '#34d399', label: 'Фаза 3: Системы' },
-  { color: '#a855f7', label: 'Фаза 4: Двигатели' },
-  { color: '#ec4899', label: 'Фаза 5: Квантовая сборка' },
-];
-
-// ─── Узел 1: Фабрика-поставщик (Стиль MacroStageNode из Карты) ────────────────
-const MacroFactoryNode = ({ data }) => {
-  const accent = data.accent || '#f97316';
-  const glow = `0 0 16px ${accent}2e`;
-  const stripe = `bg-[repeating-linear-gradient(45deg,${accent},${accent}_8px,#0b0d10_8px,#0b0d10_16px)]`;
+  const handlePos =
+    data.targetSide === 'top'
+      ? Position.Bottom
+      : data.targetSide === 'bottom'
+      ? Position.Top
+      : Position.Right;
 
   return (
     <div
       onClick={data.onClick}
-      className="bg-[#14171d] rounded-md w-[260px] flex flex-col relative overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] group shadow-xl"
-      style={{ border: `2px solid ${accent}`, boxShadow: glow }}
+      className="flex flex-col items-center justify-center relative select-none w-[140px] py-1 cursor-pointer group"
+      title={`${item.name} (${data.count.toLocaleString()} шт) • Кликните для перехода в цех`}
     >
-      {/* Полосатый FICSIT-декор сверху */}
-      <div className={`h-2 w-full ${stripe}`} />
+      <div
+        className="w-20 h-20 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-transform group-hover:scale-105"
+        style={{
+          border: `3px solid ${color}`,
+          boxShadow: `0 0 12px ${color}44`,
+        }}
+      >
+        {/* 3D Иконка предмета */}
+        {item.icon && (
+          <img
+            src={getAssetUrl(item.icon)}
+            alt={item.name}
+            className="w-13 h-13 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+            onError={(e) => (e.target.style.display = 'none')}
+          />
+        )}
 
-      <div className="p-3 bg-gradient-to-b from-[#1a1f29] to-transparent border-b border-[#2a2e39]">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#0b0d10] text-gray-300 border border-[#2a2e39]">
-            {data.tier}
-          </span>
-          <span className="text-[9px] font-bold text-gray-400 group-hover:text-amber-400 transition-colors">
-            Открыть цех →
-          </span>
+        {/* Верхний пилл: Номер фазы */}
+        <div
+          className="absolute -top-2.5 px-2 py-0.5 rounded-full text-[8.5px] font-black font-mono shadow-md z-10 text-black whitespace-nowrap"
+          style={{ background: color }}
+        >
+          Фаза {data.phase}
         </div>
-        <h3 className="font-black uppercase tracking-wider text-[11px] leading-tight text-white group-hover:text-amber-400 transition-colors">
-          {data.name}
-        </h3>
-        <p className="text-[9px] text-gray-400 font-bold tracking-wider mt-1">
-          ПОСТАВЩИК ПРОЕКТА «СБОРКА»
-        </p>
+
+        {/* Нижний пилл: Темп подачи */}
+        <div className="absolute -bottom-2.5 px-2 py-0.5 rounded-full bg-[#0b0e14] border border-[#2a2e39] text-[8.5px] font-black font-mono text-[#22c55e] shadow-md z-10 whitespace-nowrap">
+          +{data.rate}/м
+        </div>
+
+        {/* Выходной порт, направленный в сторону порта лифта */}
+        <Handle
+          type="source"
+          position={handlePos}
+          id="out"
+          style={{
+            background: color,
+            border: '2px solid #0b0e14',
+            width: 10,
+            height: 10,
+          }}
+          className="opacity-90"
+        />
       </div>
 
-      <div className="px-3 py-2 bg-[#0b0d10] flex justify-between items-center text-[10px]">
-        <span className="text-gray-400">Статус</span>
-        <span className="font-bold text-emerald-400 flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          АКТИВЕН
+      {/* Подпись под кругом */}
+      <div className="flex flex-col items-center text-center mt-3 leading-tight w-full px-1">
+        <span className="text-xs font-bold text-white drop-shadow truncate w-full group-hover:text-amber-400 transition-colors">
+          {item.name}
+        </span>
+        <span className="text-[10px] text-amber-400 font-mono font-bold truncate w-full mt-0.5">
+          {data.count.toLocaleString()} шт
+        </span>
+        <span className="text-[9px] text-gray-500 truncate w-full mt-0.5 group-hover:text-gray-300 transition-colors">
+          ← {data.stageName}
         </span>
       </div>
-
-      {/* Выходные хэндлы — справа */}
-      {(data.outputs || []).map((itemId, idx, arr) => (
-        <Handle
-          key={`out-${itemId}`}
-          type="source"
-          id={`source-${itemId}`}
-          position={Position.Right}
-          style={{
-            top: `${((idx + 1) / (arr.length + 1)) * 100}%`,
-            background: getEdgeColor(itemId),
-            border: '2px solid #0b0d10',
-            width: 12,
-            height: 12,
-          }}
-          title={`Выход: ${items[itemId]?.name || itemId}`}
-        />
-      ))}
     </div>
   );
-};
+}
 
-// ─── Узел 2: Космический Лифт (Флагманская карточка FICSIT) ───────────────────
-const MacroElevatorNode = ({ data }) => {
-  const accent = '#f59e0b';
-  const glow = '0 0 24px rgba(245,158,11,0.3)';
-  const stripe = 'bg-[repeating-linear-gradient(45deg,#f59e0b,#f59e0b_8px,#0b0d10_8px,#0b0d10_16px)]';
+// ─── Узел 2: Космический Лифт (Центральный узел 110×110 с 6 портами на 3-х сторонах)
+function ScimElevatorNode({ data }) {
   const elevatorIcon = getAssetUrl('/icons/Buildings/SpaceElevator.png');
 
   return (
-    <div
-      className="bg-[#14171d] rounded-md w-[290px] flex flex-col relative overflow-hidden shadow-2xl"
-      style={{ border: `2px solid ${accent}`, boxShadow: glow }}
-    >
-      {/* Полосатый FICSIT-декор сверху */}
-      <div className={`h-2.5 w-full ${stripe}`} />
+    <div className="flex flex-col items-center justify-center relative select-none w-[170px] py-1 cursor-default group">
+      <div
+        className="w-28 h-28 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_6px_24px_rgba(0,0,0,0.9)] transition-transform hover:scale-105"
+        style={{
+          border: '4px solid #f59e0b',
+          boxShadow: '0 0 24px rgba(245,158,11,0.45)',
+        }}
+        title="Космический Лифт: Проект «Сборка» (5 Фаз • 6 Входных портов)"
+      >
+        {/* ── 6 ВХОДНЫХ ПОРТОВ (по 2 порта с 3-х сторон: Верх, Лево, Низ) ── */}
 
-      <div className="p-3 bg-gradient-to-b from-[#f59e0b]/20 to-transparent border-b border-[#f59e0b]/30 flex items-center gap-3">
+        {/* Верхняя сторона (Север): 2 порта */}
+        <Handle
+          type="target"
+          position={Position.Top}
+          id="port-top-0"
+          style={{ left: '30%', top: -6 }}
+          className="w-3.5 h-3.5 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-xs shadow-md opacity-90 hover:scale-125 transition-transform"
+          title="Входной порт 1 (Север-А: Фазы 1-2)"
+        />
+        <Handle
+          type="target"
+          position={Position.Top}
+          id="port-top-1"
+          style={{ left: '70%', top: -6 }}
+          className="w-3.5 h-3.5 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-xs shadow-md opacity-90 hover:scale-125 transition-transform"
+          title="Входной порт 2 (Север-Б: Фазы 1-2)"
+        />
+
+        {/* Левая сторона (Запад): 2 порта */}
+        <Handle
+          type="target"
+          position={Position.Left}
+          id="port-left-0"
+          style={{ top: '30%', left: -6 }}
+          className="w-3.5 h-3.5 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-xs shadow-md opacity-90 hover:scale-125 transition-transform"
+          title="Входной порт 3 (Запад-А: Фазы 3-4)"
+        />
+        <Handle
+          type="target"
+          position={Position.Left}
+          id="port-left-1"
+          style={{ top: '70%', left: -6 }}
+          className="w-3.5 h-3.5 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-xs shadow-md opacity-90 hover:scale-125 transition-transform"
+          title="Входной порт 4 (Запад-Б: Фазы 3-4)"
+        />
+
+        {/* Нижняя сторона (Юг): 2 порта */}
+        <Handle
+          type="target"
+          position={Position.Bottom}
+          id="port-bottom-0"
+          style={{ left: '30%', bottom: -6 }}
+          className="w-3.5 h-3.5 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-xs shadow-md opacity-90 hover:scale-125 transition-transform"
+          title="Входной порт 5 (Юг-А: Фазы 4-5)"
+        />
+        <Handle
+          type="target"
+          position={Position.Bottom}
+          id="port-bottom-1"
+          style={{ left: '70%', bottom: -6 }}
+          className="w-3.5 h-3.5 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-xs shadow-md opacity-90 hover:scale-125 transition-transform"
+          title="Входной порт 6 (Юг-Б: Фазы 4-5)"
+        />
+
+        {/* Правая сторона (Восток): Консоль управления и запуска */}
+        <div
+          className="absolute -right-4 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-[#1e293b] border border-[#f59e0b]/80 text-[8px] font-black font-mono text-[#f59e0b] shadow-md z-10 pointer-events-none whitespace-nowrap"
+          title="Консоль терминала и отправки"
+        >
+          ТЕРМИНАЛ
+        </div>
+
+        {/* 3D Иконка Космического Лифта */}
         <img
           src={elevatorIcon}
           alt="Космический лифт"
-          className="w-11 h-11 object-contain shrink-0 filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.5)]"
+          className="w-20 h-20 object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] filter drop-shadow-[0_0_8px_rgba(245,158,11,0.4)]"
+          onError={(e) => (e.target.style.display = 'none')}
         />
-        <div className="flex-1 min-w-0">
-          <h3 className="font-black uppercase tracking-wider text-[12.5px] text-[#f59e0b] leading-tight truncate">
-            Космический Лифт
-          </h3>
-          <p className="text-[9.5px] text-gray-300 font-bold tracking-wider mt-0.5">
-            ПРОЕКТ «СБОРКА» (ФАЗЫ 1-5)
-          </p>
+
+        {/* Верхний пилл: Пассивное питание и раскладка портов */}
+        <div className="absolute -top-3.5 px-2.5 py-0.5 rounded-full bg-[#0b0e14] border border-[#f59e0b] text-[8.5px] font-black font-mono text-[#f59e0b] shadow-lg z-10 pointer-events-none whitespace-nowrap">
+          ★ 0 МВт • 6 ВХОДОВ (3×2)
+        </div>
+
+        {/* Нижний пилл: Фазы */}
+        <div className="absolute -bottom-3.5 px-2.5 py-0.5 rounded-full bg-[#f59e0b] text-black text-[8.5px] font-black font-mono shadow-lg z-10 pointer-events-none whitespace-nowrap">
+          5 / 5 ФАЗ
         </div>
       </div>
 
-      <div className="px-3 py-2 bg-[#0b0d10] border-b border-[#2a2e39]/60 flex justify-between items-center text-[10px]">
-        <span className="text-gray-400">Питание</span>
-        <span className="font-mono text-emerald-400 font-bold">★ 0 МВт (Пассивное)</span>
-      </div>
-
-      <div className="px-3 py-2 bg-[#0b0d10] border-b border-[#2a2e39]/60 flex justify-between items-center text-[10px]">
-        <span className="text-gray-400">Шлюзы снабжения</span>
-        <span className="font-mono text-[#f59e0b] font-bold">
-          {data.inputs?.length || 11} линий приема
+      {/* Подпись под узлом */}
+      <div className="flex flex-col items-center text-center mt-3.5 leading-tight w-full px-1">
+        <span className="text-xs font-black text-[#f59e0b] uppercase tracking-wider drop-shadow truncate w-full">
+          КОСМИЧЕСКИЙ ЛИФТ
+        </span>
+        <span className="text-[10px] text-gray-400 font-medium truncate w-full mt-0.5">
+          Проект «Сборка» (Финал 1.0)
         </span>
       </div>
-
-      <div className="px-3 py-2 bg-[#12151c] flex items-center justify-between text-[10px]">
-        <span className="text-gray-400">Статус</span>
-        <span className="text-[#f59e0b] font-black uppercase tracking-wider flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-[#f59e0b] animate-pulse"></span>
-          ГОТОВ К ЗАПУСКУ
-        </span>
-      </div>
-
-      {/* Входные хэндлы — слева */}
-      {(data.inputs || []).map((itemId, idx, arr) => (
-        <Handle
-          key={`in-${itemId}`}
-          type="target"
-          id={`target-${itemId}`}
-          position={Position.Left}
-          style={{
-            top: `${((idx + 1) / (arr.length + 1)) * 100}%`,
-            background: getEdgeColor(itemId),
-            border: '2px solid #0b0d10',
-            width: 12,
-            height: 12,
-          }}
-          title={`Вход: ${items[itemId]?.name || itemId}`}
-        />
-      ))}
     </div>
   );
-};
+}
+
+// ─── Ребро графа (Плавный конвейер со счетчиком темпа) ────────────────────────
+function CompactConveyorEdge({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  style = {},
+  markerEnd,
+  data,
+}) {
+  const color = data?.color || '#f59e0b';
+
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+    borderRadius: 16,
+  });
+
+  return (
+    <>
+      <BaseEdge
+        path={edgePath}
+        markerEnd={markerEnd}
+        style={{
+          ...style,
+          stroke: color,
+          strokeWidth: 2.5,
+          filter: `drop-shadow(0 0 3px ${color}44)`,
+        }}
+      />
+      {data?.rate && (
+        <EdgeLabelRenderer>
+          <div
+            style={{
+              position: 'absolute',
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+              pointerEvents: 'none',
+              borderColor: color,
+            }}
+            className="bg-[#0b0d10] border rounded-full px-1.5 py-0.2 shadow-md text-[9px] font-mono font-bold z-10"
+          >
+            <span style={{ color }}>+{data.rate}/м</span>
+          </div>
+        </EdgeLabelRenderer>
+      )}
+    </>
+  );
+}
 
 const nodeTypes = {
-  macroFactory: MacroFactoryNode,
-  macroElevator: MacroElevatorNode,
+  scimPart: ScimPartNode,
+  scimElevator: ScimElevatorNode,
 };
 
 const edgeTypes = {
-  macroEdge: MacroEdge,
+  compactConveyor: CompactConveyorEdge,
 };
 
 // ─── Главный компонент SpaceElevatorView ──────────────────────────────────────
@@ -311,7 +348,7 @@ export default function SpaceElevatorView({ onNavigateStage }) {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedPhase, setSelectedPhase] = useState('all');
 
-  // Подсветка связности при наведении курсора
+  // Подсветка связей при наведении
   const onNodeMouseEnter = (_, node) => {
     const id = node.id;
     const connected = new Set([id]);
@@ -356,169 +393,230 @@ export default function SpaceElevatorView({ onNavigateStage }) {
     );
   };
 
-  // Построение графа через Dagre (чистая карта LR как в MacroView)
+  // Построение компактного органичного графа без пустых расстояний
   useEffect(() => {
-    const g = new dagre.graphlib.Graph();
-    g.setGraph({
-      rankdir: 'LR',
-      nodesep: 80,
-      ranksep: 380,
-      marginx: 40,
-      marginy: 40,
-    });
-    g.setDefaultEdgeLabel(() => ({}));
-
-    // Фильтрация маршрутов по выбранной фазе
-    const activeRoutes = ELEVATOR_ROUTES.filter((r) => {
-      if (selectedPhase === 'all') return true;
-      return r.phase.includes(selectedPhase);
-    });
-
-    // Определяем активные входы для лифта и выходы для фабрик
-    const factoryOutputs = {};
-    const elevatorInputs = new Set();
-
-    SUPPLIER_FACTORIES.forEach((f) => {
-      factoryOutputs[f.id] = new Set();
-    });
-
-    activeRoutes.forEach((r) => {
-      factoryOutputs[r.source]?.add(r.itemId);
-      elevatorInputs.add(r.itemId);
-    });
-
-    // 1. Узлы фабрик-поставщиков
-    const factoryNodes = SUPPLIER_FACTORIES.map((f) => {
-      const outputs = Array.from(factoryOutputs[f.id] || f.items);
-      g.setNode(f.id, { width: 260, height: 110 });
-
-      return {
-        id: f.id,
-        type: 'macroFactory',
-        data: {
-          name: f.name,
-          tier: f.tier,
-          accent: f.accent,
-          outputs,
-          onClick: () => {
-            const preset = presets.find((p) => p.id === f.id);
-            if (preset && onNavigateStage) {
-              onNavigateStage(preset);
-            }
-          },
-        },
-        position: { x: 0, y: 0 },
-      };
-    });
-
-    // 2. Узел Космического Лифта
-    const allElevatorItems =
-      selectedPhase === 'all'
-        ? Array.from(new Set(ELEVATOR_ROUTES.map((r) => r.itemId)))
-        : Array.from(elevatorInputs);
-
-    g.setNode('space_elevator', { width: 290, height: 160 });
+    const elevatorPos = { x: 580, y: 340 };
     const elevatorNode = {
       id: 'space_elevator',
-      type: 'macroElevator',
-      data: {
-        inputs: allElevatorItems,
-      },
-      position: { x: 0, y: 0 },
+      type: 'scimElevator',
+      position: elevatorPos,
+      data: {},
     };
 
-    // 3. Рёбра (Конвейерные линии MacroEdge)
-    const pairGroups = {};
-    activeRoutes.forEach((route) => {
-      const key = `${route.source}__${route.target}`;
-      if (!pairGroups[key]) pairGroups[key] = [];
-      pairGroups[key].push(route.itemId);
-    });
+    const newNodes = [];
+    const newEdges = [];
 
-    const newEdges = activeRoutes.map((route, idx) => {
-      const color = getEdgeColor(route.itemId);
-      const itemInfo = items[route.itemId] || { name: route.itemId, icon: '' };
-      const pairKey = `${route.source}__${route.target}`;
-      const group = pairGroups[pairKey];
-      const trackIndex = group.indexOf(route.itemId);
-      const totalTracks = group.length;
+    // Конфигурация секторов и позиций узлов деталей
+    // При "Все фазы":
+    //  - Северный сектор (сверху): Фазы 1 и 2 ──► port-top-0, port-top-1
+    //  - Западный сектор (слева):  Фазы 3 и 4 ──► port-left-0, port-left-1
+    //  - Южный сектор (снизу):     Фазы 4 и 5 ──► port-bottom-0, port-bottom-1
+    if (selectedPhase === 'all') {
+      // 1. Северный сектор (Сверху, Y: 100)
+      const topItems = [
+        { phase: 1, itemId: 'smart_plating', count: 50, stageId: 'complex_3', rate: 2, port: 'port-top-0', x: 380, y: 100 },
+        { phase: 2, itemId: 'smart_plating', count: 1000, stageId: 'complex_3', rate: 2, port: 'port-top-0', x: 530, y: 100 },
+        { phase: 2, itemId: 'versatile_framework', count: 1000, stageId: 'complex_3', rate: 5, port: 'port-top-1', x: 680, y: 100 },
+        { phase: 2, itemId: 'automated_wiring', count: 100, stageId: 'complex_3', rate: 2.5, port: 'port-top-1', x: 830, y: 100 },
+      ];
 
-      g.setEdge(route.source, route.target);
+      // 2. Западный сектор (Слева, X: 170 и 340)
+      const leftItems = [
+        { phase: 3, itemId: 'versatile_framework', count: 2500, stageId: 'complex_3', rate: 5, port: 'port-left-0', x: 170, y: 270 },
+        { phase: 3, itemId: 'modular_engine', count: 500, stageId: 'complex_5', rate: 2.5, port: 'port-left-0', x: 340, y: 270 },
+        { phase: 3, itemId: 'adaptive_control_unit', count: 100, stageId: 'complex_5', rate: 1, port: 'port-left-1', x: 170, y: 430 },
+        { phase: 4, itemId: 'assembly_director_system', count: 500, stageId: 'complex_8b', rate: 1.5, port: 'port-left-1', x: 340, y: 430 },
+      ];
 
-      return {
-        id: `e-${route.source}-${route.target}-${route.itemId}-${idx}`,
-        source: route.source,
-        target: route.target,
-        sourceHandle: `source-${route.itemId}`,
-        targetHandle: `target-${route.itemId}`,
-        type: 'macroEdge',
-        animated: true,
-        style: { strokeWidth: 2.5, stroke: color },
-        markerEnd: { type: MarkerType.ArrowClosed, color },
-        data: {
-          icon: itemInfo.icon,
-          rate: route.rate,
-          name: itemInfo.name,
-          color,
-          trackIndex,
-          totalTracks,
-        },
-      };
-    });
+      // 3. Южный сектор (Снизу, Y: 580)
+      const bottomItems = [
+        { phase: 4, itemId: 'magnetic_field_generator', count: 500, stageId: 'complex_8b', rate: 2, port: 'port-bottom-0', x: 230, y: 580 },
+        { phase: 4, itemId: 'thermal_propulsion_rocket', count: 250, stageId: 'complex_8b', rate: 1, port: 'port-bottom-0', x: 380, y: 580 },
+        { phase: 4, itemId: 'nuclear_pasta', count: 100, stageId: 'complex_8b', rate: 1, port: 'port-bottom-0', x: 530, y: 580 },
+        { phase: 5, itemId: 'nuclear_pasta', count: 1000, stageId: 'complex_8b', rate: 1, port: 'port-bottom-1', x: 680, y: 580 },
+        { phase: 5, itemId: 'biochemical_spacesuit', count: 1000, stageId: 'phase_5', rate: 2.5, port: 'port-bottom-1', x: 830, y: 580 },
+        { phase: 5, itemId: 'ai_expansion_server', count: 256, stageId: 'phase_5', rate: 2.5, port: 'port-bottom-1', x: 980, y: 580 },
+        { phase: 5, itemId: 'ballistic_warp_drive', count: 200, stageId: 'phase_5', rate: 1, port: 'port-bottom-1', x: 1130, y: 580 },
+      ];
 
-    dagre.layout(g);
+      const allItems = [
+        ...topItems.map((it) => ({ ...it, targetSide: 'top' })),
+        ...leftItems.map((it) => ({ ...it, targetSide: 'left' })),
+        ...bottomItems.map((it) => ({ ...it, targetSide: 'bottom' })),
+      ];
 
-    const layoutedNodes = [...factoryNodes, elevatorNode].map((node) => {
-      const pos = g.node(node.id);
-      return {
-        ...node,
-        position: {
-          x: pos.x - pos.width / 2,
-          y: pos.y - pos.height / 2,
-        },
-      };
-    });
+      allItems.forEach((it, idx) => {
+        const nodeId = `part_${it.phase}_${it.itemId}_${idx}`;
+        const phaseData = SPACE_ELEVATOR_PHASES.find((p) => p.phase === it.phase);
+        const stageName = STAGE_NAMES[it.stageId] || it.stageId;
 
-    setNodes(layoutedNodes);
+        newNodes.push({
+          id: nodeId,
+          type: 'scimPart',
+          position: { x: it.x, y: it.y },
+          data: {
+            itemId: it.itemId,
+            count: it.count,
+            phase: it.phase,
+            rate: it.rate,
+            color: phaseData.color,
+            targetSide: it.targetSide,
+            stageName,
+            onClick: () => {
+              const preset = presets.find((p) => p.id === it.stageId);
+              if (preset && onNavigateStage) {
+                onNavigateStage(preset);
+              }
+            },
+          },
+        });
+
+        newEdges.push({
+          id: `e_${nodeId}_elevator`,
+          source: nodeId,
+          target: 'space_elevator',
+          targetHandle: it.port,
+          type: 'compactConveyor',
+          animated: true,
+          data: {
+            color: phaseData.color,
+            rate: it.rate,
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: phaseData.color,
+          },
+        });
+      });
+    } else {
+      // Режим отдельной Фазы (1, 2, 3, 4 или 5)
+      const p = SPACE_ELEVATOR_PHASES.find((item) => item.phase === selectedPhase);
+      if (p) {
+        p.requirements.forEach((req, idx) => {
+          let pos = { x: 580, y: 140 };
+          let targetSide = 'top';
+          let targetPort = 'port-top-0';
+
+          if (selectedPhase === 1) {
+            pos = { x: 580, y: 140 };
+            targetSide = 'top';
+            targetPort = 'port-top-0';
+          } else if (selectedPhase === 2) {
+            const xs = [440, 580, 720];
+            pos = { x: xs[idx] || 580, y: 140 };
+            targetSide = 'top';
+            targetPort = idx === 0 ? 'port-top-0' : 'port-top-1';
+          } else if (selectedPhase === 3) {
+            const ys = [220, 340, 460];
+            pos = { x: 300, y: ys[idx] || 340 };
+            targetSide = 'left';
+            targetPort = idx === 0 ? 'port-left-0' : 'port-left-1';
+          } else if (selectedPhase === 4) {
+            if (idx < 2) {
+              const ys = [280, 400];
+              pos = { x: 320, y: ys[idx] };
+              targetSide = 'left';
+              targetPort = idx === 0 ? 'port-left-0' : 'port-left-1';
+            } else {
+              const xs = [510, 670];
+              pos = { x: xs[idx - 2], y: 550 };
+              targetSide = 'bottom';
+              targetPort = idx === 2 ? 'port-bottom-0' : 'port-bottom-1';
+            }
+          } else if (selectedPhase === 5) {
+            const xs = [380, 520, 660, 800];
+            pos = { x: xs[idx] || 580, y: 550 };
+            targetSide = 'bottom';
+            targetPort = idx % 2 === 0 ? 'port-bottom-0' : 'port-bottom-1';
+          }
+
+          const nodeId = `part_${p.phase}_${req.itemId}_${idx}`;
+          const stageName = STAGE_NAMES[req.stageId] || req.stageId;
+
+          newNodes.push({
+            id: nodeId,
+            type: 'scimPart',
+            position: pos,
+            data: {
+              itemId: req.itemId,
+              count: req.count,
+              phase: p.phase,
+              rate: req.rate,
+              color: p.color,
+              targetSide,
+              stageName,
+              onClick: () => {
+                const preset = presets.find((pr) => pr.id === req.stageId);
+                if (preset && onNavigateStage) {
+                  onNavigateStage(preset);
+                }
+              },
+            },
+          });
+
+          newEdges.push({
+            id: `e_${nodeId}_elevator`,
+            source: nodeId,
+            target: 'space_elevator',
+            targetHandle: targetPort,
+            type: 'compactConveyor',
+            animated: true,
+            data: {
+              color: p.color,
+              rate: req.rate,
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: p.color,
+            },
+          });
+        });
+      }
+    }
+
+    setNodes([...newNodes, elevatorNode]);
     setEdges(newEdges);
   }, [selectedPhase, onNavigateStage, setNodes, setEdges]);
 
-  // Сводка выбранной фазы
+  // Сводка выбранной фазы для SCADA панели
   const activePhaseData = useMemo(() => {
     if (selectedPhase === 'all') {
       return {
         title: 'Все фазы проекта (1-5)',
-        desc: 'Полная карта сквозного снабжения Космического Лифта всеми 12 орбитальными деталями из 4-х комплексов.',
+        desc: '6 портов с 3-х сторон: 2 сверху (Фазы 1-2), 2 слева (Фазы 3-4), 2 снизу (Фазы 4-5).',
+        reward: 'Кружка «Лучший работник планеты» (Завершение игры)',
         items: [
-          { name: 'Умная обшивка', count: 1050 },
-          { name: 'Универсальный каркас', count: 3500 },
-          { name: 'Автоматическая проводка', count: 100 },
-          { name: 'Модульный двигатель', count: 500 },
-          { name: 'Адаптивный блок управления', count: 100 },
-          { name: 'Система управл. сборкой', count: 500 },
-          { name: 'Генератор магнитного поля', count: 500 },
-          { name: 'Терморакетный двигатель', count: 250 },
-          { name: 'Ядерная паста', count: 1100 },
-          { name: 'Биохимический скафандр', count: 1000 },
-          { name: 'Сервер расш. ИИ', count: 256 },
-          { name: 'Баллистический варп-двигатель', count: 200 },
+          { name: 'Умная обшивка', count: 1050, phase: '1, 2' },
+          { name: 'Универсальный каркас', count: 3500, phase: '2, 3' },
+          { name: 'Автоматическая проводка', count: 100, phase: '2' },
+          { name: 'Модульный двигатель', count: 500, phase: '3' },
+          { name: 'Адаптивный блок управления', count: 100, phase: '3' },
+          { name: 'Система управл. сборкой', count: 500, phase: '4' },
+          { name: 'Генератор магнитного поля', count: 500, phase: '4' },
+          { name: 'Терморакетный двигатель', count: 250, phase: '4' },
+          { name: 'Ядерная паста', count: 1100, phase: '4, 5' },
+          { name: 'Биохимический скафандр', count: 1000, phase: '5' },
+          { name: 'Сервер расш. ИИ', count: 256, phase: '5' },
+          { name: 'Баллистический варп-двигатель', count: 200, phase: '5' },
         ],
       };
     }
     const p = SPACE_ELEVATOR_PHASES.find((item) => item.phase === selectedPhase);
     return {
       title: p?.title || `Фаза ${selectedPhase}`,
-      desc: `${p?.reward} • ${p?.tier}`,
+      desc: `${p?.tier} • ${p?.reward}`,
+      reward: p?.reward,
       items: (p?.requirements || []).map((r) => ({
         name: items[r.itemId]?.name || r.itemId,
         count: r.count,
+        phase: p.phase,
       })),
     };
   }, [selectedPhase]);
 
   return (
     <div className="w-full h-full bg-[#0b0d10] relative">
-      {/* ── FICSIT SCADA панель легенды и фильтров (стиль MacroView) ── */}
+      {/* ── FICSIT SCADA панель легенды и фильтров (без лишнего) ── */}
       <div className="absolute top-4 left-4 z-10 bg-[#14171d] border-2 border-[#f59e0b] p-4 rounded shadow-2xl pointer-events-auto w-72">
         <div className="flex items-center gap-2 mb-1">
           <img
@@ -531,12 +629,12 @@ export default function SpaceElevatorView({ onNavigateStage }) {
           </h2>
         </div>
         <p className="text-gray-400 text-[10px] mb-3">
-          Космический Лифт • FICSIT Orbital Delivery
+          Космический Лифт • 6 портов (3 стороны × 2)
         </p>
 
         {/* Переключатель фаз */}
         <p className="text-[9px] text-gray-400 uppercase tracking-widest mb-1.5 font-bold">
-          Фильтр по фазам
+          Фазы снабжения
         </p>
         <div className="grid grid-cols-3 gap-1 mb-3">
           <button
@@ -564,7 +662,7 @@ export default function SpaceElevatorView({ onNavigateStage }) {
           ))}
         </div>
 
-        {/* Сводка выбранной фазы */}
+        {/* Сводка деталей выбранной фазы */}
         <div className="p-2.5 rounded bg-[#0b0d10] border border-[#2a2e39] mb-3">
           <div className="text-[10px] font-bold text-gray-200 mb-1 flex justify-between">
             <span>{activePhaseData.title}</span>
@@ -578,7 +676,7 @@ export default function SpaceElevatorView({ onNavigateStage }) {
           <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
             {activePhaseData.items.map((it) => (
               <div
-                key={it.name}
+                key={`${it.name}_${it.count}`}
                 className="flex items-center justify-between text-[9px] font-mono"
               >
                 <span className="text-gray-300 truncate max-w-[160px]">
@@ -592,20 +690,27 @@ export default function SpaceElevatorView({ onNavigateStage }) {
           </div>
         </div>
 
-        {/* Легенда цветов */}
+        {/* Раскладка портов Лифта */}
         <p className="text-[9px] text-gray-400 uppercase tracking-widest mb-1.5 font-bold">
-          Фазы проекта
+          Раскладка портов (3×2)
         </p>
-        <div className="flex flex-col gap-1">
-          {LEGEND.map(({ color, label }) => (
-            <div key={label} className="flex items-center gap-1.5">
-              <div
-                className="w-3.5 h-1 rounded-full shrink-0"
-                style={{ background: color }}
-              />
-              <span className="text-[9px] text-gray-400 truncate">{label}</span>
-            </div>
-          ))}
+        <div className="flex flex-col gap-1 text-[9px] text-gray-300 font-mono">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-xs bg-[#38bdf8]"></span>
+            <span>Север: 2 порта (Фазы 1-2)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-xs bg-[#34d399]"></span>
+            <span>Запад: 2 порта (Фазы 3-4)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-xs bg-[#ec4899]"></span>
+            <span>Юг: 2 порта (Фазы 4-5)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-xs bg-[#f59e0b]"></span>
+            <span>Восток: Консоль терминала</span>
+          </div>
         </div>
       </div>
 
@@ -619,7 +724,8 @@ export default function SpaceElevatorView({ onNavigateStage }) {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
-        minZoom={0.1}
+        fitViewOptions={{ padding: 0.15 }}
+        minZoom={0.2}
         maxZoom={2}
         proOptions={{ hideAttribution: true }}
       >
