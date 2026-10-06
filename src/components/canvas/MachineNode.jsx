@@ -35,27 +35,72 @@ export default function MachineNode({ data }) {
 
   if (isVIP) {
     const item = items[data.itemId];
+    const ringColor = '#38bdf8';
+    const tooltip = `Замкнутый гидроконтур: возврат ${data.byproduct?.toFixed(1) || 0} м³/мин + подпитка ${data.makeup?.toFixed(1) || 0} м³/мин`;
+
     return (
-      <div className="bg-[#1a202c] border-2 border-[#38bdf8] rounded-md shadow-[0_0_20px_rgba(56,189,248,0.4)] p-4 min-w-[300px] text-center text-[#e1e1e6] relative z-10">
-        <div className="text-sm text-[#38bdf8] mb-2 font-bold flex items-center justify-center gap-2">
-          <span className="text-xl">💧</span> Замкнутый гидроконтур
-        </div>
-        <div className="text-xs text-gray-300 mb-3 text-left">
-          <div className="flex justify-between items-center mb-1">
-            <span>Возврат побочной воды:</span>
-            <span className="font-bold text-[#38bdf8]">{data.byproduct.toFixed(1)} м³/мин</span>
+      <div className="flex flex-col items-center justify-center relative select-none w-[150px] py-1">
+        {/* Круглый SCIM-узел VIP гидроконтура */}
+        <div 
+          className="w-20 h-20 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-transform hover:scale-105"
+          style={{
+            border: `3.5px solid ${ringColor}`,
+            boxShadow: '0 0 12px rgba(56,189,248,0.4)'
+          }}
+          title={tooltip}
+        >
+          {/* Иконка перекрестка труб или воды */}
+          <img 
+            src={getAssetUrl('/icons/Conveyor Supports/PipelineJunction.png')} 
+            alt="VIP Junction" 
+            className="w-12 h-12 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" 
+            onError={e => { e.target.src = getAssetUrl(item?.icon); }}
+          />
+
+          {/* Мини-бейдж VIP */}
+          <div 
+            className="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full bg-[#0b0e14] border border-[#38bdf8] text-[9px] font-black font-mono shadow-md z-10 text-[#38bdf8]"
+            title="Приоритетный клапан рециркуляции"
+          >
+            VIP
           </div>
-          <div className="flex justify-between items-center">
-            <span>Внешняя подпитка (Помпы):</span>
-            <span className="font-bold text-[#f97316]">{data.makeup.toFixed(1)} м³/мин</span>
+
+          {/* Пилл-бейдж расхода воды на нижнем краю круга */}
+          <div 
+            className="absolute -bottom-2 px-2 py-0.5 rounded-full bg-[#0b0e14] border border-[#38bdf8] text-[10px] font-black font-mono shadow-lg z-10 whitespace-nowrap text-[#38bdf8]"
+          >
+            💧 {data.rate?.toFixed(1)}/м
           </div>
+
+          {/* Входные порты (подпитка и возврат) */}
+          <Handle 
+            type="target" 
+            position={targetPos} 
+            id={`in-${data.itemId}`} 
+            style={isVertical ? { top: 4 } : { left: 4 }}
+            className="w-2.5 h-2.5 !bg-[#0ea5e9] !border-none opacity-80" 
+            title="Вход воды"
+          />
+          {/* Выходной порт подачи в цех */}
+          <Handle 
+            type="source" 
+            position={sourcePos} 
+            id={`out-${data.itemId}`} 
+            style={isVertical ? { bottom: 4 } : { right: 4 }}
+            className="w-2.5 h-2.5 !bg-[#38bdf8] !border-none opacity-80" 
+            title="Выход воды в производство"
+          />
         </div>
-        <div className="text-[10px] text-gray-400 mt-2 p-2 bg-[#0b0d10] border border-[#2a2e39] rounded">
-          ⚠️ Рекомендуется подача через приоритетный клапан (VIP Junction) для предотвращения гидроудара.
+
+        {/* Подпись под кругом */}
+        <div className="flex flex-col items-center text-center mt-2 leading-tight w-full px-1">
+          <span className="text-xs font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] truncate w-full">
+            VIP Гидроконтур
+          </span>
+          <span className="text-[10px] text-cyan-400 font-medium truncate w-full mt-0.5">
+            Возврат: {data.byproduct?.toFixed(1) || 0} м³
+          </span>
         </div>
-        
-        <Handle type="target" position={targetPos} id={`in-${data.itemId}`} className="w-4 h-4 bg-[#f97316]" />
-        <Handle type="source" position={sourcePos} id={`out-${data.itemId}`} className="w-4 h-4 bg-[#38bdf8]" />
       </div>
     );
   }
