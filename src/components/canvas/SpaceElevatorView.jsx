@@ -280,21 +280,68 @@ function ScimElevatorNode({ data }) {
         }}
         title="Космический Лифт: Орбитальный проект «Сборка» (5/5 Фаз)"
       >
-        {/* 6 Входных портов для конвейеров на левой стороне круга */}
-        {[0, 1, 2, 3, 4, 5].map(idx => (
-          <Handle
-            key={`port-${idx}`}
-            type="target"
-            position={Position.Left}
-            id={`port-${idx}`}
-            style={{
-              top: `${20 + idx * 12}%`,
-              left: 4,
-            }}
-            className="w-2.5 h-2.5 !bg-[#f59e0b] !border-none opacity-80"
-            title={`Порт загрузки ${idx + 1}`}
-          />
-        ))}
+        {/* 6 Входных портов для конвейеров: по 2 порта с 3-х сторон (Верх, Лево, Низ) */}
+        {/* Верхняя сторона (Север) — 2 порта */}
+        <Handle
+          type="target"
+          position={Position.Top}
+          id="port-top-0"
+          style={{ left: '30%', top: -5 }}
+          className="w-3 h-3 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-sm opacity-90 hover:scale-125 transition-transform"
+          title="Входной порт 1 (Север-А)"
+        />
+        <Handle
+          type="target"
+          position={Position.Top}
+          id="port-top-1"
+          style={{ left: '70%', top: -5 }}
+          className="w-3 h-3 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-sm opacity-90 hover:scale-125 transition-transform"
+          title="Входной порт 2 (Север-Б)"
+        />
+
+        {/* Левая сторона (Запад) — 2 порта */}
+        <Handle
+          type="target"
+          position={Position.Left}
+          id="port-left-0"
+          style={{ top: '30%', left: -5 }}
+          className="w-3 h-3 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-sm opacity-90 hover:scale-125 transition-transform"
+          title="Входной порт 3 (Запад-А)"
+        />
+        <Handle
+          type="target"
+          position={Position.Left}
+          id="port-left-1"
+          style={{ top: '70%', left: -5 }}
+          className="w-3 h-3 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-sm opacity-90 hover:scale-125 transition-transform"
+          title="Входной порт 4 (Запад-Б)"
+        />
+
+        {/* Нижняя сторона (Юг) — 2 порта */}
+        <Handle
+          type="target"
+          position={Position.Bottom}
+          id="port-bottom-0"
+          style={{ left: '30%', bottom: -5 }}
+          className="w-3 h-3 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-sm opacity-90 hover:scale-125 transition-transform"
+          title="Входной порт 5 (Юг-А)"
+        />
+        <Handle
+          type="target"
+          position={Position.Bottom}
+          id="port-bottom-1"
+          style={{ left: '70%', bottom: -5 }}
+          className="w-3 h-3 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-sm opacity-90 hover:scale-125 transition-transform"
+          title="Входной порт 6 (Юг-Б)"
+        />
+
+        {/* Консоль терминала на 4-й (правой) стороне */}
+        <div
+          className="absolute -right-3.5 top-1/2 -translate-y-1/2 px-1 py-0.5 rounded bg-[#1e293b] border border-[#f59e0b]/70 text-[7.5px] font-black font-mono text-[#f59e0b] shadow-md z-10 pointer-events-none whitespace-nowrap"
+          title="Терминал управления и запуска"
+        >
+          ТЕРМИНАЛ
+        </div>
 
         {/* 3D Иконка Космического Лифта */}
         <img
@@ -304,13 +351,13 @@ function ScimElevatorNode({ data }) {
           onError={e => (e.target.style.display = 'none')}
         />
 
-        {/* Верхний пилл: Пассивное питание */}
-        <div className="absolute -top-2.5 px-2.5 py-0.5 rounded-full bg-[#0b0e14] border border-[#f59e0b] text-[9px] font-black font-mono text-[#f59e0b] shadow-lg z-10 whitespace-nowrap">
-          ★ 0 МВт • 6 портов
+        {/* Верхний пилл: Пассивное питание и раскладка портов */}
+        <div className="absolute -top-3.5 px-2 py-0.5 rounded-full bg-[#0b0e14] border border-[#f59e0b] text-[8.5px] font-black font-mono text-[#f59e0b] shadow-lg z-10 pointer-events-none whitespace-nowrap">
+          ★ 0 МВт • 6 ВХОДОВ (3×2)
         </div>
 
         {/* Нижний пилл: Проект Сборка */}
-        <div className="absolute -bottom-2.5 px-2.5 py-0.5 rounded-full bg-[#f59e0b] text-black text-[9px] font-black font-mono shadow-lg z-10 whitespace-nowrap">
+        <div className="absolute -bottom-3.5 px-2 py-0.5 rounded-full bg-[#f59e0b] text-black text-[8.5px] font-black font-mono shadow-lg z-10 pointer-events-none whitespace-nowrap">
           5 / 5 ФАЗ
         </div>
       </div>
@@ -502,14 +549,30 @@ export default function SpaceElevatorView({ onNavigateStage }) {
           markerEnd: { type: MarkerType.ArrowClosed, color: p.color },
         });
 
-        // Ребро 2: Деталь ──► Космический Лифт (через порт)
-        const portIdx = (reqIdx + p.phase) % 6;
+        // Ребро 2: Деталь ──► Космический Лифт (через 6 портов на 3-х сторонах: Верх, Лево, Низ)
+        let targetHandleId = 'port-left-0';
+        if (p.phase <= 2) {
+          // Фазы 1 и 2 приходят сверху в Северные порты (Top)
+          targetHandleId = reqIdx % 2 === 0 ? 'port-top-0' : 'port-top-1';
+        } else if (p.phase === 3) {
+          // Фаза 3 приходит в Западные порты слева (Left)
+          targetHandleId = reqIdx % 2 === 0 ? 'port-left-0' : 'port-left-1';
+        } else if (p.phase === 4) {
+          // Фаза 4 распределяется между Западными и Южными портами
+          targetHandleId = reqIdx < 2
+            ? (reqIdx === 0 ? 'port-left-0' : 'port-left-1')
+            : (reqIdx === 2 ? 'port-bottom-0' : 'port-bottom-1');
+        } else {
+          // Фаза 5 приходит снизу в Южные порты (Bottom)
+          targetHandleId = reqIdx % 2 === 0 ? 'port-bottom-0' : 'port-bottom-1';
+        }
+
         g.setEdge(nodeId, 'space_elevator');
         edgeObjs.push({
           id: `e_${nodeId}_elevator`,
           source: nodeId,
           target: 'space_elevator',
-          targetHandle: `port-${portIdx}`,
+          targetHandle: targetHandleId,
           type: 'scimElevatorEdge',
           data: { color: p.color, rate: req.rate },
           animated: true,
