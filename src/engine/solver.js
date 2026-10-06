@@ -318,6 +318,19 @@ export function solveProductionGraph(targets, inputsLimit, options = {}) {
   const producers = {};
   const consumers = {};
 
+  // ПРИОРИТЕТ 1: Входящий импорт и межцеховой транзит расходуются станками в первую очередь
+  importedInputs.forEach(inp => {
+    producers[inp.itemId] = producers[inp.itemId] || [];
+    producers[inp.itemId].push({ nodeId: `import_${inp.itemId}`, rate: solution[`import_${inp.itemId}`] });
+  });
+
+  // ПРИОРИТЕТ 2: Локально добываемое сырьё
+  minedInputs.forEach(raw => {
+    producers[raw] = producers[raw] || [];
+    producers[raw].push({ nodeId: `mine_${raw}`, rate: solution[`mine_${raw}`] });
+  });
+
+  // ПРИОРИТЕТ 3: Продукция производственных станков
   usedRecipes.forEach(recipe => {
     const machines = solution[recipe.id];
     const isAmplified = isRecipeAmplified(recipe.id);
@@ -331,16 +344,6 @@ export function solveProductionGraph(targets, inputsLimit, options = {}) {
       consumers[inp.itemId] = consumers[inp.itemId] || [];
       consumers[inp.itemId].push({ nodeId: recipeNodes[recipe.id], rate: inp.rate * machines });
     });
-  });
-
-  minedInputs.forEach(raw => {
-    producers[raw] = producers[raw] || [];
-    producers[raw].push({ nodeId: `mine_${raw}`, rate: solution[`mine_${raw}`] });
-  });
-  
-  importedInputs.forEach(inp => {
-    producers[inp.itemId] = producers[inp.itemId] || [];
-    producers[inp.itemId].push({ nodeId: `import_${inp.itemId}`, rate: solution[`import_${inp.itemId}`] });
   });
 
   // --- HYDROLOCK PREVENTION: VIP JUNCTION FOR RECYCLED WATER ---
