@@ -11,6 +11,7 @@ export default function RecipeSelectorDropdown({ itemId, selectedRecipeId, onCha
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const summary = useFactoryStore(state => state.summary);
+  const options = useFactoryStore(state => state.options);
   const matchingRecipes = recipesDB.filter(r => r.outputs?.some(o => o.itemId === itemId));
   
   useEffect(() => {
@@ -26,20 +27,36 @@ export default function RecipeSelectorDropdown({ itemId, selectedRecipeId, onCha
   if (matchingRecipes.length <= 1) return null;
 
   const activeSummaryRecipeId = summary?.recipes?.find(sr => matchingRecipes.some(mr => mr.id === sr.id))?.id;
+  const activeOptionAltRecipe = matchingRecipes.find(r => r.isAlternate && options?.altRecipes?.includes(r.id));
+  
   const currentRecipe = matchingRecipes.find(r => r.id === selectedRecipeId) 
     || matchingRecipes.find(r => r.id === activeSummaryRecipeId)
+    || activeOptionAltRecipe
     || matchingRecipes.find(r => !r.isAlternate)
     || matchingRecipes[0];
+
+  const isAlt = currentRecipe?.isAlternate;
 
   return (
     <div className="relative mt-1" ref={ref}>
       <button 
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full px-2.5 py-1 text-xs bg-[#8f9aa8] hover:bg-[#9faab8] text-[#14171f] font-semibold rounded transition-colors"
+        className={`flex items-center justify-between w-full px-2.5 py-1 text-xs rounded transition-all font-semibold ${
+          isAlt 
+            ? 'bg-[#261f14] border border-amber-500/60 text-amber-300 hover:bg-[#342a1b] shadow-sm' 
+            : 'bg-[#1e2430] border border-[#374151] text-gray-200 hover:bg-[#283142]'
+        }`}
       >
-        <span className="truncate">{currentRecipe?.name}</span>
-        <span className="text-[10px] ml-1">▾</span>
+        <div className="flex items-center gap-1.5 truncate">
+          <span className="truncate">{currentRecipe?.name}</span>
+          {isAlt && (
+            <span className="text-[9px] px-1 py-0.2 bg-amber-500/20 text-amber-400 rounded border border-amber-500/40 font-bold shrink-0">
+              АЛЬТ
+            </span>
+          )}
+        </div>
+        <span className="text-[10px] ml-1 opacity-70">▾</span>
       </button>
 
       {open && (

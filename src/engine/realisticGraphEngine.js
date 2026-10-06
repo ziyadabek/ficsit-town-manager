@@ -127,7 +127,9 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
 
     const data = node.data;
     const machinesCount = data.machines || 1;
-    const isAmplified = options.somersloopRecipes?.includes(data.recipeId);
+    const isAmplified = Array.isArray(options.somersloopRecipes)
+      ? options.somersloopRecipes.includes(data.recipeId)
+      : Boolean(options.somersloopRecipes && options.somersloopRecipes[data.recipeId]);
     const outMult = isAmplified ? 2.0 : 1.0;
 
     const fullCount = Math.floor(machinesCount);

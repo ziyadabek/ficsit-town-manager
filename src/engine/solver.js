@@ -96,6 +96,12 @@ export function solveProductionGraph(targets, inputsLimit, options = {}) {
     activeRecipes = activeRecipes.filter(r => !r.id.startsWith('recipe_power_'));
   }
 
+  const isRecipeAmplified = (recipeId) => {
+    if (!options.somersloopRecipes) return false;
+    if (Array.isArray(options.somersloopRecipes)) return options.somersloopRecipes.includes(recipeId);
+    return Boolean(options.somersloopRecipes[recipeId]);
+  };
+
   // 3. Setup LP Variables for Recipes
   activeRecipes.forEach(r => {
     model.variables[r.id] = { cost: 1 }; // Minimize machines or raw by adjusting cost
@@ -106,7 +112,7 @@ export function solveProductionGraph(targets, inputsLimit, options = {}) {
       model.variables[r.id].cost *= 0.8;
     }
 
-    const isAmplified = options.somersloopRecipes && options.somersloopRecipes.includes(r.id);
+    const isAmplified = isRecipeAmplified(r.id);
     const outMult = isAmplified ? 2.0 : 1.0;
     
     if (options.optimize === 'power') {
@@ -176,7 +182,7 @@ export function solveProductionGraph(targets, inputsLimit, options = {}) {
   
   usedRecipes.forEach(recipe => {
     const machines = solution[recipe.id];
-    const isAmplified = options.somersloopRecipes?.includes(recipe.id);
+    const isAmplified = isRecipeAmplified(recipe.id);
     const bData = buildings[recipe.buildingId];
     const power = calculatePower(bData?.power || 0, 100, isAmplified) * Math.floor(machines) + 
                   calculatePower(bData?.power || 0, (machines - Math.floor(machines)) * 100, isAmplified);
@@ -314,7 +320,7 @@ export function solveProductionGraph(targets, inputsLimit, options = {}) {
 
   usedRecipes.forEach(recipe => {
     const machines = solution[recipe.id];
-    const isAmplified = options.somersloopRecipes?.includes(recipe.id);
+    const isAmplified = isRecipeAmplified(recipe.id);
     const outMult = isAmplified ? 2.0 : 1.0;
 
     recipe.outputs.forEach(out => {
@@ -415,6 +421,14 @@ export function solveProductionGraph(targets, inputsLimit, options = {}) {
     summary: { 
       items: Object.values(summaryItems), 
       buildings: Object.values(summaryBuildings),
+      recipes: usedRecipes.map(r => ({ 
+        id: r.id, 
+        name: r.name, 
+        machines: solution[r.id], 
+        isAlternate: r.isAlternate,
+        outputs: r.outputs,
+        inputs: r.inputs
+      })),
       totalPower: totalPowerUsage
     } 
   };

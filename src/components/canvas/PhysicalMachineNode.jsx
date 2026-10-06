@@ -14,9 +14,22 @@ export default function PhysicalMachineNode({ data }) {
   const item = items[data.itemId];
   const clockSpeed = data.clockSpeed ?? 100;
   
+  const isGenerator = Boolean(
+    data.recipeId?.startsWith('recipe_power_') || 
+    data.itemId === 'power' ||
+    ['coal_generator', 'fuel_generator', 'nuclear_power_plant', 'biomass_burner'].includes(data.buildingId)
+  );
+  const isNuclear = data.recipeId?.includes('nuclear') || data.buildingId === 'nuclear_power_plant';
+  const powerProduced = isGenerator ? (data.rate || (data.outputs?.find(o => o.itemId === 'power')?.rate) || 0) : null;
+  
   // В оригинале SCIM: зеленый контур для основных/высоких мощностей, оранжевый для частичных/стандартных
-  const isGreenRing = clockSpeed >= 70;
-  const ringColor = isGreenRing ? '#22c55e' : '#f97316';
+  // Для генераторов: золотой (ТЭС/Нефть) или изумрудный (АЭС)
+  let ringColor = clockSpeed >= 70 ? '#22c55e' : '#f97316';
+  let badgeColor = ringColor;
+  if (isGenerator) {
+    ringColor = isNuclear ? '#10b981' : '#eab308';
+    badgeColor = ringColor;
+  }
 
   const targetPos = isVertical ? Position.Top : Position.Left;
   const sourcePos = isVertical ? Position.Bottom : Position.Right;
@@ -54,17 +67,42 @@ export default function PhysicalMachineNode({ data }) {
           />
         )}
 
+        {/* Бейдж молнии для электростанций */}
+        {isGenerator && (
+          <div 
+            className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#0b0e14] border flex items-center justify-center text-[10px] shadow-md z-10"
+            style={{ borderColor: ringColor, color: ringColor }}
+            title="Генератор электроэнергии"
+          >
+            ⚡
+          </div>
+        )}
+
+        {/* Номер станка в группе на нижнем краю круга */}
+        {data.totalMachinesInGroup > 1 && (
+          <div 
+            className="absolute -bottom-2 px-1.5 py-0.2 rounded-full bg-[#0b0e14] border text-[9px] font-mono font-bold shadow-md z-10 text-gray-300"
+            style={{ borderColor: ringColor }}
+          >
+            #{(data.machineIndex ?? 0) + 1}
+          </div>
+        )}
+
         {/* Input Handles на окружности */}
-        {data.inputs && data.inputs.map((inp, idx) => (
-          <Handle 
-            key={`in-${inp.itemId}-${idx}`} 
-            type="target" 
-            position={targetPos} 
-            id={`in-${inp.itemId}`} 
-            style={getInputHandleStyle(idx, data.inputs.length)} 
-            className="w-2.5 h-2.5 !bg-[#f97316] !border-none opacity-80" 
-          />
-        ))}
+        {data.inputs && data.inputs.map((inp, idx) => {
+          const isFluid = inp.itemId === 'water' || inp.itemId?.includes('oil') || inp.itemId?.includes('fuel') || inp.itemId?.includes('acid');
+          return (
+            <Handle 
+              key={`in-${inp.itemId}-${idx}`} 
+              type="target" 
+              position={targetPos} 
+              id={`in-${inp.itemId}`} 
+              style={getInputHandleStyle(idx, data.inputs.length)} 
+              className={`w-2.5 h-2.5 !border-none opacity-85 ${isFluid ? '!bg-[#0ea5e9]' : '!bg-[#f97316]'}`} 
+              title={`Вход: ${items[inp.itemId]?.name || inp.itemId}`}
+            />
+          );
+        })}
         {(!data.inputs || data.inputs.length === 0) && (
           <Handle 
             type="target" 
@@ -74,18 +112,24 @@ export default function PhysicalMachineNode({ data }) {
           />
         )}
 
-        {/* Output Handles на окружности */}
-        {data.outputs && data.outputs.map((out, idx) => (
-          <Handle 
-            key={`out-${out.itemId}-${idx}`} 
-            type="source" 
-            position={sourcePos} 
-            id={`out-${out.itemId}`} 
-            style={getOutputHandleStyle(idx, data.outputs.length)} 
-            className="w-2.5 h-2.5 !bg-[#3b82f6] !border-none opacity-80" 
-          />
-        ))}
-        {(!data.outputs || data.outputs.length === 0) && (
+        {/* Output Handles на окружности (power не имеет конвейера) */}
+        {data.outputs && data.outputs.map((out, idx) => {
+          if (out.itemId === 'power') return null;
+          const isWaste = out.itemId === 'nuclear_waste' || out.itemId === 'plutonium_waste';
+          const isFluid = out.itemId === 'water' || out.itemId?.includes('oil') || out.itemId?.includes('fuel');
+          return (
+            <Handle 
+              key={`out-${out.itemId}-${idx}`} 
+              type="source" 
+              position={sourcePos} 
+              id={`out-${out.itemId}`} 
+              style={getOutputHandleStyle(idx, data.outputs.length)} 
+              className={`w-2.5 h-2.5 !border-none opacity-85 ${isWaste ? '!bg-[#22c55e]' : isFluid ? '!bg-[#0ea5e9]' : '!bg-[#3b82f6]'}`} 
+              title={`Выход: ${items[out.itemId]?.name || out.itemId}`}
+            />
+          );
+        })}
+        {(!isGenerator && (!data.outputs || data.outputs.length === 0)) && (
           <Handle 
             type="source" 
             position={sourcePos} 
@@ -96,13 +140,22 @@ export default function PhysicalMachineNode({ data }) {
       </div>
 
       {/* Подпись точно как в SCIM под кругом */}
-      <div className="flex flex-col items-center text-center mt-2 leading-tight">
-        <span className="text-xs font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-          {building?.name || 'Станок'} ({clockSpeed.toFixed(0)}%)
+      <div className="flex flex-col items-center text-center mt-2 leading-tight w-full px-1">
+        <span className="text-xs font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] truncate w-full" title={building?.name}>
+          {building?.name || 'Станок'} {clockSpeed !== 100 ? `(${clockSpeed.toFixed(0)}%)` : ''}
         </span>
-        <span className="text-[11px] text-gray-300 font-normal drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-          ({item?.name || data.itemId})
-        </span>
+        {isGenerator ? (
+          <span 
+            className="text-[11px] font-black font-mono mt-0.5 tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]"
+            style={{ color: ringColor }}
+          >
+            ⚡ +{powerProduced} MW
+          </span>
+        ) : (
+          <span className="text-[11px] text-gray-300 font-normal drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] truncate w-full" title={item?.name || data.itemId}>
+            ({item?.name || data.itemId})
+          </span>
+        )}
       </div>
     </div>
   );

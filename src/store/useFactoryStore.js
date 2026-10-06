@@ -439,6 +439,7 @@ export const useFactoryStore = create((set, get) => ({
           const machines = node.data?.machines || 1;
           node.data.outputs.forEach(outItem => {
             const itemId = outItem.itemId;
+            if (itemId === 'power') return; // Электроэнергия отображается внутри самого терминала генератора
             const consumed = consumedBySourceItem[`${node.id}_${itemId}`] || 0;
             const totalProduced = (outItem.rate || 0) * machines;
             const surplus = totalProduced - consumed;

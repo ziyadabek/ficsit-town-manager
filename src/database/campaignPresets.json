@@ -25,9 +25,9 @@
     "type": "power",
     "tier": "Тир 3",
     "name": "ЭТАП 2: Угольная ТЭС",
-    "description": "Обеспечение стабильной энергией литейных цехов и метизного производства. Генерация: +1200 МВт.",
+    "description": "Обеспечение стабильной энергией литейных цехов и метизного производства. Генерация: +4800 МВт (64 генератора).",
     "powerConfig": {
-      "targetMW": 1200,
+      "targetMW": 4800,
       "generatorId": "coal",
       "fuelId": "coal"
     }
@@ -68,7 +68,7 @@
     "type": "production",
     "tier": "Тир 2-4",
     "name": "ЭТАП 4: Сборочно-метизный хаб (Фазы 1-2 Лифта)",
-    "description": "Пластины, винты, каркасы, Умная обшивка и Универсальные каркасы для Фаз 1-2 Лифта. Расход: ~2100 МВт.",
+    "description": "Пластины, винты, каркасы, Умная обшивка и Универсальные каркасы для Фаз 1-2 Лифта. Оптимизирован альтернативными рецептами (Stitched Plate, Steeled Frame). Расход: ~2850 МВт.",
     "inputsLimit": [
       {
         "id": "inp1",
@@ -85,16 +85,19 @@
       {
         "id": "t2",
         "itemId": "screws",
+        "recipeId": "cast_screw",
         "rate": 490
       },
       {
         "id": "t3",
         "itemId": "reinforced_iron_plate",
+        "recipeId": "alt_stitched_iron_plate",
         "rate": 240
       },
       {
         "id": "t4",
         "itemId": "modular_frame",
+        "recipeId": "alt_heat_fused_frame",
         "rate": 120
       },
       {
@@ -116,7 +119,11 @@
     "options": {
       "optimize": "power",
       "altRecipes": [
-        "cast_screw"
+        "cast_screw",
+        "alt_stitched_iron_plate",
+        "alt_iron_wire",
+        "alt_heat_fused_frame",
+        "alt_steel_rotor"
       ]
     }
   },
@@ -125,9 +132,9 @@
     "type": "power",
     "tier": "Тир 5-6",
     "name": "ЭТАП 5: Топливный энергокомплекс и полимеры",
-    "description": "Выпуск полимеров, кокса и второй рубеж энергонезависимости. Генерация: +2500 МВт.",
+    "description": "Выпуск полимеров, кокса и мощный топливный энергоблок. Генерация: +6000 МВт (24 генератора).",
     "powerConfig": {
-      "targetMW": 2500,
+      "targetMW": 6000,
       "generatorId": "fuel",
       "fuelId": "fuel"
     },
@@ -283,7 +290,7 @@
     "type": "power",
     "tier": "Тир 8",
     "name": "ЭТАП 9: Атомный технопарк",
-    "description": "Буфер перед запуском квантовых производств. Генерация: +10 000 МВт.",
+    "description": "Атомный комплекс для питания Фазы 4 Лифта и финальных квантовых производств. Генерация: +20 000 МВт (8 реакторов).",
     "inputsLimit": [
       {
         "id": "inp1",
@@ -292,7 +299,7 @@
       }
     ],
     "powerConfig": {
-      "targetMW": 10000,
+      "targetMW": 20000,
       "generatorId": "nuclear",
       "fuelId": "uranium_fuel_rod"
     }

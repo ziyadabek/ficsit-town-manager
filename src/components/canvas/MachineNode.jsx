@@ -178,51 +178,98 @@ export default function MachineNode({ data }) {
 
   if (isGenerator) {
     const powerOut = (data.outputs.find(out => out.itemId === 'power')?.rate || 0) * (data.machines || 1);
+    const machinesCount = data.machines || 1;
+    const isNuclear = data.recipeId?.includes('nuclear') || data.buildingId?.includes('nuclear');
+    const ringColor = isNuclear ? '#22c55e' : '#f59e0b';
+    const textColor = isNuclear ? 'text-[#4ade80]' : 'text-[#fbbf24]';
+    const machineCountStr = ` (${machinesCount.toFixed(machinesCount % 1 !== 0 ? 1 : 0)} шт)`;
+
     return (
-      <div className="bg-[#1a202c] border-2 border-[#facc15] rounded-md shadow-[0_0_20px_rgba(250,204,21,0.3)] min-w-[280px] text-[#e1e1e6] relative z-10 overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b border-[#facc15]/30 bg-[#facc15]/10 gap-2">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            {building && <img src={getAssetUrl(building.icon)} alt={building.name} className="w-8 h-8 object-contain shrink-0 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]" />}
-            <span className="font-bold text-[#facc15] truncate" title={building?.name}>{building?.name || 'Генератор'}</span>
+      <div className="flex flex-col items-center justify-center relative select-none w-[150px] py-1">
+        {/* Круглый узел генератора в едином масштабе SCIM */}
+        <div 
+          className="w-20 h-20 rounded-full bg-[#161a22] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-transform hover:scale-105"
+          style={{
+            border: `3.5px solid ${ringColor}`,
+            boxShadow: `0 0 14px ${ringColor}60`
+          }}
+        >
+          {building?.icon && (
+            <img 
+              src={getAssetUrl(building.icon)} 
+              alt={building.name} 
+              className="w-14 h-14 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]" 
+              onError={e => (e.target.style.display = 'none')}
+            />
+          )}
+
+          {/* Компактный бейдж молнии в правом верхнем углу */}
+          <div 
+            className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#0b0e14] border flex items-center justify-center text-[10px] shadow-md z-10"
+            style={{ borderColor: ringColor, color: ringColor }}
+            title="Генератор электроэнергии"
+          >
+            ⚡
           </div>
-          <div className="text-[10px] bg-[#facc15] text-black px-1.5 py-0.5 rounded font-bold shrink-0 whitespace-nowrap">⚡ ЭЛЕКТРОСТАНЦИЯ</div>
-        </div>
-        
-        {/* Body */}
-        <div className="p-4 text-center">
-          <div className="text-gray-400 text-sm mb-1">Генерация (МВт)</div>
-          <div className="text-4xl font-black text-[#facc15] drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]">
-            +{powerOut.toFixed(1)} MW
+
+          {/* Четкий контрастный бейдж количества станков внизу круга */}
+          <div 
+            className="absolute -bottom-2.5 px-2 py-0.5 rounded-full bg-[#0b0e14] border text-[10px] font-black font-mono shadow-lg z-10 whitespace-nowrap"
+            style={{ borderColor: ringColor, color: ringColor }}
+          >
+            {machinesCount.toFixed(machinesCount % 1 !== 0 ? 1 : 0)} шт.
           </div>
-          <div className="mt-2 text-xs text-gray-500">
-            {data.machines.toFixed(2)} шт. ({(data.machines % 1 !== 0 ? (data.machines % 1) * 100 : 100).toFixed(0)}%)
-          </div>
+
+          {/* Input Handles */}
+          {data.inputs && data.inputs.map((inp, idx) => {
+            const isFluid = inp.itemId === 'water' || inp.itemId === 'fuel' || inp.itemId === 'crude_oil';
+            return (
+              <Handle 
+                key={`in-${inp.itemId}-${idx}`} 
+                type="target" 
+                position={targetPos} 
+                id={`in-${inp.itemId}`} 
+                style={getInputHandleStyle(idx, data.inputs.length)} 
+                className={`w-2.5 h-2.5 !border-none opacity-90 ${isFluid ? '!bg-[#0ea5e9]' : '!bg-[#f97316]'}`} 
+                title={`Вход: ${inp.itemId}`}
+              />
+            );
+          })}
+          {(!data.inputs || data.inputs.length === 0) && (
+            <Handle 
+              type="target" 
+              position={targetPos} 
+              id="in-generic" 
+              style={isVertical ? { top: 4 } : { left: 4 }}
+              className="w-2.5 h-2.5 !bg-[#f97316] !border-none opacity-90" 
+            />
+          )}
+
+          {/* Output Handles (только побочные продукты, например отходы АЭС) */}
+          {data.outputs && data.outputs.map((out, idx) => (
+            out.itemId !== 'power' && (
+              <Handle 
+                key={`out-${out.itemId}-${idx}`} 
+                type="source" 
+                position={sourcePos} 
+                id={`out-${out.itemId}`} 
+                style={getOutputHandleStyle(idx, data.outputs.length)} 
+                className={`w-2.5 h-2.5 !border-none opacity-90 ${out.itemId === 'nuclear_waste' ? '!bg-[#22c55e]' : '!bg-[#3b82f6]'}`} 
+                title={`Выход: ${out.itemId}`}
+              />
+            )
+          ))}
         </div>
 
-        {/* Handles */}
-        {data.inputs && data.inputs.map((inp, idx) => (
-          <Handle 
-            key={`in-${inp.itemId}-${idx}`} 
-            type="target" 
-            position={targetPos} 
-            id={`in-${inp.itemId}`} 
-            style={getInputHandleStyle(idx, data.inputs.length)} 
-            className="w-4 h-4 bg-[#f97316]" 
-          />
-        ))}
-        {data.outputs && data.outputs.map((out, idx) => (
-          out.itemId !== 'power' && (
-            <Handle 
-              key={`out-${out.itemId}-${idx}`} 
-              type="source" 
-              position={sourcePos} 
-              id={`out-${out.itemId}`} 
-              style={getOutputHandleStyle(idx, data.outputs.length)} 
-              className={`w-4 h-4 ${out.itemId === 'nuclear_waste' ? 'bg-[#22c55e]' : 'bg-[#3b82f6]'}`} 
-            />
-          )
-        ))}
+        {/* Минималистичная подпись под кругом */}
+        <div className="flex flex-col items-center text-center mt-3 leading-tight w-full px-1">
+          <span className="text-xs font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] truncate w-full" title={building?.name}>
+            {building?.name || 'Генератор'}
+          </span>
+          <span className={`text-xs font-black font-mono mt-0.5 tracking-tight ${textColor} drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]`}>
+            ⚡ +{powerOut >= 1000 ? powerOut.toLocaleString('en-US', { maximumFractionDigits: 1 }) : powerOut.toFixed(1)} MW
+          </span>
+        </div>
       </div>
     );
   }
