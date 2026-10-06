@@ -179,7 +179,7 @@ function ScimElevatorNode({ data }) {
           border: '4px solid #f59e0b',
           boxShadow: '0 0 24px rgba(245,158,11,0.45)',
         }}
-        title="Космический Лифт: Проект «Сборка» (5 Фаз • 6 Входных портов)"
+        title="Космический Лифт: Проект «Сборка» (5 Фаз)"
       >
         {/* ── 6 ВХОДНЫХ ПОРТОВ (по 2 порта с 3-х сторон: Верх, Лево, Низ) ── */}
 
@@ -252,11 +252,6 @@ function ScimElevatorNode({ data }) {
           className="w-20 h-20 object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] filter drop-shadow-[0_0_8px_rgba(245,158,11,0.4)]"
           onError={(e) => (e.target.style.display = 'none')}
         />
-
-        {/* Верхний пилл: Пассивное питание и раскладка портов */}
-        <div className="absolute -top-3.5 px-2.5 py-0.5 rounded-full bg-[#0b0e14] border border-[#f59e0b] text-[8.5px] font-black font-mono text-[#f59e0b] shadow-lg z-10 pointer-events-none whitespace-nowrap">
-          ★ 0 МВт • 6 ВХОДОВ (3×2)
-        </div>
 
         {/* Нижний пилл: Фазы */}
         <div className="absolute -bottom-3.5 px-2.5 py-0.5 rounded-full bg-[#f59e0b] text-black text-[8.5px] font-black font-mono shadow-lg z-10 pointer-events-none whitespace-nowrap">
@@ -347,6 +342,7 @@ export default function SpaceElevatorView({ onNavigateStage }) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedPhase, setSelectedPhase] = useState('all');
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
 
   // Подсветка связей при наведении
   const onNodeMouseEnter = (_, node) => {
@@ -583,7 +579,7 @@ export default function SpaceElevatorView({ onNavigateStage }) {
     if (selectedPhase === 'all') {
       return {
         title: 'Все фазы проекта (1-5)',
-        desc: '6 портов с 3-х сторон: 2 сверху (Фазы 1-2), 2 слева (Фазы 3-4), 2 снизу (Фазы 4-5).',
+        desc: 'Сквозное снабжение орбитального терминала компонентами проекта.',
         reward: 'Кружка «Лучший работник планеты» (Завершение игры)',
         items: [
           { name: 'Умная обшивка', count: 1050, phase: '1, 2' },
@@ -616,103 +612,105 @@ export default function SpaceElevatorView({ onNavigateStage }) {
 
   return (
     <div className="w-full h-full bg-[#0b0d10] relative">
-      {/* ── FICSIT SCADA панель легенды и фильтров (без лишнего) ── */}
-      <div className="absolute top-4 left-4 z-10 bg-[#14171d] border-2 border-[#f59e0b] p-4 rounded shadow-2xl pointer-events-auto w-72">
-        <div className="flex items-center gap-2 mb-1">
+      {/* ── FICSIT SCADA панель легенды и фильтров (с кнопкой скрытия) ── */}
+      {isPanelCollapsed ? (
+        <button
+          onClick={() => setIsPanelCollapsed(false)}
+          className="absolute top-4 left-4 z-10 bg-[#14171d]/95 hover:bg-[#1f242f] border border-[#f59e0b] px-3 py-1.5 rounded shadow-2xl flex items-center gap-2 cursor-pointer transition-all"
+          title="Показать панель проекта"
+        >
           <img
             src={getAssetUrl('/icons/Buildings/SpaceElevator.png')}
-            alt="Космический лифт"
-            className="w-5 h-5 object-contain"
+            alt="Лифт"
+            className="w-4 h-4 object-contain"
           />
-          <h2 className="text-[#f59e0b] font-black text-sm uppercase tracking-wider">
-            Проект «Сборка»
-          </h2>
-        </div>
-        <p className="text-gray-400 text-[10px] mb-3">
-          Космический Лифт • 6 портов (3 стороны × 2)
-        </p>
-
-        {/* Переключатель фаз */}
-        <p className="text-[9px] text-gray-400 uppercase tracking-widest mb-1.5 font-bold">
-          Фазы снабжения
-        </p>
-        <div className="grid grid-cols-3 gap-1 mb-3">
-          <button
-            onClick={() => setSelectedPhase('all')}
-            className={`px-2 py-1 rounded text-[10px] font-bold font-mono transition-colors cursor-pointer ${
-              selectedPhase === 'all'
-                ? 'bg-[#f59e0b] text-black shadow'
-                : 'bg-[#0b0d10] text-gray-300 hover:bg-[#1f242f] border border-[#2a2e39]'
-            }`}
-          >
-            Все (1-5)
-          </button>
-          {[1, 2, 3, 4, 5].map((ph) => (
+          <span className="text-xs font-bold text-[#f59e0b]">Проект «Сборка»</span>
+          <span className="text-[10px] text-gray-400 font-mono">Развернуть ▾</span>
+        </button>
+      ) : (
+        <div className="absolute top-4 left-4 z-10 bg-[#14171d] border-2 border-[#f59e0b] p-4 rounded shadow-2xl pointer-events-auto w-72">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <img
+                src={getAssetUrl('/icons/Buildings/SpaceElevator.png')}
+                alt="Космический лифт"
+                className="w-5 h-5 object-contain"
+              />
+              <h2 className="text-[#f59e0b] font-black text-sm uppercase tracking-wider">
+                Проект «Сборка»
+              </h2>
+            </div>
             <button
-              key={ph}
-              onClick={() => setSelectedPhase(ph)}
+              onClick={() => setIsPanelCollapsed(true)}
+              className="px-2 py-0.5 rounded text-[10px] text-gray-400 hover:text-white hover:bg-[#2a2e39] border border-[#2a2e39] font-mono cursor-pointer transition-colors"
+              title="Скрыть панель"
+            >
+              Скрыть ▲
+            </button>
+          </div>
+          <p className="text-gray-400 text-[10px] mb-3">
+            Орбитальный терминал • Satisfactory 1.0
+          </p>
+
+          {/* Переключатель фаз */}
+          <p className="text-[9px] text-gray-400 uppercase tracking-widest mb-1.5 font-bold">
+            Фазы снабжения
+          </p>
+          <div className="grid grid-cols-3 gap-1 mb-3">
+            <button
+              onClick={() => setSelectedPhase('all')}
               className={`px-2 py-1 rounded text-[10px] font-bold font-mono transition-colors cursor-pointer ${
-                selectedPhase === ph
+                selectedPhase === 'all'
                   ? 'bg-[#f59e0b] text-black shadow'
                   : 'bg-[#0b0d10] text-gray-300 hover:bg-[#1f242f] border border-[#2a2e39]'
               }`}
             >
-              Фаза {ph}
+              Все (1-5)
             </button>
-          ))}
-        </div>
-
-        {/* Сводка деталей выбранной фазы */}
-        <div className="p-2.5 rounded bg-[#0b0d10] border border-[#2a2e39] mb-3">
-          <div className="text-[10px] font-bold text-gray-200 mb-1 flex justify-between">
-            <span>{activePhaseData.title}</span>
-            <span className="text-[#f59e0b] font-mono">
-              {activePhaseData.items.length} предм.
-            </span>
-          </div>
-          <div className="text-[9px] text-gray-400 leading-tight mb-2">
-            {activePhaseData.desc}
-          </div>
-          <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
-            {activePhaseData.items.map((it) => (
-              <div
-                key={`${it.name}_${it.count}`}
-                className="flex items-center justify-between text-[9px] font-mono"
+            {[1, 2, 3, 4, 5].map((ph) => (
+              <button
+                key={ph}
+                onClick={() => setSelectedPhase(ph)}
+                className={`px-2 py-1 rounded text-[10px] font-bold font-mono transition-colors cursor-pointer ${
+                  selectedPhase === ph
+                    ? 'bg-[#f59e0b] text-black shadow'
+                    : 'bg-[#0b0d10] text-gray-300 hover:bg-[#1f242f] border border-[#2a2e39]'
+                }`}
               >
-                <span className="text-gray-300 truncate max-w-[160px]">
-                  {it.name}
-                </span>
-                <span className="text-[#f59e0b] font-bold shrink-0">
-                  {it.count.toLocaleString()} шт
-                </span>
-              </div>
+                Фаза {ph}
+              </button>
             ))}
           </div>
-        </div>
 
-        {/* Раскладка портов Лифта */}
-        <p className="text-[9px] text-gray-400 uppercase tracking-widest mb-1.5 font-bold">
-          Раскладка портов (3×2)
-        </p>
-        <div className="flex flex-col gap-1 text-[9px] text-gray-300 font-mono">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-xs bg-[#38bdf8]"></span>
-            <span>Север: 2 порта (Фазы 1-2)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-xs bg-[#34d399]"></span>
-            <span>Запад: 2 порта (Фазы 3-4)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-xs bg-[#ec4899]"></span>
-            <span>Юг: 2 порта (Фазы 4-5)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-xs bg-[#f59e0b]"></span>
-            <span>Восток: Консоль терминала</span>
+          {/* Сводка деталей выбранной фазы */}
+          <div className="p-2.5 rounded bg-[#0b0d10] border border-[#2a2e39]">
+            <div className="text-[10px] font-bold text-gray-200 mb-1 flex justify-between">
+              <span>{activePhaseData.title}</span>
+              <span className="text-[#f59e0b] font-mono">
+                {activePhaseData.items.length} предм.
+              </span>
+            </div>
+            <div className="text-[9px] text-gray-400 leading-tight mb-2">
+              {activePhaseData.desc}
+            </div>
+            <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
+              {activePhaseData.items.map((it) => (
+                <div
+                  key={`${it.name}_${it.count}`}
+                  className="flex items-center justify-between text-[9px] font-mono"
+                >
+                  <span className="text-gray-300 truncate max-w-[160px]">
+                    {it.name}
+                  </span>
+                  <span className="text-[#f59e0b] font-bold shrink-0">
+                    {it.count.toLocaleString()} шт
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <ReactFlow
         nodes={nodes}
