@@ -454,5 +454,18 @@ describe('Stage 11 Compact Layout Analysis', () => {
     expect(totalWidth).toBeLessThan(5500);
     // Prior to fix, maxDx was > 15,600px! Now maxDx is only ~2,200px across the entire tier-9 factory.
     expect(edgeDxList[0].dx).toBeLessThan(2500);
+
+    // Verify nuclear pasta import is connected to the space elevator output
+    const pastaImportNode = nodes.find(n => n.id === 'import_nuclear_pasta');
+    expect(pastaImportNode).toBeDefined();
+
+    const pastaOutNode = nodes.find(n => n.id === 'out_import_nuclear_pasta_nuclear_pasta');
+    expect(pastaOutNode).toBeDefined();
+    expect(pastaOutNode.data.rate).toBe(1);
+
+    const pastaEdge = edges.find(e => e.source === 'import_nuclear_pasta' && e.target === 'out_import_nuclear_pasta_nuclear_pasta');
+    expect(pastaEdge).toBeDefined();
+    expect(pastaEdge.data.rate).toBe(1);
+    expect(pastaEdge.data.itemId).toBe('nuclear_pasta');
   });
 });

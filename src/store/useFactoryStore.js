@@ -467,6 +467,36 @@ export const useFactoryStore = create((set, get) => ({
           });
         });
 
+        // Добавление конечных продуктов для неизрасходованных входных ресурсов (транзит/импорт на склад Лифта)
+        result.nodes.forEach(node => {
+          if (!node.data?.isInput) return;
+          const itemId = node.data.itemId;
+          if (!itemId) return;
+          const consumed = consumedBySourceItem[`${node.id}_${itemId}`] || 0;
+          const surplus = (node.data.rate || 0) - consumed;
+          if (surplus > 0.001) {
+            const outNodeId = `out_${node.id}_${itemId}`;
+            activeNodes.push({
+              id: outNodeId,
+              type: 'productItem',
+              data: {
+                itemId,
+                rate: surplus,
+                label: 'Конечный продукт',
+                layoutDirection
+              }
+            });
+            activeEdges.push({
+              id: `edge_${node.id}_${outNodeId}_${itemId}`,
+              source: node.id,
+              sourceHandle: `out-${itemId}`,
+              target: outNodeId,
+              targetHandle: 'in',
+              data: { rate: surplus, itemId, isOutput: true }
+            });
+          }
+        });
+
         // Вставка конвейерных разветвителей при опции "Использовать разветвитель/соединитель: Да" (SCIM)
         if (options.useSplitters !== false) {
           const edgesBySourceItem = {};
