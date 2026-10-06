@@ -8,6 +8,7 @@ import { useFactoryStore } from './store/useFactoryStore'
 const PowerPlanner = lazy(() => import('./modules/power/PowerPlanner'))
 const MacroView = lazy(() => import('./components/canvas/MacroView'))
 const BalancerViewer = lazy(() => import('./modules/balancer/BalancerViewer'))
+const SpaceElevatorView = lazy(() => import('./components/canvas/SpaceElevatorView'))
 
 function App() {
   const { loadPreset, resetToFreeMode, campaignStagesState, activePresetId, frozenStages, initStorage } = useFactoryStore();
@@ -210,6 +211,27 @@ function App() {
                       <div className="text-[10px] text-gray-400 font-normal">Макро-карта кампании</div>
                     </div>
                   </button>
+
+                  <button
+                    onClick={() => {
+                      handleSetView('campaign');
+                      setCampaignMode('elevator');
+                      setCampaignOpen(false);
+                    }}
+                    className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer border-t border-[#2a2e39]/60 ${
+                      view === 'campaign' && campaignMode === 'elevator' ? 'bg-[#242b38] text-[#f59e0b] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
+                    }`}
+                  >
+                    <img
+                      src="/icons/Buildings/SpaceElevator.png"
+                      alt="Космический лифт"
+                      className="w-4 h-4 object-contain shrink-0 filter drop-shadow"
+                    />
+                    <div>
+                      <div className="text-xs font-bold text-[#f59e0b]">Проект «Сборка»</div>
+                      <div className="text-[10px] text-gray-400 font-normal">Космический Лифт (5 фаз)</div>
+                    </div>
+                  </button>
                 </div>
               )}
             </div>
@@ -294,7 +316,12 @@ function App() {
                     
                     {/* Upper row: Type / Name / Select */}
                     <button
-                      onClick={() => loadPreset(preset)}
+                      onClick={() => {
+                        loadPreset(preset);
+                        if (campaignMode === 'elevator') {
+                          setCampaignMode('detail');
+                        }
+                      }}
                       className="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2e39] w-full text-left cursor-pointer"
                     >
                       <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wide ${preset.type === 'power' ? 'bg-[#22c55e] text-black' : 'bg-[#f97316] text-black'}`}>
@@ -313,6 +340,34 @@ function App() {
                 </React.Fragment>
               );
             })}
+
+            {/* Вкладка ПРОЕКТ «СБОРКА» (КОСМИЧЕСКИЙ ЛИФТ) */}
+            <div className="shrink-0 text-amber-500/80 font-bold px-1 text-sm select-none">
+              →
+            </div>
+            <div
+              className={`flex flex-col border ${
+                campaignMode === 'elevator'
+                  ? 'border-[#f59e0b] bg-[#231a0e] shadow-[0_0_12px_rgba(245,158,11,0.45)]'
+                  : 'border-[#2a2e39] bg-[#14171d] hover:border-[#f59e0b]/50'
+              } rounded-md transition-colors shrink-0 overflow-hidden relative`}
+            >
+              <button
+                onClick={() => setCampaignMode('elevator')}
+                className="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2e39] w-full text-left cursor-pointer"
+                title="Орбитальный Космический Лифт: Проект «Сборка» (5 фаз)"
+              >
+                <span className="text-[9px] font-black px-1.5 py-0.5 rounded tracking-wide bg-[#f59e0b] text-black">
+                  ПРОЕКТ
+                </span>
+                <img
+                  src="/icons/Buildings/SpaceElevator.png"
+                  alt="Космический лифт"
+                  className="w-4 h-4 object-contain shrink-0 filter drop-shadow"
+                />
+                <span className="text-xs font-bold text-[#f59e0b]">Проект «Сборка»</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -330,6 +385,11 @@ function App() {
             <BalancerViewer />
           ) : view === 'campaign' && campaignMode === 'macro' ? (
             <MacroView />
+          ) : view === 'campaign' && campaignMode === 'elevator' ? (
+            <SpaceElevatorView onNavigateStage={(preset) => {
+              loadPreset(preset);
+              setCampaignMode('detail');
+            }} />
           ) : (
             <>
               <MainView />
