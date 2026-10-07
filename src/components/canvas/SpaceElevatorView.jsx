@@ -167,7 +167,7 @@ function ScimPartNode({ data }) {
   );
 }
 
-// ─── Узел 2: Космический Лифт (Центральный узел 110×110 с 6 портами на 3-х сторонах)
+// ─── Узел 2: Космический Лифт (Центральный узел 110×110 с выделенными портами на 3-х сторонах)
 function ScimElevatorNode({ data }) {
   const elevatorIcon = getAssetUrl('/icons/Buildings/SpaceElevator.png');
 
@@ -181,9 +181,9 @@ function ScimElevatorNode({ data }) {
         }}
         title="Космический Лифт: Проект «Сборка» (5 Фаз)"
       >
-        {/* ── 6 ВХОДНЫХ ПОРТОВ (по 2 порта с 3-х сторон: Верх, Лево, Низ) ── */}
+        {/* ── ВХОДНЫЕ ПОРТЫ ПО ПЕРИМЕТРУ (Север, Запад, Юг: ровно 6 входов, по 2 на сторону) ── */}
 
-        {/* Верхняя сторона (Север): 2 порта */}
+        {/* Верхняя сторона (Север): 2 порта (Вход 1 и Вход 2) */}
         <Handle
           type="target"
           position={Position.Top}
@@ -201,14 +201,14 @@ function ScimElevatorNode({ data }) {
           title="Входной порт 2 (Север-Б: Фазы 1-2)"
         />
 
-        {/* Левая сторона (Запад): 2 порта */}
+        {/* Левая сторона (Запад): 2 порта (Вход 3 и Вход 4) */}
         <Handle
           type="target"
           position={Position.Left}
           id="port-left-0"
           style={{ top: '30%', left: -6 }}
           className="w-3.5 h-3.5 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-xs shadow-md opacity-90 hover:scale-125 transition-transform"
-          title="Входной порт 3 (Запад-А: Фазы 3-4)"
+          title="Входной порт 3 (Запад-А: Фаза 3)"
         />
         <Handle
           type="target"
@@ -216,17 +216,17 @@ function ScimElevatorNode({ data }) {
           id="port-left-1"
           style={{ top: '70%', left: -6 }}
           className="w-3.5 h-3.5 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-xs shadow-md opacity-90 hover:scale-125 transition-transform"
-          title="Входной порт 4 (Запад-Б: Фазы 3-4)"
+          title="Входной порт 4 (Запад-Б: Фаза 4)"
         />
 
-        {/* Нижняя сторона (Юг): 2 порта */}
+        {/* Нижняя сторона (Юг): 2 порта (Вход 5 и Вход 6) */}
         <Handle
           type="target"
           position={Position.Bottom}
           id="port-bottom-0"
           style={{ left: '30%', bottom: -6 }}
           className="w-3.5 h-3.5 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-xs shadow-md opacity-90 hover:scale-125 transition-transform"
-          title="Входной порт 5 (Юг-А: Фазы 4-5)"
+          title="Входной порт 5 (Юг-А: Фаза 4)"
         />
         <Handle
           type="target"
@@ -234,7 +234,7 @@ function ScimElevatorNode({ data }) {
           id="port-bottom-1"
           style={{ left: '70%', bottom: -6 }}
           className="w-3.5 h-3.5 !bg-[#f59e0b] !border-2 !border-[#0b0e14] !rounded-xs shadow-md opacity-90 hover:scale-125 transition-transform"
-          title="Входной порт 6 (Юг-Б: Фазы 4-5)"
+          title="Входной порт 6 (Юг-Б: Фаза 5)"
         />
 
         {/* Правая сторона (Восток): Консоль управления и запуска */}
@@ -286,6 +286,8 @@ function CompactConveyorEdge({
   data,
 }) {
   const color = data?.color || '#f59e0b';
+  const centerY = data?.centerY;
+  const centerX = data?.centerX;
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
@@ -294,7 +296,9 @@ function CompactConveyorEdge({
     targetX,
     targetY,
     targetPosition,
-    borderRadius: 16,
+    borderRadius: 14,
+    ...(centerY !== undefined ? { centerY } : {}),
+    ...(centerX !== undefined ? { centerX } : {}),
   });
 
   return (
@@ -408,31 +412,31 @@ export default function SpaceElevatorView({ onNavigateStage }) {
     //  - Западный сектор (слева):  Фазы 3 и 4 ──► port-left-0, port-left-1
     //  - Южный сектор (снизу):     Фазы 4 и 5 ──► port-bottom-0, port-bottom-1
     if (selectedPhase === 'all') {
-      // 1. Северный сектор (Сверху, Y: 100)
+      // 1. Северный сектор (Сверху, Y: 100) - 2 порта: port-top-0 (Вход 1) и port-top-1 (Вход 2)
       const topItems = [
-        { phase: 1, itemId: 'smart_plating', count: 50, stageId: 'complex_3', rate: 2, port: 'port-top-0', x: 380, y: 100 },
-        { phase: 2, itemId: 'smart_plating', count: 1000, stageId: 'complex_3', rate: 2, port: 'port-top-0', x: 530, y: 100 },
-        { phase: 2, itemId: 'versatile_framework', count: 1000, stageId: 'complex_3', rate: 5, port: 'port-top-1', x: 680, y: 100 },
-        { phase: 2, itemId: 'automated_wiring', count: 100, stageId: 'complex_3', rate: 2.5, port: 'port-top-1', x: 830, y: 100 },
+        { phase: 1, itemId: 'smart_plating', count: 50, stageId: 'complex_3', rate: 2, port: 'port-top-0', x: 360, y: 100, centerY: 210 },
+        { phase: 2, itemId: 'smart_plating', count: 1000, stageId: 'complex_3', rate: 2, port: 'port-top-0', x: 520, y: 100, centerY: 250 },
+        { phase: 2, itemId: 'versatile_framework', count: 1000, stageId: 'complex_3', rate: 5, port: 'port-top-1', x: 720, y: 100, centerY: 250 },
+        { phase: 2, itemId: 'automated_wiring', count: 100, stageId: 'complex_3', rate: 2.5, port: 'port-top-1', x: 880, y: 100, centerY: 210 },
       ];
 
-      // 2. Западный сектор (Слева, X: 170 и 340)
+      // 2. Западный сектор (Слева) - port-left-0 (Фаза 3, Вход 3) и port-left-1 (Фаза 4, Вход 4)
       const leftItems = [
-        { phase: 3, itemId: 'versatile_framework', count: 2500, stageId: 'complex_3', rate: 5, port: 'port-left-0', x: 170, y: 270 },
-        { phase: 3, itemId: 'modular_engine', count: 500, stageId: 'complex_5', rate: 2.5, port: 'port-left-0', x: 340, y: 270 },
-        { phase: 3, itemId: 'adaptive_control_unit', count: 100, stageId: 'complex_5', rate: 1, port: 'port-left-1', x: 170, y: 430 },
-        { phase: 4, itemId: 'assembly_director_system', count: 500, stageId: 'complex_8b', rate: 1.5, port: 'port-left-1', x: 340, y: 430 },
+        { phase: 3, itemId: 'versatile_framework', count: 2500, stageId: 'complex_3', rate: 5, port: 'port-left-0', x: 150, y: 200, centerX: 520 },
+        { phase: 3, itemId: 'modular_engine', count: 500, stageId: 'complex_5', rate: 2.5, port: 'port-left-0', x: 330, y: 270, centerX: 470 },
+        { phase: 3, itemId: 'adaptive_control_unit', count: 100, stageId: 'complex_5', rate: 1, port: 'port-left-0', x: 150, y: 350, centerX: 430 },
+        { phase: 4, itemId: 'assembly_director_system', count: 500, stageId: 'complex_8b', rate: 1.5, port: 'port-left-1', x: 330, y: 440, centerX: 490 },
       ];
 
-      // 3. Южный сектор (Снизу, Y: 580)
+      // 3. Южный сектор (Снизу, Y: 630) - port-bottom-0 (Фаза 4, Вход 5) и port-bottom-1 (Фаза 5, Вход 6)
       const bottomItems = [
-        { phase: 4, itemId: 'magnetic_field_generator', count: 500, stageId: 'complex_8b', rate: 2, port: 'port-bottom-0', x: 230, y: 580 },
-        { phase: 4, itemId: 'thermal_propulsion_rocket', count: 250, stageId: 'complex_8b', rate: 1, port: 'port-bottom-0', x: 380, y: 580 },
-        { phase: 4, itemId: 'nuclear_pasta', count: 100, stageId: 'complex_8b', rate: 1, port: 'port-bottom-0', x: 530, y: 580 },
-        { phase: 5, itemId: 'nuclear_pasta', count: 1000, stageId: 'complex_8b', rate: 1, port: 'port-bottom-1', x: 680, y: 580 },
-        { phase: 5, itemId: 'biochemical_spacesuit', count: 1000, stageId: 'phase_5', rate: 2.5, port: 'port-bottom-1', x: 830, y: 580 },
-        { phase: 5, itemId: 'ai_expansion_server', count: 256, stageId: 'phase_5', rate: 2.5, port: 'port-bottom-1', x: 980, y: 580 },
-        { phase: 5, itemId: 'ballistic_warp_drive', count: 200, stageId: 'phase_5', rate: 1, port: 'port-bottom-1', x: 1130, y: 580 },
+        { phase: 4, itemId: 'magnetic_field_generator', count: 500, stageId: 'complex_8b', rate: 2, port: 'port-bottom-0', x: 230, y: 630, centerY: 585 },
+        { phase: 4, itemId: 'thermal_propulsion_rocket', count: 250, stageId: 'complex_8b', rate: 1, port: 'port-bottom-0', x: 370, y: 630, centerY: 560 },
+        { phase: 4, itemId: 'nuclear_pasta', count: 100, stageId: 'complex_8b', rate: 1, port: 'port-bottom-0', x: 510, y: 630, centerY: 535 },
+        { phase: 5, itemId: 'nuclear_pasta', count: 1000, stageId: 'complex_8b', rate: 1, port: 'port-bottom-1', x: 690, y: 630, centerY: 535 },
+        { phase: 5, itemId: 'biochemical_spacesuit', count: 1000, stageId: 'phase_5', rate: 2.5, port: 'port-bottom-1', x: 830, y: 630, centerY: 560 },
+        { phase: 5, itemId: 'ai_expansion_server', count: 256, stageId: 'phase_5', rate: 2.5, port: 'port-bottom-1', x: 970, y: 630, centerY: 585 },
+        { phase: 5, itemId: 'ballistic_warp_drive', count: 200, stageId: 'phase_5', rate: 1, port: 'port-bottom-1', x: 1110, y: 630, centerY: 610 },
       ];
 
       const allItems = [
@@ -477,6 +481,8 @@ export default function SpaceElevatorView({ onNavigateStage }) {
           data: {
             color: phaseData.color,
             rate: it.rate,
+            centerY: it.centerY,
+            centerX: it.centerX,
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
