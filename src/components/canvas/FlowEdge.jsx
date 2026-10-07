@@ -29,9 +29,11 @@ export default function FlowEdge({
   let adjTargetY = targetY;
   let adjTargetX = targetX;
 
-  if (isHorizontal && Math.abs(targetY - sourceY) <= 45) {
+  // Устраняем только истинный субпиксельный джиттер (до 2px),
+  // чтобы стрелка ВСЕГДА попадала строго в центр целевого порта.
+  if (isHorizontal && Math.abs(targetY - sourceY) <= 2) {
     adjTargetY = sourceY;
-  } else if (!isHorizontal && Math.abs(targetX - sourceX) <= 45) {
+  } else if (!isHorizontal && Math.abs(targetX - sourceX) <= 2) {
     adjTargetX = sourceX;
   }
 

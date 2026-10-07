@@ -765,6 +765,33 @@ export const useFactoryStore = create((set, get) => ({
 
       dagre.layout(dagreGraph);
 
+      // В реалистичном режиме выравниваем разветвители и трубные перекрестки,
+      // соединенные по прямой линии (out-1 -> in), а также входные шахты,
+      // чтобы две главные линии шли строго по середине без перекосов
+      if (schematicMode === 'realistic') {
+        activeEdges.forEach(edge => {
+          if (edge.sourceHandle === 'out-1' && edge.targetHandle === 'in') {
+            const srcNode = dagreGraph.node(edge.source);
+            const tgtNode = dagreGraph.node(edge.target);
+            if (srcNode && tgtNode) {
+              srcNode.y = tgtNode.y;
+            }
+          }
+        });
+
+        // Выравниваем входные узлы (шахты, вода) по целевым узлам
+        activeEdges.forEach(edge => {
+          const src = activeNodes.find(n => n.id === edge.source);
+          if (src?.data?.isInput) {
+            const srcNode = dagreGraph.node(edge.source);
+            const tgtNode = dagreGraph.node(edge.target);
+            if (srcNode && tgtNode) {
+              srcNode.y = tgtNode.y;
+            }
+          }
+        });
+      }
+
       const layoutedNodes = activeNodes.map(node => {
         const nodeWithPosition = dagreGraph.node(node.id) || { x: 0, y: 0 };
         const { width, height } = getNodeDimensions(node);
