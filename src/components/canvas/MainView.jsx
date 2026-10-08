@@ -260,8 +260,19 @@ export default function MainView() {
     frozenStages,
     freezeCurrentStage,
     unfreezeStage,
-    addTarget
+    addTarget,
+    nodes,
+    builtNodes,
+    markAllNodesBuilt,
+    resetBuiltNodes
   } = useFactoryStore();
+
+  const stageKey = activePresetId || 'free_mode';
+  const stageBuilt = builtNodes?.[stageKey] || {};
+  const machineNodes = (nodes || []).filter(n => ['machine', 'physicalMachine'].includes(n.type) || n.data?.isInput || n.data?.buildingId);
+  const totalCount = machineNodes.length;
+  const builtCount = machineNodes.filter(n => stageBuilt[n.id]).length;
+  const isAllBuilt = totalCount > 0 && builtCount === totalCount;
 
   const isStageFrozen = !!(activePresetId && frozenStages[activePresetId]?.isFrozen);
 
@@ -320,6 +331,49 @@ export default function MainView() {
         {/* Разделитель */}
         <div className="flex-1" />
 
+        {/* Панель фиксации построек */}
+        {totalCount > 0 && (
+          <div className="flex items-center gap-1 mr-2">
+            {/* Счетчик построек */}
+            <div 
+              className={`px-2.5 py-1 rounded text-xs font-mono font-bold flex items-center gap-1.5 border transition-all ${
+                builtCount > 0 
+                  ? 'bg-[#15803d]/20 border-[#22c55e]/60 text-[#22c55e]' 
+                  : 'bg-[#14171d] border-[#2a2e39] text-gray-400'
+              }`}
+              title="Количество построенных станков (с зеленым кругом внутри)"
+            >
+              <span>Построено:</span>
+              <span className={`font-black ${builtCount > 0 ? 'text-[#22c55e]' : 'text-gray-300'}`}>
+                {builtCount}/{totalCount}
+              </span>
+            </div>
+
+            {/* Быстрая кнопка: Зафиксировать всё (зеленые круги) / Сбросить */}
+            <button
+              type="button"
+              onClick={() => {
+                if (isAllBuilt) {
+                  resetBuiltNodes(stageKey);
+                } else {
+                  markAllNodesBuilt(stageKey);
+                }
+              }}
+              title={isAllBuilt ? "Снять отметки постройки со всех станков" : "Зафиксировать все постройки (залить все круги зеленым)"}
+              className={`px-2.5 py-1 rounded text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                isAllBuilt
+                  ? 'bg-[#14231a] hover:bg-[#1b3324] text-[#22c55e] border-[#22c55e] shadow-[0_0_8px_rgba(34,197,94,0.3)]'
+                  : 'bg-[#14171d] hover:bg-[#1f242d] text-[#fa9549] border-[#fa9549]/60 hover:border-[#fa9549]'
+              }`}
+            >
+              <svg className="w-3.5 h-3.5 text-current" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              <span>{isAllBuilt ? 'Сбросить все' : 'Зафиксировать все'}</span>
+            </button>
+          </div>
+        )}
+
         {/* Кнопка фиксации постройки этапа */}
         {activePresetId && (
           isStageFrozen ? (
@@ -332,14 +386,17 @@ export default function MainView() {
               <svg className="w-3.5 h-3.5 text-[#22c55e]" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
               </svg>
-              <span>ПОСТРОЕНО</span>
+              <span>ЭТАП ЗАКРЕПЛЕН</span>
             </button>
           ) : (
             <button
               type="button"
               disabled={!summary || targets.length === 0}
-              onClick={freezeCurrentStage}
-              title="Зафиксировать постройку завода. Заблокирует изменения и сохранит схему в трекере прогресса."
+              onClick={() => {
+                markAllNodesBuilt(stageKey);
+                freezeCurrentStage();
+              }}
+              title="Зафиксировать постройку завода. Зальет круги зеленым, сохранит схему в памяти и заблокирует изменения."
               className={`px-3 py-1.5 rounded text-xs font-bold border flex items-center gap-1.5 transition-all mr-2 cursor-pointer ${
                 !summary || targets.length === 0
                   ? 'opacity-40 cursor-not-allowed border-[#2a2e39] text-gray-500 bg-[#14171d]'

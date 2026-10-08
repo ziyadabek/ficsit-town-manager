@@ -16,6 +16,8 @@ presets.forEach(p => {
 import { 
   loadFrozenStages as loadIDBFrozenStages, 
   saveFrozenStages as saveIDBFrozenStages, 
+  loadBuiltNodes as loadIDBBuiltNodes,
+  saveBuiltNodes as saveIDBBuiltNodes,
   requestPersistence, 
   exportBackupJSON, 
   importBackupJSON 
@@ -23,6 +25,7 @@ import {
 
 const STORAGE_KEY = 'ficsit_frozen_stages_v2';
 const LEGACY_STORAGE_KEY = 'ficsit_frozen_stages_v1';
+const BUILT_STORAGE_KEY = 'ficsit_built_nodes_v1';
 
 // Синхронный мгновенный снимок из localStorage для моментального старта UI
 function loadInitialFrozenStages() {
@@ -40,6 +43,23 @@ function loadInitialFrozenStages() {
 function saveFrozenStages(stages) {
   // Асинхронно сохраняем в IndexedDB (без лимитов памяти)
   saveIDBFrozenStages(stages);
+  return true;
+}
+
+function loadInitialBuiltNodes() {
+  try {
+    const raw = localStorage.getItem(BUILT_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveBuiltNodesState(builtNodes) {
+  saveIDBBuiltNodes(builtNodes);
+  try {
+    localStorage.setItem(BUILT_STORAGE_KEY, JSON.stringify(builtNodes));
+  } catch (e) {}
   return true;
 }
 
@@ -78,6 +98,7 @@ export const useFactoryStore = create((set, get) => ({
   // Campaign Stages State
   campaignStagesState: initialCampaignStates,
   frozenStages: loadInitialFrozenStages(),
+  builtNodes: loadInitialBuiltNodes(),
 
   // Results
   summary: null,
@@ -151,10 +172,72 @@ export const useFactoryStore = create((set, get) => ({
     }
   },
 
+  toggleNodeBuilt: (nodeId, targetStageId) => {
+    const { builtNodes, activePresetId } = get();
+    const stageKey = targetStageId || activePresetId || 'free_mode';
+    const currentStageNodes = builtNodes[stageKey] || {};
+    const isCurrentlyBuilt = Boolean(currentStageNodes[nodeId]);
+
+    const updatedStageNodes = { ...currentStageNodes };
+    if (!isCurrentlyBuilt) {
+      updatedStageNodes[nodeId] = true;
+    } else {
+      delete updatedStageNodes[nodeId];
+    }
+
+    const nextBuiltNodes = {
+      ...builtNodes,
+      [stageKey]: updatedStageNodes
+    };
+
+    saveBuiltNodesState(nextBuiltNodes);
+    set({ builtNodes: nextBuiltNodes });
+  },
+
+  isNodeBuilt: (nodeId, targetStageId) => {
+    const { builtNodes, activePresetId } = get();
+    const stageKey = targetStageId || activePresetId || 'free_mode';
+    return Boolean(builtNodes[stageKey]?.[nodeId]);
+  },
+
+  markAllNodesBuilt: (targetStageId) => {
+    const { builtNodes, activePresetId, nodes } = get();
+    const stageKey = targetStageId || activePresetId || 'free_mode';
+    const updatedStageNodes = { ...(builtNodes[stageKey] || {}) };
+
+    nodes.forEach(n => {
+      if (['machine', 'physicalMachine'].includes(n.type) || n.data?.isInput || n.data?.buildingId) {
+        updatedStageNodes[n.id] = true;
+      }
+    });
+
+    const nextBuiltNodes = {
+      ...builtNodes,
+      [stageKey]: updatedStageNodes
+    };
+
+    saveBuiltNodesState(nextBuiltNodes);
+    set({ builtNodes: nextBuiltNodes });
+  },
+
+  resetBuiltNodes: (targetStageId) => {
+    const { builtNodes, activePresetId } = get();
+    const stageKey = targetStageId || activePresetId || 'free_mode';
+    const nextBuiltNodes = {
+      ...builtNodes,
+      [stageKey]: {}
+    };
+    saveBuiltNodesState(nextBuiltNodes);
+    set({ builtNodes: nextBuiltNodes });
+  },
+
   initStorage: async () => {
     requestPersistence();
     try {
-      const stages = await loadIDBFrozenStages();
+      const [stages, built] = await Promise.all([
+        loadIDBFrozenStages(),
+        loadIDBBuiltNodes()
+      ]);
       if (stages && typeof stages === 'object' && Object.keys(stages).length > 0) {
         set({ frozenStages: stages });
         const { activePresetId } = get();
@@ -163,20 +246,27 @@ export const useFactoryStore = create((set, get) => ({
           if (currentPreset) get().loadPreset(currentPreset);
         }
       }
+      if (built && typeof built === 'object' && Object.keys(built).length > 0) {
+        set({ builtNodes: built });
+      }
     } catch (e) {
       console.warn('initStorage failed:', e);
     }
   },
 
   exportBackup: () => {
-    exportBackupJSON(get().frozenStages);
+    exportBackupJSON(get().frozenStages, get().builtNodes);
   },
 
   importBackup: async (file) => {
     try {
-      const stages = await importBackupJSON(file);
+      const { stages, builtNodes } = await importBackupJSON(file);
       await saveIDBFrozenStages(stages);
       set({ frozenStages: stages });
+      if (builtNodes && typeof builtNodes === 'object') {
+        await saveIDBBuiltNodes(builtNodes);
+        set({ builtNodes });
+      }
       const { activePresetId } = get();
       if (activePresetId && stages[activePresetId]) {
         const currentPreset = presets.find(p => p.id === activePresetId);

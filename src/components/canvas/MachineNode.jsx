@@ -7,7 +7,14 @@ import { useFactoryStore } from '../../store/useFactoryStore';
 import { getAssetUrl } from '../../database/assets';
 
 
-export default function MachineNode({ data }) {
+export default function MachineNode({ id, data }) {
+  const activePresetId = useFactoryStore(state => state.activePresetId);
+  const nodeId = id || data.id || (data.recipeId ? `recipe_${data.recipeId}` : (data.isInput ? (data.isImport ? `import_${data.itemId}` : `mine_${data.itemId}`) : data.label));
+  const isBuilt = useFactoryStore(state => 
+    Boolean(state.builtNodes[activePresetId || 'free_mode']?.[nodeId])
+  );
+  const toggleNodeBuilt = useFactoryStore(state => state.toggleNodeBuilt);
+
   const somersloopRecipes = useFactoryStore(state => state.options.somersloopRecipes) || [];
   const toggleSomersloop = useFactoryStore(state => state.toggleSomersloop);
   const storeDirection = useFactoryStore(state => state.layoutDirection);
@@ -42,12 +49,15 @@ export default function MachineNode({ data }) {
       <div className="flex flex-col items-center justify-center relative select-none w-[150px] py-1">
         {/* Круглый SCIM-узел VIP гидроконтура */}
         <div 
-          className="w-20 h-20 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-transform hover:scale-105"
+          onClick={() => toggleNodeBuilt(nodeId)}
+          className={`w-20 h-20 rounded-full flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+            isBuilt ? 'bg-[#15803d] shadow-[0_0_16px_rgba(34,197,94,0.6)]' : 'bg-[#181a20]'
+          }`}
           style={{
-            border: `3.5px solid ${ringColor}`,
-            boxShadow: '0 0 12px rgba(56,189,248,0.4)'
+            border: `3.5px solid ${isBuilt ? '#22c55e' : ringColor}`,
+            boxShadow: isBuilt ? '0 0 16px rgba(34,197,94,0.6)' : '0 0 12px rgba(56,189,248,0.4)'
           }}
-          title={tooltip}
+          title={isBuilt ? 'VIP Гидроконтур зафиксирован (нажмите для отмены)' : `${tooltip} • Кликните для фиксации постройки`}
         >
           {/* Иконка перекрестка труб или воды */}
           <img 
@@ -146,12 +156,15 @@ export default function MachineNode({ data }) {
         <div className="flex flex-col items-center justify-center relative select-none w-[150px] py-1">
           {/* Круглый SCIM-узел транзита */}
           <div 
-            className="w-20 h-20 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-transform hover:scale-105"
+            onClick={() => toggleNodeBuilt(nodeId)}
+            className={`w-20 h-20 rounded-full flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+              isBuilt ? 'bg-[#15803d] shadow-[0_0_16px_rgba(34,197,94,0.6)]' : 'bg-[#181a20]'
+            }`}
             style={{
-              border: `3.5px solid ${ringColor}`,
-              boxShadow: `0 0 10px ${shadowColor}`
+              border: `3.5px solid ${isBuilt ? '#22c55e' : ringColor}`,
+              boxShadow: isBuilt ? '0 0 16px rgba(34,197,94,0.6)' : `0 0 10px ${shadowColor}`
             }}
-            title={tooltip}
+            title={isBuilt ? 'Транзитный маршрут построен (нажмите для отмены)' : `${tooltip} • Кликните для фиксации постройки`}
           >
             {/* 3D Иконка перевозимого ресурса */}
             {item?.icon && (
@@ -224,8 +237,12 @@ export default function MachineNode({ data }) {
     return (
       <div className="flex flex-col items-center justify-center relative select-none w-[150px] py-1">
         <div 
-          className="w-20 h-20 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] border-[3.5px] border-[#f97316] transition-transform hover:scale-105"
-          style={{ boxShadow: '0 0 10px rgba(249,115,22,0.4)' }}
+          onClick={() => toggleNodeBuilt(nodeId)}
+          className={`w-20 h-20 rounded-full flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] border-[3.5px] transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+            isBuilt ? 'bg-[#15803d] border-[#22c55e] shadow-[0_0_16px_rgba(34,197,94,0.6)]' : 'bg-[#181a20] border-[#f97316]'
+          }`}
+          style={{ boxShadow: isBuilt ? '0 0 16px rgba(34,197,94,0.6)' : '0 0 10px rgba(249,115,22,0.4)' }}
+          title={isBuilt ? 'Буровая/Экстрактор построен (нажмите для отмены)' : 'Кликните, чтобы зафиксировать постройку буровой/экстрактора'}
         >
           <img 
             src={getAssetUrl(minerIcon)} 
@@ -269,11 +286,15 @@ export default function MachineNode({ data }) {
       <div className="flex flex-col items-center justify-center relative select-none w-[150px] py-1">
         {/* Круглый узел генератора в едином масштабе SCIM */}
         <div 
-          className="w-20 h-20 rounded-full bg-[#161a22] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-transform hover:scale-105"
+          onClick={() => toggleNodeBuilt(nodeId)}
+          className={`w-20 h-20 rounded-full flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+            isBuilt ? 'bg-[#15803d] shadow-[0_0_16px_rgba(34,197,94,0.6)]' : 'bg-[#161a22]'
+          }`}
           style={{
-            border: `3.5px solid ${ringColor}`,
-            boxShadow: `0 0 14px ${ringColor}60`
+            border: `3.5px solid ${isBuilt ? '#22c55e' : ringColor}`,
+            boxShadow: isBuilt ? '0 0 16px rgba(34,197,94,0.6)' : `0 0 14px ${ringColor}60`
           }}
+          title={isBuilt ? 'Генератор построен (нажмите для отмены)' : 'Кликните, чтобы зафиксировать постройку генератора'}
         >
           {building?.icon && (
             <img 
@@ -358,18 +379,22 @@ export default function MachineNode({ data }) {
   const supportsSomersloop = building?.somersloopSlots > 0;
   const isAmplified = somersloopRecipes.includes(data.recipeId);
 
-  const ringColor = isAmplified ? '#a855f7' : (data.machines >= 1 ? '#22c55e' : '#f97316');
+  const ringColor = isBuilt ? '#22c55e' : (isAmplified ? '#a855f7' : '#f97316');
   const machineCountStr = data.machines ? ` (${data.machines.toFixed(1)} шт)` : '';
 
   return (
     <div className="flex flex-col items-center justify-center relative select-none w-[150px] py-1">
       {/* Круглый узел станка в точности как в оригинале SCIM */}
       <div 
-        className="w-20 h-20 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-transform hover:scale-105"
+        onClick={() => toggleNodeBuilt(nodeId)}
+        className={`w-20 h-20 rounded-full flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+          isBuilt ? 'bg-[#15803d] shadow-[0_0_16px_rgba(34,197,94,0.6)]' : 'bg-[#181a20]'
+        }`}
         style={{
           border: `3.5px solid ${ringColor}`,
-          boxShadow: `0 0 10px ${ringColor}40`
+          boxShadow: isBuilt ? '0 0 16px rgba(34,197,94,0.6)' : `0 0 10px ${ringColor}40`
         }}
+        title={isBuilt ? 'Построено (нажмите, чтобы отменить)' : 'Кликните, чтобы зафиксировать постройку станка'}
       >
         {building?.icon && (
           <img 

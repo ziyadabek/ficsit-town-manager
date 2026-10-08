@@ -17,6 +17,8 @@ const STORE_NAME = 'stages_store';
 const STAGES_KEY = 'frozen_stages_v2';
 const LEGACY_STORAGE_KEY = 'ficsit_frozen_stages_v2';
 const OLD_LEGACY_KEY = 'ficsit_frozen_stages_v1';
+const BUILT_NODES_KEY = 'built_nodes_v1';
+const LEGACY_BUILT_STORAGE_KEY = 'ficsit_built_nodes_v1';
 
 /**
  * Открывает или создает базу данных IndexedDB.
@@ -145,15 +147,85 @@ export async function saveFrozenStages(stages) {
 }
 
 /**
- * Экспортирует текущее состояние цехов в файл .json для скачивания пользователем.
- * @param {Record<string, any>} stages
+ * Загружает статусы построенных станков (built nodes).
+ * @returns {Promise<Record<string, Record<string, boolean>>>}
  */
-export function exportBackupJSON(stages) {
+export async function loadBuiltNodes() {
+  try {
+    const db = await openDB();
+    const data = await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.get(BUILT_NODES_KEY);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+
+    if (data && typeof data === 'object') {
+      return data;
+    }
+  } catch (err) {
+    console.warn('[storageService] IndexedDB read built nodes failed, trying localStorage fallback:', err);
+  }
+
+  try {
+    const raw = localStorage.getItem(LEGACY_BUILT_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        saveBuiltNodes(parsed).catch(e => console.warn('[storageService] Background migration of built nodes failed:', e));
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('[storageService] localStorage built nodes read failed:', e);
+  }
+
+  return {};
+}
+
+/**
+ * Сохраняет статусы построенных станков в IndexedDB и localStorage.
+ * @param {Record<string, Record<string, boolean>>>} builtNodes
+ * @returns {Promise<boolean>}
+ */
+export async function saveBuiltNodes(builtNodes) {
+  let savedToIDB = false;
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.put(builtNodes, BUILT_NODES_KEY);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+    savedToIDB = true;
+  } catch (err) {
+    console.warn('[storageService] Failed to save built nodes to IndexedDB:', err);
+  }
+
+  try {
+    localStorage.setItem(LEGACY_BUILT_STORAGE_KEY, JSON.stringify(builtNodes));
+  } catch (e) {
+    // Quota fallback
+  }
+
+  return savedToIDB;
+}
+
+/**
+ * Экспортирует текущее состояние цехов и построенных станков в файл .json для скачивания.
+ * @param {Record<string, any>} stages
+ * @param {Record<string, Record<string, boolean>>>} builtNodes
+ */
+export function exportBackupJSON(stages, builtNodes = {}) {
   const payload = {
     app: 'FICSIT Factory Architect',
     version: '2.0',
     exportedAt: new Date().toISOString(),
-    stages
+    stages,
+    builtNodes
   };
 
   const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(payload, null, 2));
@@ -170,7 +242,7 @@ export function exportBackupJSON(stages) {
 /**
  * Импортирует и валидирует файл резервной копии .json.
  * @param {File} file
- * @returns {Promise<Record<string, any>>}
+ * @returns {Promise<{ stages: Record<string, any>, builtNodes: Record<string, any> }>}
  */
 export function importBackupJSON(file) {
   return new Promise((resolve, reject) => {
@@ -181,11 +253,12 @@ export function importBackupJSON(file) {
       try {
         const text = e.target.result;
         const parsed = JSON.parse(text);
-        const stages = parsed.stages || parsed;
+        const stages = parsed.stages || (parsed && !parsed.stages && !parsed.builtNodes ? parsed : {});
+        const builtNodes = parsed.builtNodes || {};
         if (typeof stages !== 'object' || stages === null) {
           throw new Error('Некорректный формат файла сохранения');
         }
-        resolve(stages);
+        resolve({ stages, builtNodes });
       } catch (err) {
         reject(err);
       }

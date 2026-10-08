@@ -5,7 +5,14 @@ import buildings from '../../database/buildings.json';
 import items from '../../database/items.json';
 import { useFactoryStore } from '../../store/useFactoryStore';
 
-export default function PhysicalMachineNode({ data }) {
+export default function PhysicalMachineNode({ id, data }) {
+  const activePresetId = useFactoryStore(state => state.activePresetId);
+  const nodeId = id || data.id || `${data.recipeId}_${data.machineIndex || 0}`;
+  const isBuilt = useFactoryStore(state => 
+    Boolean(state.builtNodes[activePresetId || 'free_mode']?.[nodeId])
+  );
+  const toggleNodeBuilt = useFactoryStore(state => state.toggleNodeBuilt);
+
   const storeDirection = useFactoryStore(state => state.layoutDirection);
   const layoutDirection = data.layoutDirection || storeDirection || 'LR';
   const isVertical = layoutDirection === 'TB';
@@ -22,14 +29,12 @@ export default function PhysicalMachineNode({ data }) {
   const isNuclear = data.recipeId?.includes('nuclear') || data.buildingId === 'nuclear_power_plant';
   const powerProduced = isGenerator ? (data.rate || (data.outputs?.find(o => o.itemId === 'power')?.rate) || 0) : null;
   
-  // В оригинале SCIM: зеленый контур для основных/высоких мощностей, оранжевый для частичных/стандартных
-  // Для генераторов: золотой (ТЭС/Нефть) или изумрудный (АЭС)
-  let ringColor = clockSpeed >= 70 ? '#22c55e' : '#f97316';
-  let badgeColor = ringColor;
+  let defaultRingColor = clockSpeed >= 70 ? '#f97316' : '#ea580c';
   if (isGenerator) {
-    ringColor = isNuclear ? '#10b981' : '#eab308';
-    badgeColor = ringColor;
+    defaultRingColor = isNuclear ? '#10b981' : '#eab308';
   }
+  const ringColor = isBuilt ? '#22c55e' : defaultRingColor;
+  const badgeColor = ringColor;
 
   const targetPos = isVertical ? Position.Top : Position.Left;
   const sourcePos = isVertical ? Position.Bottom : Position.Right;
@@ -52,11 +57,15 @@ export default function PhysicalMachineNode({ data }) {
     <div className="flex flex-col items-center justify-center relative select-none w-[150px] py-1">
       {/* Круглый узел станка в точности как в оригинале SCIM */}
       <div 
-        className="w-20 h-20 rounded-full bg-[#181a20] flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-transform hover:scale-105"
+        onClick={() => toggleNodeBuilt(nodeId)}
+        className={`w-20 h-20 rounded-full flex items-center justify-center relative shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+          isBuilt ? 'bg-[#15803d] shadow-[0_0_16px_rgba(34,197,94,0.6)]' : 'bg-[#181a20]'
+        }`}
         style={{
           border: `3.5px solid ${ringColor}`,
-          boxShadow: `0 0 10px ${ringColor}40`
+          boxShadow: isBuilt ? '0 0 16px rgba(34,197,94,0.6)' : `0 0 10px ${ringColor}40`
         }}
+        title={isBuilt ? 'Построено (нажмите для отмены)' : 'Кликните, чтобы зафиксировать постройку'}
       >
         {building?.icon && (
           <img 
