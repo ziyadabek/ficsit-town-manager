@@ -93,7 +93,7 @@ export default function PhysicalMachineNode({ id, data }) {
             className="absolute -bottom-2 px-1.5 py-0.2 rounded-full bg-[#0b0e14] border text-[9px] font-mono font-bold shadow-md z-10 text-gray-300"
             style={{ borderColor: ringColor }}
           >
-            #{(data.machineIndex ?? 0) + 1}
+            #{data.machineIndex ?? 1}
           </div>
         )}
 
