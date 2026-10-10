@@ -65,8 +65,10 @@ const GraphCanvasInner = forwardRef(function GraphCanvasInner(_props, ref) {
 
   // Синхронизация с store и автоцентрирование камеры
   useEffect(() => {
-    setNodes(storeNodes);
-    setEdges(storeEdges.map(e => ({ ...e, type: 'default' })));
+    const validNodes = Array.isArray(storeNodes) ? storeNodes : [];
+    const validEdges = Array.isArray(storeEdges) ? storeEdges : [];
+    setNodes(validNodes);
+    setEdges(validEdges.map(e => ({ ...e, type: 'default' })));
     
     // Синхронизируем вызов центрирования: даем React Flow время 
     // отрендерить новые узлы после Dagre, прежде чем вписывать камеру

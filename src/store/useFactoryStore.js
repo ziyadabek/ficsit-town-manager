@@ -301,20 +301,37 @@ export const useFactoryStore = create((set, get) => ({
     const frozen = frozenStages[preset.id];
 
     if (frozen && frozen.isFrozen) {
-      // LP SOLVER BYPASS (0 ms LOAD)
+      const hasFullSnapshot = Array.isArray(frozen.snapshot?.nodes) && Array.isArray(frozen.snapshot?.edges);
+      
+      if (hasFullSnapshot) {
+        // LP SOLVER BYPASS (0 ms LOAD)
+        set({
+          selectedPresetType: preset.type === 'power' ? 'power' : 'production',
+          powerConfig: preset.powerConfig || null,
+          activePresetId: preset.id,
+          targets: frozen.targets || [],
+          inputsLimit: frozen.inputsLimit || [],
+          options: frozen.options || get().options,
+          layoutDirection: frozen.layoutDirection || get().layoutDirection,
+          schematicMode: frozen.schematicMode || 'simple',
+          nodes: frozen.snapshot.nodes,
+          edges: frozen.snapshot.edges,
+          summary: frozen.snapshot.summary || null
+        });
+        return;
+      }
+      // Если снимок был легковесным (из localStorage без узлов), загружаем параметры и пересчитываем граф:
       set({
         selectedPresetType: preset.type === 'power' ? 'power' : 'production',
         powerConfig: preset.powerConfig || null,
         activePresetId: preset.id,
-        targets: frozen.targets,
-        inputsLimit: frozen.inputsLimit,
-        options: frozen.options,
+        targets: frozen.targets || [],
+        inputsLimit: frozen.inputsLimit || [],
+        options: frozen.options || get().options,
         layoutDirection: frozen.layoutDirection || get().layoutDirection,
-        schematicMode: frozen.schematicMode || 'simple',
-        nodes: frozen.snapshot.nodes,
-        edges: frozen.snapshot.edges,
-        summary: frozen.snapshot.summary
+        schematicMode: frozen.schematicMode || 'simple'
       });
+      get().recalculateGraph();
       return;
     }
 
@@ -477,9 +494,13 @@ export const useFactoryStore = create((set, get) => ({
   recalculateGraph: () => {
     const { targets, inputsLimit, options, activePresetId, campaignStagesState, layoutDirection = 'LR', schematicMode = 'simple', frozenStages = {} } = get();
     
-    // Если текущий этап заморожен, обходим солвер и сохраняем кэш
+    // Если текущий этап заморожен и у него есть полный кэш узлов, обходим солвер и сохраняем кэш
     if (activePresetId && frozenStages[activePresetId]?.isFrozen) {
-      return;
+      const hasFullSnapshot = Array.isArray(frozenStages[activePresetId]?.snapshot?.nodes) &&
+                              Array.isArray(frozenStages[activePresetId]?.snapshot?.edges);
+      if (hasFullSnapshot) {
+        return;
+      }
     }
 
     // Рассчитываем сквозной транзит с гарантированным питанием от замороженных этапов
