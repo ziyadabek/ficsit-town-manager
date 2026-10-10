@@ -228,15 +228,32 @@ export function exportBackupJSON(stages, builtNodes = {}) {
     builtNodes
   };
 
-  const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(payload, null, 2));
+  const jsonStr = JSON.stringify(payload, null, 2);
+  let blobUrl = null;
+  let dataStr = null;
+
+  if (typeof Blob !== 'undefined' && typeof URL !== 'undefined' && URL.createObjectURL) {
+    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+    blobUrl = URL.createObjectURL(blob);
+  } else {
+    dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(jsonStr);
+  }
+
   const downloadAnchor = document.createElement('a');
-  downloadAnchor.setAttribute('href', dataStr);
+  downloadAnchor.setAttribute('href', blobUrl || dataStr);
   const now = new Date();
   const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   downloadAnchor.setAttribute('download', `ficsit_factory_backup_${dateStr}.json`);
   document.body.appendChild(downloadAnchor);
   downloadAnchor.click();
-  setTimeout(() => document.body.removeChild(downloadAnchor), 300);
+  setTimeout(() => {
+    if (downloadAnchor.parentNode) {
+      document.body.removeChild(downloadAnchor);
+    }
+    if (blobUrl && typeof URL !== 'undefined' && URL.revokeObjectURL) {
+      URL.revokeObjectURL(blobUrl);
+    }
+  }, 400);
 }
 
 /**

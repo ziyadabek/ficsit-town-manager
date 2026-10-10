@@ -231,23 +231,39 @@ export const useFactoryStore = create((set, get) => ({
     set({ builtNodes: nextBuiltNodes });
   },
 
+  storageInitRevision: 0,
+
   initStorage: async () => {
     requestPersistence();
+    const currentRev = (get().storageInitRevision || 0) + 1;
+    set({ storageInitRevision: currentRev });
+
     try {
       const [stages, built] = await Promise.all([
         loadIDBFrozenStages(),
         loadIDBBuiltNodes()
       ]);
+
+      // Проверяем, что за время асинхронного чтения не было новых действий пользователя или новой инициализации
+      if (get().storageInitRevision !== currentRev) {
+        return;
+      }
+
       if (stages && typeof stages === 'object' && Object.keys(stages).length > 0) {
-        set({ frozenStages: stages });
+        // Объединяем с текущими frozenStages (если пользователь успел что-то заморозить в первые миллисекунды)
+        const currentFrozen = get().frozenStages || {};
+        const mergedStages = { ...stages, ...currentFrozen };
+        set({ frozenStages: mergedStages });
         const { activePresetId } = get();
-        if (activePresetId && stages[activePresetId]) {
+        if (activePresetId && mergedStages[activePresetId]) {
           const currentPreset = presets.find(p => p.id === activePresetId);
           if (currentPreset) get().loadPreset(currentPreset);
         }
       }
       if (built && typeof built === 'object' && Object.keys(built).length > 0) {
-        set({ builtNodes: built });
+        const currentBuilt = get().builtNodes || {};
+        const mergedBuilt = { ...built, ...currentBuilt };
+        set({ builtNodes: mergedBuilt });
       }
     } catch (e) {
       console.warn('initStorage failed:', e);
@@ -294,7 +310,7 @@ export const useFactoryStore = create((set, get) => ({
         inputsLimit: frozen.inputsLimit,
         options: frozen.options,
         layoutDirection: frozen.layoutDirection || get().layoutDirection,
-        schematicMode: frozen.schematicMode || get().schematicMode,
+        schematicMode: frozen.schematicMode || 'simple',
         nodes: frozen.snapshot.nodes,
         edges: frozen.snapshot.edges,
         summary: frozen.snapshot.summary
@@ -305,6 +321,7 @@ export const useFactoryStore = create((set, get) => ({
     if (preset.type === 'power') {
       set({
         selectedPresetType: 'power',
+        schematicMode: 'simple',
         powerConfig: preset.powerConfig,
         activePresetId: preset.id,
         targets: [
@@ -318,6 +335,7 @@ export const useFactoryStore = create((set, get) => ({
     } else {
       set({
         selectedPresetType: 'production',
+        schematicMode: 'simple',
         targets: preset.targets || [],
         inputsLimit: preset.inputsLimit || [],
         options: { ...get().options, generatorId: null, ...preset.options },
@@ -330,6 +348,7 @@ export const useFactoryStore = create((set, get) => ({
   resetToFreeMode: () => {
     set({
       selectedPresetType: 'production',
+      schematicMode: 'simple',
       powerConfig: null,
       activePresetId: null,
       targets: [],
@@ -759,27 +778,45 @@ export const useFactoryStore = create((set, get) => ({
 
       const cycleEdgeIds = new Set();
       const dfsVisited = {};
-      const dfsStack = {};
+      const onStack = {};
 
-      function detectCycles(u) {
-        dfsVisited[u] = true;
-        dfsStack[u] = true;
-        for (const e of (fullAdj[u] || [])) {
-          if (!dfsVisited[e.target]) {
-            detectCycles(e.target);
-          } else if (dfsStack[e.target]) {
-            cycleEdgeIds.add(e.id);
+      // Итеративный DFS для предотвращения переполнения стека вызовов (Stack Overflow)
+      function detectCyclesIterative(startNodeId) {
+        if (dfsVisited[startNodeId]) return;
+
+        const stack = [{ node: startNodeId, edgeIndex: 0 }];
+        dfsVisited[startNodeId] = true;
+        onStack[startNodeId] = true;
+
+        while (stack.length > 0) {
+          const current = stack[stack.length - 1];
+          const neighbors = fullAdj[current.node] || [];
+
+          if (current.edgeIndex < neighbors.length) {
+            const edge = neighbors[current.edgeIndex];
+            current.edgeIndex++;
+
+            const targetId = edge.target;
+            if (!dfsVisited[targetId]) {
+              dfsVisited[targetId] = true;
+              onStack[targetId] = true;
+              stack.push({ node: targetId, edgeIndex: 0 });
+            } else if (onStack[targetId]) {
+              cycleEdgeIds.add(edge.id);
+            }
+          } else {
+            onStack[current.node] = false;
+            stack.pop();
           }
         }
-        dfsStack[u] = false;
       }
 
       // Обходим граф, начиная со входных узлов (шахты, транзит), затем остальные
       activeNodes.filter(n => n.data?.isInput).forEach(n => {
-        if (!dfsVisited[n.id]) detectCycles(n.id);
+        if (!dfsVisited[n.id]) detectCyclesIterative(n.id);
       });
       activeNodes.forEach(n => {
-        if (!dfsVisited[n.id]) detectCycles(n.id);
+        if (!dfsVisited[n.id]) detectCyclesIterative(n.id);
       });
 
       const isRecycleEdge = (edge) => {
@@ -801,26 +838,53 @@ export const useFactoryStore = create((set, get) => ({
 
       const forwardEdges = activeEdges.filter(e => !isRecycleEdge(e));
 
-      const nodeDepth = {};
+      // 4. Оптимизированное вычисление глубин узлов (DAG Toposort за O(V + E) без блокирующих O(V*E) циклов)
+      const forwardAdj = {};
+      const inDegree = {};
       activeNodes.forEach(n => {
-        nodeDepth[n.id] = 0;
+        forwardAdj[n.id] = [];
+        inDegree[n.id] = 0;
       });
 
-      let changed = true;
-      let iterations = 0;
-      const MAX_DEPTH = 30;
-      
-      while (changed && iterations < MAX_DEPTH) {
-        changed = false;
-        iterations++;
-        
+      forwardEdges.forEach(e => {
+        if (forwardAdj[e.source]) forwardAdj[e.source].push(e.target);
+        if (inDegree[e.target] !== undefined) inDegree[e.target]++;
+      });
+
+      const nodeDepth = {};
+      const queue = [];
+
+      activeNodes.forEach(n => {
+        nodeDepth[n.id] = 0;
+        if (inDegree[n.id] === 0) {
+          queue.push(n.id);
+        }
+      });
+
+      let qHead = 0;
+      while (qHead < queue.length) {
+        const u = queue[qHead++];
+        const curDepth = nodeDepth[u] || 0;
+        const targets = forwardAdj[u] || [];
+
+        for (let i = 0; i < targets.length; i++) {
+          const v = targets[i];
+          if (curDepth + 1 > (nodeDepth[v] || 0)) {
+            nodeDepth[v] = curDepth + 1;
+          }
+          inDegree[v]--;
+          if (inDegree[v] === 0) {
+            queue.push(v);
+          }
+        }
+      }
+
+      // Подстраховка для оставшихся неразрешенных связей (если в forwardEdges остался редкий остаточный микроцикл)
+      if (queue.length < activeNodes.length) {
         forwardEdges.forEach(e => {
-          if (nodeDepth[e.source] !== undefined) {
-            const newDepth = nodeDepth[e.source] + 1;
-            if (nodeDepth[e.target] === undefined || newDepth > nodeDepth[e.target]) {
-              nodeDepth[e.target] = newDepth;
-              changed = true;
-            }
+          const sD = nodeDepth[e.source] || 0;
+          if (sD + 1 > (nodeDepth[e.target] || 0)) {
+            nodeDepth[e.target] = sD + 1;
           }
         });
       }

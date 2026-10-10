@@ -92,7 +92,18 @@ export function calculateAllTransits(stagesState, frozenStages = {}) {
     }
   });
 
-  // 2. Распределяем ресурсы по потребителям
+  // 2. Распределяем ресурсы по потребителям с пропорциональной балансировкой пула
+  // Предварительный проход: вычисляем суммарный спрос по каждому источнику и ресурсу
+  const totalDemandBySourceItem = {};
+  STAGE_TRANSIT_ROUTES.forEach(route => {
+    const targetState = stagesState[route.target] || { enabled: true, scale: 1.0 };
+    if (!targetState.enabled) return;
+
+    const key = `${route.source}__${route.itemId}`;
+    const needed = route.baseRate * targetState.scale;
+    totalDemandBySourceItem[key] = (totalDemandBySourceItem[key] || 0) + needed;
+  });
+
   const transitsByTarget = {};
 
   STAGE_TRANSIT_ROUTES.forEach(route => {
@@ -102,14 +113,18 @@ export function calculateAllTransits(stagesState, frozenStages = {}) {
     if (!targetState.enabled) return;
 
     const requiredAmount = route.baseRate * targetState.scale;
-    const availableInPool = supplyPool[route.source][route.itemId] || 0;
+    const totalDemand = totalDemandBySourceItem[`${route.source}__${route.itemId}`] || requiredAmount;
+    const availableInPool = supplyPool[route.source]?.[route.itemId] || 0;
 
-    // Выделяем объемы (с учетом того, что пул может исчерпаться)
-    const providedAmount = Math.min(requiredAmount, availableInPool);
-    const deficit = requiredAmount - providedAmount;
+    // Взвешенное пропорциональное выделение: если спрос превышает доступный пул,
+    // все потребители этого источника получают равную относительную долю (ratio),
+    // исключая дефицит из-за порядка обхода массива маршрутов.
+    const allocationRatio = totalDemand > 0.001 && availableInPool < totalDemand
+      ? availableInPool / totalDemand
+      : 1.0;
 
-    // Списываем из пула
-    supplyPool[route.source][route.itemId] -= providedAmount;
+    const providedAmount = Math.min(requiredAmount * allocationRatio, availableInPool);
+    const deficit = Math.max(0, requiredAmount - providedAmount);
 
     // --- ЛОГИСТИКА: РАСЧЕТ ТРАНСПОРТА ---
     let stackSize = 100;
