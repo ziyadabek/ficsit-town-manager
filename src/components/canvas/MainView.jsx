@@ -331,84 +331,104 @@ export default function MainView() {
         {/* Разделитель */}
         <div className="flex-1" />
 
-        {/* Панель фиксации построек */}
-        {totalCount > 0 && (
-          <div className="flex items-center gap-1 mr-2">
-            {/* Счетчик построек */}
-            <div 
-              className={`px-2.5 py-1 rounded text-xs font-mono font-bold flex items-center gap-1.5 border transition-all ${
-                builtCount > 0 
-                  ? 'bg-[#15803d]/20 border-[#22c55e]/60 text-[#22c55e]' 
-                  : 'bg-[#14171d] border-[#2a2e39] text-gray-400'
-              }`}
-              title="Количество построенных станков (с зеленым кругом внутри)"
-            >
-              <span>Построено:</span>
-              <span className={`font-black ${builtCount > 0 ? 'text-[#22c55e]' : 'text-gray-300'}`}>
-                {builtCount}/{totalCount}
-              </span>
-            </div>
+        {/* Объединенный сегментный блок управления постройками (Идея 1: Toolbar Segment Group) */}
+        {(totalCount > 0 || activePresetId) && (
+          <div className="flex items-center h-7 rounded-md border border-[#2a2e39] bg-[#101318] overflow-hidden shadow-sm mr-2 select-none">
+            {/* 1. Левая часть: Индикатор прогресса со светодиодом */}
+            {totalCount > 0 && (
+              <div
+                className="flex items-center gap-2 px-2.5 h-full bg-[#14171e] border-r border-[#2a2e39] font-mono text-xs"
+                title="Количество построенных станков на текущем этапе"
+              >
+                <span
+                  className={`inline-block w-2 h-2 rounded-full transition-colors ${
+                    isAllBuilt
+                      ? 'bg-[#22c55e] shadow-[0_0_6px_rgba(34,197,94,0.8)]'
+                      : builtCount > 0
+                      ? 'bg-[#eab308] shadow-[0_0_6px_rgba(234,179,8,0.7)]'
+                      : 'bg-gray-600'
+                  }`}
+                />
+                <span className="text-gray-400 font-sans text-[11px]">Станки:</span>
+                <span className={`font-bold ${builtCount > 0 ? (isAllBuilt ? 'text-[#22c55e]' : 'text-yellow-400') : 'text-gray-400'}`}>
+                  {builtCount}/{totalCount}
+                </span>
+              </div>
+            )}
 
-            {/* Быстрая кнопка: Зафиксировать всё (зеленые круги) / Сбросить */}
-            <button
-              type="button"
-              onClick={() => {
-                if (isAllBuilt) {
-                  resetBuiltNodes(stageKey);
-                } else {
-                  markAllNodesBuilt(stageKey);
-                }
-              }}
-              title={isAllBuilt ? "Снять отметки постройки со всех станков" : "Зафиксировать все постройки (залить все круги зеленым)"}
-              className={`px-2.5 py-1 rounded text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
-                isAllBuilt
-                  ? 'bg-[#14231a] hover:bg-[#1b3324] text-[#22c55e] border-[#22c55e] shadow-[0_0_8px_rgba(34,197,94,0.3)]'
-                  : 'bg-[#14171d] hover:bg-[#1f242d] text-[#fa9549] border-[#fa9549]/60 hover:border-[#fa9549]'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5 text-current" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              <span>{isAllBuilt ? 'Сбросить все' : 'Зафиксировать все'}</span>
-            </button>
+            {/* 2. Средняя часть: Быстрое действие с чеклистом (Все / Сбросить) */}
+            {totalCount > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (isAllBuilt) {
+                    resetBuiltNodes(stageKey);
+                  } else {
+                    markAllNodesBuilt(stageKey);
+                  }
+                }}
+                title={isAllBuilt ? "Снять отметки постройки со всех станков" : "Отметить все станки как построенные"}
+                className={`flex items-center gap-1.5 px-2.5 h-full text-xs font-semibold transition-colors cursor-pointer border-r border-[#2a2e39] ${
+                  isAllBuilt
+                    ? 'text-gray-400 hover:text-red-400 hover:bg-[#1f242e]'
+                    : 'text-gray-300 hover:text-white hover:bg-[#1c212b]'
+                }`}
+              >
+                {isAllBuilt ? (
+                  <>
+                    <svg className="w-3.5 h-3.5 text-gray-400 group-hover:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Сбросить</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-3.5 h-3.5 text-[#22c55e]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Все</span>
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* 3. Правая часть: Главный статус фиксации этапа */}
+            {activePresetId && (
+              isStageFrozen ? (
+                <button
+                  type="button"
+                  onClick={() => unfreezeStage(activePresetId)}
+                  title="Завод зафиксирован в памяти. Нажмите, чтобы разморозить для внесения правок."
+                  className="flex items-center gap-1.5 px-3 h-full text-xs font-bold bg-[#14261c] hover:bg-[#1a3826] text-[#22c55e] transition-colors cursor-pointer"
+                >
+                  <svg className="w-3.5 h-3.5 text-[#22c55e]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  <span>ЗАКРЕПЛЕН</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={!summary || targets.length === 0}
+                  onClick={() => {
+                    markAllNodesBuilt(stageKey);
+                    freezeCurrentStage();
+                  }}
+                  title="Зафиксировать постройку завода. Сохранит схему в памяти и включит гарантию питания для следующих этапов."
+                  className={`flex items-center gap-1.5 px-3 h-full text-xs font-bold transition-colors ${
+                    !summary || targets.length === 0
+                      ? 'opacity-40 cursor-not-allowed text-gray-500 bg-[#12151b]'
+                      : 'bg-[#181d26] hover:bg-[#222834] text-[#f97316] hover:text-[#fb923c] cursor-pointer'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5 text-current" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                  </svg>
+                  <span>Закрепить этап</span>
+                </button>
+              )
+            )}
           </div>
-        )}
-
-        {/* Кнопка фиксации постройки этапа */}
-        {activePresetId && (
-          isStageFrozen ? (
-            <button
-              type="button"
-              onClick={() => unfreezeStage(activePresetId)}
-              title="Завод зафиксирован как построенный в игре. Нажмите, чтобы разморозить для перестройки."
-              className="px-3 py-1.5 rounded text-xs font-bold bg-[#14231a] hover:bg-[#1b3324] text-[#22c55e] border border-[#22c55e] flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,197,94,0.3)] transition-all mr-2 cursor-pointer"
-            >
-              <svg className="w-3.5 h-3.5 text-[#22c55e]" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-              </svg>
-              <span>ЭТАП ЗАКРЕПЛЕН</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              disabled={!summary || targets.length === 0}
-              onClick={() => {
-                markAllNodesBuilt(stageKey);
-                freezeCurrentStage();
-              }}
-              title="Зафиксировать постройку завода. Зальет круги зеленым, сохранит схему в памяти и заблокирует изменения."
-              className={`px-3 py-1.5 rounded text-xs font-bold border flex items-center gap-1.5 transition-all mr-2 cursor-pointer ${
-                !summary || targets.length === 0
-                  ? 'opacity-40 cursor-not-allowed border-[#2a2e39] text-gray-500 bg-[#14171d]'
-                  : 'bg-[#14171d] hover:bg-[#1f242d] text-[#fa9549] border-[#fa9549]/60 hover:border-[#fa9549] hover:shadow-[0_0_8px_rgba(250,149,73,0.3)]'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5 text-[#fa9549]" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-              </svg>
-              <span>Зафиксировать постройку</span>
-            </button>
-          )
         )}
 
         {/* Кнопка экспорта — крайний правый угол */}
