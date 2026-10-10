@@ -37,7 +37,7 @@
     "type": "production",
     "tier": "Тир 3-4",
     "name": "ЭТАП 3: Тяжелая металлургия",
-    "description": "Литейные цеха, стальные трубы и балки. Снабжение машиностроения и метизов. Расход: ~1450 МВт.",
+    "description": "Литейные цеха, стальные трубы и балки. Снабжение машиностроения и метизов. Оптимизирован сплавом железа и меди (Iron Alloy Ingot). Расход: ~1720 МВт.",
     "inputsLimit": [],
     "targets": [
       {
@@ -59,7 +59,8 @@
     "options": {
       "optimize": "power",
       "altRecipes": [
-        "solid_steel_ingot"
+        "solid_steel_ingot",
+        "alt_iron_alloy_ingot"
       ]
     }
   },
