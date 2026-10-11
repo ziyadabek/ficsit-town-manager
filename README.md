@@ -1,11 +1,5 @@
 # 🏭 FICSIT Architect & Production Calculator (Satisfactory 1.0)
 
-[![Satisfactory 1.0 Ready](https://img.shields.io/badge/Satisfactory-1.0%20Release-orange?style=flat-square&logo=steam)](https://store.steampowered.com/app/526870/Satisfactory/)
-[![React 19](https://img.shields.io/badge/React-19.3-blue?style=flat-square&logo=react)](https://react.dev/)
-[![TailwindCSS v4](https://img.shields.io/badge/TailwindCSS-v4.3-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
-[![Tests Passing](https://img.shields.io/badge/Vitest-32%2F32%20Passed-brightgreen?style=flat-square&logo=vitest)](https://vitest.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-
 **FICSIT Architect** — это высокопроизводительная веб-САПР и комплексная система управления производственной логистикой, спроектированная специально для релизной версии **Satisfactory 1.0** в аутентичном индустриальном стиле SCIM (*Satisfactory Calculator Interactive Map*).
 
 В отличие от стандартных табличных калькуляторов, FICSIT Architect объединяет **симплекс-оптимизацию линейного программирования**, **физическую развертку цехов поштучно до каждого станка**, **сквозной расчет межзаводского транзита между 11 этапами кампании**, **трекинг Космического Лифта (5 фаз)** и **систему чеклиста постройки с локальной фиксацией в IndexedDB**.
