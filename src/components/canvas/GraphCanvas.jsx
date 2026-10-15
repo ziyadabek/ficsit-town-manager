@@ -47,6 +47,7 @@ const GraphCanvasInner = forwardRef(function GraphCanvasInner(_props, ref) {
   const layoutDirection = useFactoryStore(s => s.layoutDirection);
   const schematicMode = useFactoryStore(s => s.schematicMode);
   const isCalculatingLayout = useFactoryStore(s => s.isCalculatingLayout);
+  const isRightPanelOpen = useFactoryStore(s => s.isRightPanelOpen);
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -85,8 +86,29 @@ const GraphCanvasInner = forwardRef(function GraphCanvasInner(_props, ref) {
     }
   }, [storeNodes, storeEdges, layoutDirection, schematicMode, setNodes, setEdges, fitView]);
 
+  // Автоцентрирование при открытии/закрытии боковой панели
+  useEffect(() => {
+    if (storeNodes.length > 0) {
+      const timer = setTimeout(() => {
+        fitView({ padding: 0.1, minZoom: 0.01, duration: 300 });
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isRightPanelOpen, fitView]);
+
+  // Обработка изменения размера окна
+  useEffect(() => {
+    const handleResize = () => {
+      if (storeNodes.length > 0) {
+        fitView({ padding: 0.1, minZoom: 0.01, duration: 200 });
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [storeNodes.length, fitView]);
+
   return (
-    <div ref={containerRef} className="w-full h-full scim-grid overflow-hidden relative">
+    <div ref={containerRef} className="w-full h-full scim-grid overflow-hidden relative flex-1 min-w-0 min-h-0">
       {isCalculatingLayout && (
         <div className="absolute top-3 right-3 z-50 bg-[#1e232d]/90 backdrop-blur border border-[#f97316]/50 text-white text-xs px-3 py-1.5 rounded-full shadow-xl flex items-center gap-2 pointer-events-none animate-pulse">
           <svg className="w-3.5 h-3.5 text-[#f97316] animate-spin" fill="none" viewBox="0 0 24 24">

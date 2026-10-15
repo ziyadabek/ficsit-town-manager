@@ -71,11 +71,11 @@ function BalancerViewerInner() {
   }, [currentBalancer, loadPreset, fitView]);
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0b0d10] text-[#e1e1e6] overflow-hidden select-none">
+    <div className="flex-1 min-w-0 min-h-0 flex flex-col h-full bg-[#0b0d10] text-[#e1e1e6] overflow-hidden select-none">
       {/* Верхняя панель быстрого выбора соотношений балансировщиков */}
-      <div className="bg-[#14171d] border-b border-[#2a2e39] px-4 py-2 flex items-center shrink-0 z-10 shadow-lg">
-        <div className="flex items-center gap-2 overflow-x-auto py-0.5 scrollbar-thin scrollbar-thumb-[#2a2e39] w-full">
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-2 shrink-0">
+      <div className="bg-[#14171d] border-b border-[#2a2e39] px-2.5 sm:px-4 py-1.5 sm:py-2 flex items-center shrink-0 z-10 shadow-lg">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-0.5 scrollbar-thin scrollbar-thumb-[#2a2e39] w-full">
+          <span className="text-[11px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mr-1 sm:mr-2 shrink-0">
             Балансировщики:
           </span>
           {BALANCERS.map(b => {
@@ -84,7 +84,7 @@ function BalancerViewerInner() {
               <button
                 key={b.id}
                 onClick={() => setSelectedId(b.id)}
-                className={`px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer flex items-center justify-center shrink-0 border ${
+                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex items-center justify-center shrink-0 border ${
                   isActive
                     ? 'bg-[#f97316] text-black border-[#f97316] shadow-[0_0_10px_rgba(249,115,22,0.4)]'
                     : 'bg-[#1c202a] text-gray-300 border-[#2a2e39] hover:bg-[#252b38] hover:text-white'
@@ -98,7 +98,7 @@ function BalancerViewerInner() {
       </div>
 
       {/* Холст схемы балансировщика */}
-      <div className="flex-1 w-full h-full relative overflow-hidden bg-[#0e1117]">
+      <div className="flex-1 min-w-0 min-h-0 w-full h-full relative overflow-hidden bg-[#0e1117]">
         <ReactFlow
           nodes={nodes}
           edges={edges}

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   ReactFlow,
   Background, 
@@ -150,6 +150,7 @@ export default function MacroView() {
   const frozenStages = useFactoryStore(state => state.frozenStages);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [isLegendOpen, setIsLegendOpen] = useState(true);
 
   const onNodeMouseEnter = (_, node) => {
     const id = node.id;
@@ -252,35 +253,48 @@ export default function MacroView() {
   }, [setNodes, setEdges, frozenStages]);
 
   return (
-    <div className="w-full h-full bg-[#0b0d10] relative">
+    <div className="w-full h-full bg-[#0b0d10] relative flex-1 min-w-0 min-h-0">
       {/* ── FICSIT SCADA панель легенды ── */}
-      <div className="absolute top-4 left-4 z-10 bg-[#14171d] border-2 border-[#f97316] p-4 rounded shadow-lg pointer-events-none w-52">
-        <h2 className="text-[#f97316] font-black text-sm uppercase tracking-wider">Карта логистики</h2>
-        <p className="text-gray-500 text-[10px] mt-0.5 mb-3">FICSIT Global Transit v1.0</p>
+      <div className="absolute top-3 left-3 z-10 bg-[#14171d]/95 backdrop-blur-xs border-2 border-[#f97316] p-3 rounded shadow-xl w-48 sm:w-52 max-w-[calc(100vw-1.5rem)] select-none">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[#f97316] font-black text-xs sm:text-sm uppercase tracking-wider">Карта логистики</h2>
+          <button
+            onClick={() => setIsLegendOpen(!isLegendOpen)}
+            className="text-gray-400 hover:text-white text-[10px] px-1 py-0.5 rounded hover:bg-[#2a2e39] cursor-pointer"
+            title={isLegendOpen ? "Свернуть" : "Развернуть"}
+          >
+            {isLegendOpen ? '▲' : '▼'}
+          </button>
+        </div>
+        <p className="text-gray-500 text-[9px] sm:text-[10px] mt-0.5 mb-2">FICSIT Global Transit v1.0</p>
 
-        {/* Легенда рёбер */}
-        <p className="text-[9px] text-gray-500 uppercase tracking-widest mb-1.5">Потоки ресурсов</p>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mb-3">
-          {LEGEND.map(({ color, label }) => (
-            <div key={label} className="flex items-center gap-1.5">
-              <div className="w-4 h-1 rounded-full flex-shrink-0" style={{ background: color }} />
-              <span className="text-[9px] text-gray-400 truncate">{label}</span>
+        {isLegendOpen && (
+          <>
+            {/* Легенда рёбер */}
+            <p className="text-[9px] text-gray-500 uppercase tracking-widest mb-1.5">Потоки ресурсов</p>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1 mb-2.5">
+              {LEGEND.map(({ color, label }) => (
+                <div key={label} className="flex items-center gap-1.5">
+                  <div className="w-3.5 h-1 rounded-full flex-shrink-0" style={{ background: color }} />
+                  <span className="text-[9px] text-gray-400 truncate">{label}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Легенда узлов */}
-        <p className="text-[9px] text-gray-500 uppercase tracking-widest mb-1.5">Типы объектов</p>
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-1.5">
-            <div className="w-4 h-3 rounded-sm flex-shrink-0" style={{ border: '2px solid #f97316' }} />
-            <span className="text-[9px] text-gray-400">ЦЕХ / ЗАВОД</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-4 h-3 rounded-sm flex-shrink-0" style={{ border: '2px solid #22c55e' }} />
-            <span className="text-[9px] text-gray-400">⚡ Электростанция</span>
-          </div>
-        </div>
+            {/* Легенда узлов */}
+            <p className="text-[9px] text-gray-500 uppercase tracking-widest mb-1">Типы объектов</p>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-1.5">
+                <div className="w-3.5 h-2.5 rounded-xs flex-shrink-0" style={{ border: '2px solid #f97316' }} />
+                <span className="text-[9px] text-gray-400">ЦЕХ / ЗАВОД</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3.5 h-2.5 rounded-xs flex-shrink-0" style={{ border: '2px solid #22c55e' }} />
+                <span className="text-[9px] text-gray-400">⚡ Электростанция</span>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <ReactFlow

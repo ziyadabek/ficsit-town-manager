@@ -43,23 +43,23 @@ export default function PowerPlanner({ isPresetMode }) {
   }, [targetMW, generatorId, fuelId]);
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#0b0d10] text-[#e1e1e6] p-6 overflow-y-auto">
+    <div className="w-full h-full flex flex-col bg-[#0b0d10] text-[#e1e1e6] p-3 sm:p-6 overflow-y-auto">
       {/* Панель управления */}
-      <div className="bg-[#14171d] border border-[#2a2e39] rounded-lg p-6 mb-6 shadow-lg flex flex-col gap-6">
+      <div className="bg-[#14171d] border border-[#2a2e39] rounded-lg p-4 sm:p-6 mb-4 sm:mb-6 shadow-lg flex flex-col gap-4 sm:gap-6">
         
-        <div className="flex justify-between items-center">
-          <div className="flex gap-4">
-            <button onClick={() => { setTargetMW(500); handleGenChange('coal'); }} className="px-4 py-2 bg-[#2a2e39] rounded hover:bg-[#3f4452] font-bold">500 MW Coal</button>
-            <button onClick={() => { setTargetMW(2500); handleGenChange('fuel'); }} className="px-4 py-2 bg-[#2a2e39] rounded hover:bg-[#3f4452] font-bold">2 500 MW Fuel</button>
-            <button onClick={() => { setTargetMW(10000); handleGenChange('nuclear'); }} className="px-4 py-2 bg-[#2a2e39] rounded hover:bg-[#3f4452] font-bold">10 000 MW Nuclear</button>
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div className="flex flex-wrap gap-2 sm:gap-4">
+            <button onClick={() => { setTargetMW(500); handleGenChange('coal'); }} className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#2a2e39] rounded hover:bg-[#3f4452] font-bold text-xs sm:text-sm cursor-pointer">500 MW Coal</button>
+            <button onClick={() => { setTargetMW(2500); handleGenChange('fuel'); }} className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#2a2e39] rounded hover:bg-[#3f4452] font-bold text-xs sm:text-sm cursor-pointer">2 500 MW Fuel</button>
+            <button onClick={() => { setTargetMW(10000); handleGenChange('nuclear'); }} className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#2a2e39] rounded hover:bg-[#3f4452] font-bold text-xs sm:text-sm cursor-pointer">10 000 MW Nuclear</button>
           </div>
 
           {/* Synchronization Section */}
-          <div className="flex items-center gap-3 bg-[#0b0d10] p-2 rounded border border-[#3b82f6]/30">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-[#0b0d10] p-2 rounded border border-[#3b82f6]/30">
             <select 
               value={safetyBuffer} 
               onChange={e => setSafetyBuffer(parseFloat(e.target.value))}
-              className="bg-[#14171d] border border-[#2a2e39] text-sm p-2 rounded text-[#e1e1e6] focus:outline-none"
+              className="bg-[#14171d] border border-[#2a2e39] text-xs sm:text-sm p-1.5 sm:p-2 rounded text-[#e1e1e6] focus:outline-none cursor-pointer"
             >
               <option value="1.0">Точно (1.0x)</option>
               <option value="1.15">+15% Резерв</option>
@@ -67,35 +67,35 @@ export default function PowerPlanner({ isPresetMode }) {
             </select>
             <button 
               onClick={handleSync}
-              className="px-4 py-2 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold rounded flex items-center gap-2 transition-colors"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold rounded flex items-center gap-1.5 sm:gap-2 transition-colors text-xs sm:text-sm cursor-pointer"
             >
-              <span className="text-lg">↻</span> Синхронизировать с фабрикой
+              <span className="text-base sm:text-lg">↻</span> Синхронизировать с фабрикой
             </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-bold text-gray-400">Целевая мощность (МВт)</label>
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+          <div className="flex flex-col gap-1.5 sm:gap-2">
+            <label className="text-xs sm:text-sm font-bold text-gray-400">Целевая мощность (МВт)</label>
             <input 
               type="number" 
               value={targetMW} 
               onChange={(e) => setTargetMW(Number(e.target.value))}
-              className="bg-[#0b0d10] border border-[#2a2e39] rounded px-4 py-2 text-xl font-bold text-[#f97316] w-48 focus:outline-none focus:border-[#f97316]"
+              className="bg-[#0b0d10] border border-[#2a2e39] rounded px-3 sm:px-4 py-1.5 sm:py-2 text-lg sm:text-xl font-bold text-[#f97316] w-40 sm:w-48 focus:outline-none focus:border-[#f97316]"
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-bold text-gray-400">Тип генератора</label>
-            <div className="flex gap-2">
+          <div className="flex flex-col gap-1.5 sm:gap-2">
+            <label className="text-xs sm:text-sm font-bold text-gray-400">Тип генератора</label>
+            <div className="flex flex-wrap gap-2">
               {powerData.map(gen => (
                 <button 
                   key={gen.id} 
                   onClick={() => handleGenChange(gen.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${generatorId === gen.id ? 'border-[#f97316] bg-[#2a2e39]' : 'border-[#2a2e39] bg-[#0b0d10] hover:border-gray-500'}`}
+                  className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded border transition-colors cursor-pointer ${generatorId === gen.id ? 'border-[#f97316] bg-[#2a2e39]' : 'border-[#2a2e39] bg-[#0b0d10] hover:border-gray-500'}`}
                 >
-                  <img src={getAssetUrl(gen.icon)} alt={gen.name} className="w-6 h-6 object-contain" onError={(e) => e.target.style.display='none'} />
-                  <span className="text-sm font-bold">{gen.name.split(' ')[0]}</span>
+                  <img src={getAssetUrl(gen.icon)} alt={gen.name} className="w-5 h-5 sm:w-6 sm:h-6 object-contain" onError={(e) => e.target.style.display='none'} />
+                  <span className="text-xs sm:text-sm font-bold">{gen.name.split(' ')[0]}</span>
                 </button>
               ))}
             </div>
@@ -103,17 +103,17 @@ export default function PowerPlanner({ isPresetMode }) {
         </div>
 
         {selectedGen && selectedGen.fuels.length > 1 && (
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-bold text-gray-400">Тип топлива</label>
-            <div className="flex gap-2">
+          <div className="flex flex-col gap-1.5 sm:gap-2">
+            <label className="text-xs sm:text-sm font-bold text-gray-400">Тип топлива</label>
+            <div className="flex flex-wrap gap-2">
               {selectedGen.fuels.map(f => (
                 <button 
                   key={f.id} 
                   onClick={() => setFuelId(f.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${fuelId === f.id ? 'border-yellow-500 bg-[#2a2e39]' : 'border-[#2a2e39] bg-[#0b0d10] hover:border-gray-500'}`}
+                  className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded border transition-colors cursor-pointer ${fuelId === f.id ? 'border-yellow-500 bg-[#2a2e39]' : 'border-[#2a2e39] bg-[#0b0d10] hover:border-gray-500'}`}
                 >
-                  <img src={getAssetUrl(f.icon)} alt={f.name} className="w-5 h-5 object-contain" onError={(e) => e.target.style.display='none'} />
-                  <span className="text-sm">{f.name}</span>
+                  <img src={getAssetUrl(f.icon)} alt={f.name} className="w-4 h-4 sm:w-5 sm:h-5 object-contain" onError={(e) => e.target.style.display='none'} />
+                  <span className="text-xs sm:text-sm">{f.name}</span>
                 </button>
               ))}
             </div>

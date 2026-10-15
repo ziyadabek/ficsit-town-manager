@@ -62,13 +62,13 @@ function App() {
   const isWorkbenchActive = view === 'balancer';
 
   return (
-    <div className="w-screen h-screen flex flex-col bg-[#0b0d10] text-[#e1e1e6] overflow-hidden">
+    <div className="w-screen h-screen h-[100dvh] flex flex-col bg-[#0b0d10] text-[#e1e1e6] overflow-hidden">
       {/* Верхняя навигационная панель в стиле Satisfactory Calculator (SCIM) */}
-      <header className="px-4 py-2 border-b border-[#2a2e39] bg-[#14171d] flex items-center justify-between z-20 shrink-0">
-        <div className="flex items-center gap-6">
+      <header className="px-2.5 sm:px-4 py-1.5 sm:py-2 border-b border-[#2a2e39] bg-[#14171d] flex items-center justify-between z-20 shrink-0">
+        <div className="flex items-center gap-3 sm:gap-6 min-w-0">
           {/* SCIM Логотип */}
           <div 
-            className="flex items-center gap-2 select-none cursor-pointer group" 
+            className="flex items-center gap-2 select-none cursor-pointer group shrink-0" 
             onClick={() => {
               resetToFreeMode();
               handleSetView('calculator');
@@ -77,21 +77,21 @@ function App() {
           >
             <div className="flex flex-col leading-none">
               <div className="flex items-center tracking-tight">
-                <span className="text-base font-black text-white group-hover:text-[#f97316] transition-colors uppercase font-sans tracking-wide">
+                <span className="text-sm sm:text-base font-black text-white group-hover:text-[#f97316] transition-colors uppercase font-sans tracking-wide">
                   SATISFACTORY
                 </span>
-                <span className="ml-1 text-[9px] font-black bg-[#f97316] text-black px-1 py-0.5 rounded-sm transform skew-x-[-12deg]">
+                <span className="ml-1 text-[8px] sm:text-[9px] font-black bg-[#f97316] text-black px-1 py-0.5 rounded-sm transform skew-x-[-12deg]">
                   1.0
                 </span>
               </div>
-              <span className="text-[9px] font-bold text-gray-400 tracking-[0.25em] uppercase">
+              <span className="text-[8px] sm:text-[9px] font-bold text-gray-400 tracking-[0.25em] uppercase">
                 CALCULATOR
               </span>
             </div>
           </div>
 
           {/* Горизонтальное меню SCIM */}
-          <nav className="flex items-center gap-1.5">
+          <nav className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto scrollbar-none py-0.5">
             {/* Дропдаун PLANNERS (Производство, Электропитание) */}
             <div 
               ref={plannersRef}
@@ -101,7 +101,7 @@ function App() {
             >
               <button
                 onClick={() => setPlannersOpen(!plannersOpen)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold tracking-wider uppercase transition-all cursor-pointer ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[11px] sm:text-xs font-bold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap ${
                   isPlannerActive
                     ? 'text-[#f97316] bg-[#1e232e]' 
                     : 'text-gray-300 hover:text-white hover:bg-[#1a1e27]'
@@ -164,7 +164,7 @@ function App() {
             >
               <button
                 onClick={() => setCampaignOpen(!campaignOpen)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold tracking-wider uppercase transition-all cursor-pointer ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[11px] sm:text-xs font-bold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap ${
                   view === 'campaign'
                     ? 'text-[#f97316] bg-[#1e232e]' 
                     : 'text-gray-300 hover:text-white hover:bg-[#1a1e27]'
@@ -248,7 +248,7 @@ function App() {
             >
               <button
                 onClick={() => setWorkbenchOpen(!workbenchOpen)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold tracking-wider uppercase transition-all cursor-pointer ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[11px] sm:text-xs font-bold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap ${
                   isWorkbenchActive
                     ? 'text-[#f97316] bg-[#1e232e]' 
                     : 'text-gray-300 hover:text-white hover:bg-[#1a1e27]'
@@ -287,8 +287,8 @@ function App() {
       {/* Global Campaign Presets Toolbar - Only visible in Campaign mode */}
       {view === 'campaign' && (
         <div className="flex flex-col border-b border-[#2a2e39] bg-[#0b0d10] shrink-0">
-          <div className="flex px-4 py-3 justify-between items-center w-full">
-            <div className="flex overflow-x-auto gap-2 scrollbar-thin scrollbar-thumb-[#2a2e39] items-center flex-1 pr-3">
+          <div className="flex px-2 sm:px-4 py-1.5 sm:py-2 justify-between items-center w-full">
+            <div className="flex overflow-x-auto gap-1.5 sm:gap-2 scrollbar-thin scrollbar-thumb-[#2a2e39] items-center flex-1 pr-2 sm:pr-3 py-0.5">
             {presets.map((preset, index) => {
               const state = campaignStagesState[preset.id] || { enabled: true, scale: 1.0 };
               const isActive = activePresetId === preset.id;
@@ -306,7 +306,7 @@ function App() {
               return (
                 <React.Fragment key={preset.id}>
                   {index > 0 && (
-                    <div className="shrink-0 text-amber-500/80 font-bold px-1 text-sm select-none">
+                    <div className="shrink-0 text-amber-500/80 font-bold px-0.5 sm:px-1 text-xs sm:text-sm select-none">
                       →
                     </div>
                   )}
@@ -325,12 +325,12 @@ function App() {
                           setCampaignMode('detail');
                         }
                       }}
-                      className="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2e39] w-full text-left cursor-pointer"
+                      className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 hover:bg-[#2a2e39] w-full text-left cursor-pointer"
                     >
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wide ${preset.type === 'power' ? 'bg-[#22c55e] text-black' : 'bg-[#f97316] text-black'}`}>
+                      <span className={`text-[8px] sm:text-[9px] font-bold px-1 sm:px-1.5 py-0.5 rounded tracking-wide ${preset.type === 'power' ? 'bg-[#22c55e] text-black' : 'bg-[#f97316] text-black'}`}>
                         {preset.tier}
                       </span>
-                      <span className="text-xs font-bold text-[#e1e1e6]">{preset.name}</span>
+                      <span className="text-[11px] sm:text-xs font-bold text-[#e1e1e6] whitespace-nowrap">{preset.name}</span>
                       {isFrozen && (
                         <span className="text-[10px] text-[#22c55e] font-bold ml-1 flex items-center gap-1" title="Завод построен">
                           <svg className="w-3 h-3 text-[#22c55e]" fill="currentColor" viewBox="0 0 20 20">
@@ -345,7 +345,7 @@ function App() {
             })}
 
             {/* Вкладка ПРОЕКТ «СБОРКА» (КОСМИЧЕСКИЙ ЛИФТ) */}
-            <div className="shrink-0 text-amber-500/80 font-bold px-1 text-sm select-none">
+            <div className="shrink-0 text-amber-500/80 font-bold px-0.5 sm:px-1 text-xs sm:text-sm select-none">
               →
             </div>
             <div
@@ -357,13 +357,13 @@ function App() {
             >
               <button
                 onClick={() => setCampaignMode('elevator')}
-                className="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2e39] w-full text-left cursor-pointer"
+                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 hover:bg-[#2a2e39] w-full text-left cursor-pointer"
                 title="Орбитальный Космический Лифт: Проект «Сборка» (5 фаз)"
               >
-                <span className="text-[9px] font-black px-1.5 py-0.5 rounded tracking-wide bg-[#f59e0b] text-black">
+                <span className="text-[8px] sm:text-[9px] font-black px-1 sm:px-1.5 py-0.5 rounded tracking-wide bg-[#f59e0b] text-black">
                   ФИНАЛ
                 </span>
-                <span className="text-xs font-bold text-[#f59e0b]">Проект «Сборка»</span>
+                <span className="text-[11px] sm:text-xs font-bold text-[#f59e0b] whitespace-nowrap">Проект «Сборка»</span>
               </button>
             </div>
           </div>
@@ -371,7 +371,7 @@ function App() {
       </div>
       )}
 
-      <main className="flex-1 flex overflow-hidden relative">
+      <main className="flex-1 flex overflow-hidden relative min-w-0 min-h-0">
         <DeficitAlerts />
         <Suspense fallback={
           <div className="flex-1 flex items-center justify-center bg-[#0b0d10] text-gray-400 font-mono text-sm">

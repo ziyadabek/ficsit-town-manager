@@ -617,12 +617,12 @@ export default function SpaceElevatorView({ onNavigateStage }) {
   }, [selectedPhase]);
 
   return (
-    <div className="w-full h-full bg-[#0b0d10] relative">
+    <div className="w-full h-full bg-[#0b0d10] relative flex-1 min-w-0 min-h-0">
       {/* ── FICSIT SCADA панель легенды и фильтров (с кнопкой скрытия) ── */}
       {isPanelCollapsed ? (
         <button
           onClick={() => setIsPanelCollapsed(false)}
-          className="absolute top-4 left-4 z-10 bg-[#14171d]/95 hover:bg-[#1f242f] border border-[#f59e0b] px-3 py-1.5 rounded shadow-2xl flex items-center gap-2 cursor-pointer transition-all"
+          className="absolute top-3 left-3 z-10 bg-[#14171d]/95 hover:bg-[#1f242f] border border-[#f59e0b] px-3 py-1.5 rounded shadow-2xl flex items-center gap-2 cursor-pointer transition-all"
           title="Показать панель проекта"
         >
           <img
@@ -634,7 +634,7 @@ export default function SpaceElevatorView({ onNavigateStage }) {
           <span className="text-[10px] text-gray-400 font-mono">Развернуть ▾</span>
         </button>
       ) : (
-        <div className="absolute top-4 left-4 z-10 bg-[#14171d] border-2 border-[#f59e0b] p-4 rounded shadow-2xl pointer-events-auto w-72">
+        <div className="absolute top-3 left-3 z-10 bg-[#14171d] border-2 border-[#f59e0b] p-3 sm:p-4 rounded shadow-2xl pointer-events-auto w-72 max-w-[calc(100vw-1.5rem)]">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               <img

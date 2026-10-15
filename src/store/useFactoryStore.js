@@ -149,6 +149,11 @@ export const useFactoryStore = create((set, get) => ({
   summary: null,
   activeTab: 'network', // 'network', 'tree', 'items', 'buildings'
 
+  // Responsive UI state
+  isRightPanelOpen: typeof window !== 'undefined' ? window.innerWidth >= 1280 : true,
+  toggleRightPanel: () => set(state => ({ isRightPanelOpen: !state.isRightPanelOpen })),
+  setRightPanelOpen: (isOpen) => set({ isRightPanelOpen: Boolean(isOpen) }),
+
   setLayoutDirection: (dir) => {
     set({ layoutDirection: dir });
     get().recalculateGraph();

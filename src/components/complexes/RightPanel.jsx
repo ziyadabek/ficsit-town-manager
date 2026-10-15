@@ -7,6 +7,9 @@ import SettingsTab from './panels/SettingsTab';
 export default function RightPanel() {
   const [tab, setTab] = useState('targets'); // 'targets' | 'inputs' | 'options'
   
+  const isRightPanelOpen = useFactoryStore(s => s.isRightPanelOpen);
+  const toggleRightPanel = useFactoryStore(s => s.toggleRightPanel);
+  const setRightPanelOpen = useFactoryStore(s => s.setRightPanelOpen);
   const targets = useFactoryStore(s => s.targets);
   const inputsLimit = useFactoryStore(s => s.inputsLimit);
   const options = useFactoryStore(s => s.options);
@@ -28,6 +31,10 @@ export default function RightPanel() {
   const unfreezeStage = useFactoryStore(s => s.unfreezeStage);
   const resetToFreeMode = useFactoryStore(s => s.resetToFreeMode);
 
+  if (!isRightPanelOpen) {
+    return null;
+  }
+
   const isStageFrozen = Boolean(activePresetId && frozenStages[activePresetId]?.isFrozen);
 
   // Вспомогательная функция степпера изменения количества
@@ -43,40 +50,58 @@ export default function RightPanel() {
   };
 
   return (
-    <div className="w-96 bg-[#1f2229] border-l border-[#2a2e39] flex flex-col h-full z-10 select-none shadow-2xl">
-      {/* Шапка табов в стиле SCIM */}
-      <div className="flex border-b border-[#2e3340] bg-[#1a1c23]">
-        <button
-          onClick={() => setTab('targets')}
-          className={`flex-1 py-3 px-2 text-center text-xs font-bold tracking-wide transition-all cursor-pointer ${
-            tab === 'targets'
-              ? 'bg-[#2a2e38] text-white border-t-2 border-t-[#f97316]'
-              : 'text-gray-400 hover:text-gray-200 hover:bg-[#20232c]'
-          }`}
-        >
-          Что производить
-        </button>
-        <button
-          onClick={() => setTab('inputs')}
-          className={`flex-1 py-3 px-2 text-center text-xs font-bold tracking-wide transition-all cursor-pointer ${
-            tab === 'inputs'
-              ? 'bg-[#2a2e38] text-white border-t-2 border-t-[#22c55e]'
-              : 'text-gray-400 hover:text-gray-200 hover:bg-[#20232c]'
-          }`}
-        >
-          Ограничения
-        </button>
-        <button
-          onClick={() => setTab('options')}
-          className={`flex-1 py-3 px-2 text-center text-xs font-bold tracking-wide transition-all cursor-pointer ${
-            tab === 'options'
-              ? 'bg-[#2a2e38] text-white border-t-2 border-t-[#3b82f6]'
-              : 'text-gray-400 hover:text-gray-200 hover:bg-[#20232c]'
-          }`}
-        >
-          Настройки
-        </button>
-      </div>
+    <>
+      {/* Затемняющий оверлей для планшетов и мобильных (<1024px) */}
+      <div 
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs z-30 lg:hidden"
+        onClick={() => setRightPanelOpen(false)}
+        aria-hidden="true"
+      />
+
+      <div className="fixed lg:relative right-0 top-0 bottom-0 z-40 lg:z-10 w-full max-w-[340px] sm:max-w-[380px] lg:w-80 xl:w-96 bg-[#1f2229] border-l border-[#2a2e39] flex flex-col h-full select-none shadow-2xl transition-all">
+        {/* Шапка табов в стиле SCIM с кнопкой закрытия */}
+        <div className="flex items-center border-b border-[#2e3340] bg-[#1a1c23]">
+          <button
+            onClick={() => setTab('targets')}
+            className={`flex-1 py-2.5 sm:py-3 px-1.5 sm:px-2 text-center text-xs font-bold tracking-wide transition-all cursor-pointer ${
+              tab === 'targets'
+                ? 'bg-[#2a2e38] text-white border-t-2 border-t-[#f97316]'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-[#20232c]'
+            }`}
+          >
+            Что производить
+          </button>
+          <button
+            onClick={() => setTab('inputs')}
+            className={`flex-1 py-2.5 sm:py-3 px-1.5 sm:px-2 text-center text-xs font-bold tracking-wide transition-all cursor-pointer ${
+              tab === 'inputs'
+                ? 'bg-[#2a2e38] text-white border-t-2 border-t-[#22c55e]'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-[#20232c]'
+            }`}
+          >
+            Ограничения
+          </button>
+          <button
+            onClick={() => setTab('options')}
+            className={`flex-1 py-2.5 sm:py-3 px-1.5 sm:px-2 text-center text-xs font-bold tracking-wide transition-all cursor-pointer ${
+              tab === 'options'
+                ? 'bg-[#2a2e38] text-white border-t-2 border-t-[#3b82f6]'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-[#20232c]'
+            }`}
+          >
+            Настройки
+          </button>
+          {/* Кнопка сворачивания панели */}
+          <button
+            onClick={toggleRightPanel}
+            className="px-2.5 py-2.5 sm:py-3 text-gray-400 hover:text-white hover:bg-[#20232c] border-l border-[#2e3340] transition-colors cursor-pointer flex items-center justify-center shrink-0"
+            title="Свернуть панель"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
       {/* Баннер заморозки этапа */}
       {isStageFrozen && (
@@ -137,5 +162,6 @@ export default function RightPanel() {
         )}
       </div>
     </div>
+    </>
   );
 }
