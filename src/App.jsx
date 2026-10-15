@@ -19,12 +19,11 @@ function App() {
   const initStorage = useFactoryStore(s => s.initStorage);
   const [view, setView] = useState('calculator');
   const [campaignMode, setCampaignMode] = useState('detail');
-  const [plannersOpen, setPlannersOpen] = useState(false);
-  const [campaignOpen, setCampaignOpen] = useState(false);
-  const [workbenchOpen, setWorkbenchOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null); // 'planners' | 'campaign' | 'workbench' | 'mobile' | null
   const plannersRef = useRef(null);
   const campaignRef = useRef(null);
   const workbenchRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   useEffect(() => {
     initStorage();
@@ -32,29 +31,58 @@ function App() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (plannersRef.current && !plannersRef.current.contains(event.target)) {
-        setPlannersOpen(false);
-      }
-      if (campaignRef.current && !campaignRef.current.contains(event.target)) {
-        setCampaignOpen(false);
-      }
-      if (workbenchRef.current && !workbenchRef.current.contains(event.target)) {
-        setWorkbenchOpen(false);
+      const isInside = 
+        (plannersRef.current && plannersRef.current.contains(event.target)) ||
+        (campaignRef.current && campaignRef.current.contains(event.target)) ||
+        (workbenchRef.current && workbenchRef.current.contains(event.target)) ||
+        (mobileMenuRef.current && mobileMenuRef.current.contains(event.target));
+      if (!isInside) {
+        setOpenMenu(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   const handleSetView = (newView) => {
     setView(newView);
-    setPlannersOpen(false);
-    setCampaignOpen(false);
-    setWorkbenchOpen(false);
+    setOpenMenu(null);
     if (newView === 'campaign' && !activePresetId && presets.length > 0) {
       loadPreset(presets[0]);
     } else if (newView === 'calculator' && activePresetId) {
       resetToFreeMode();
+    }
+  };
+
+  const handleMenuHover = (menuName) => {
+    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: hover)').matches) {
+      setOpenMenu(menuName);
+    }
+  };
+
+  const handleMenuLeave = () => {
+    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: hover)').matches) {
+      setOpenMenu(null);
+    }
+  };
+
+  const handleMenuClick = (e, menuName, defaultAction) => {
+    e.stopPropagation();
+    // На тач-устройствах (без hover) — надежное переключение
+    if (typeof window !== 'undefined' && window.matchMedia && !window.matchMedia('(hover: hover)').matches) {
+      setOpenMenu(prev => prev === menuName ? null : menuName);
+      return;
+    }
+    // На десктопе с мышью: если меню уже открыто, переход к действию по умолчанию
+    if (openMenu === menuName && defaultAction) {
+      defaultAction();
+      setOpenMenu(null);
+    } else {
+      setOpenMenu(menuName);
     }
   };
 
@@ -64,7 +92,7 @@ function App() {
   return (
     <div className="w-screen h-screen h-[100dvh] flex flex-col bg-[#0b0d10] text-[#e1e1e6] overflow-hidden">
       {/* Верхняя навигационная панель в стиле Satisfactory Calculator (SCIM) */}
-      <header className="px-2.5 sm:px-4 py-1.5 sm:py-2 border-b border-[#2a2e39] bg-[#14171d] flex items-center justify-between z-20 shrink-0">
+      <header className="px-2.5 sm:px-4 py-1.5 sm:py-2 border-b border-[#2a2e39] bg-[#14171d] flex items-center justify-between z-50 shrink-0 relative">
         <div className="flex items-center gap-3 sm:gap-6 min-w-0">
           {/* SCIM Логотип */}
           <div 
@@ -90,38 +118,38 @@ function App() {
             </div>
           </div>
 
-          {/* Горизонтальное меню SCIM */}
-          <nav className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto scrollbar-none py-0.5">
-            {/* Дропдаун PLANNERS (Производство, Электропитание) */}
-            <div 
-              ref={plannersRef}
-              className="relative"
-              onMouseEnter={() => setPlannersOpen(true)}
-              onMouseLeave={() => setPlannersOpen(false)}
+          {/* Мобильная кнопка меню (экраны < 640px) */}
+          <div ref={mobileMenuRef} className="relative sm:hidden">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenMenu(prev => prev === 'mobile' ? null : 'mobile');
+              }}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-bold uppercase transition-all cursor-pointer border ${
+                openMenu === 'mobile'
+                  ? 'bg-[#1e232e] text-[#f97316] border-[#f97316]/60 shadow-xs'
+                  : 'bg-[#181d26] text-gray-300 border-[#2a2e39] hover:text-white hover:bg-[#1e232e]'
+              }`}
+              aria-label="Навигационное меню"
             >
-              <button
-                onClick={() => setPlannersOpen(!plannersOpen)}
-                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[11px] sm:text-xs font-bold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap ${
-                  isPlannerActive
-                    ? 'text-[#f97316] bg-[#1e232e]' 
-                    : 'text-gray-300 hover:text-white hover:bg-[#1a1e27]'
-                }`}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>ПЛАНИРОВЩИКИ</span>
-                <span className="text-[10px] ml-0.5 opacity-70">▾</span>
-              </button>
+              <svg className="w-4 h-4 text-[#f97316]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <span className="text-[11px] font-bold text-[#f97316]">МЕНЮ</span>
+              <span className="text-[9px] opacity-70">▾</span>
+            </button>
 
-              {plannersOpen && (
-                <div className="absolute left-0 mt-0.5 w-60 bg-[#161920] border border-[#2a2e39] rounded-md shadow-2xl py-1.5 z-50">
+            {openMenu === 'mobile' && (
+              <div className="absolute left-0 top-full pt-1 z-50">
+                <div className="w-64 max-w-[calc(100vw-1.5rem)] bg-[#161920] border border-[#2a2e39] rounded-md shadow-2xl py-2 max-h-[80vh] overflow-y-auto">
+                  <div className="px-3 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    Планировщики
+                  </div>
                   <button
+                    type="button"
                     onClick={() => {
-                      if (activePresetId) {
-                        resetToFreeMode();
-                      }
+                      if (activePresetId) resetToFreeMode();
                       handleSetView('calculator');
                     }}
                     className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
@@ -138,6 +166,7 @@ function App() {
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => handleSetView('power')}
                     className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
                       view === 'power' ? 'bg-[#242b38] text-[#3b82f6] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
@@ -151,39 +180,17 @@ function App() {
                       <div className="text-[10px] text-gray-400 font-normal">Расчёт электростанций</div>
                     </div>
                   </button>
-                </div>
-              )}
-            </div>
 
-            {/* Дропдаун ПЛАН КАМПАНИИ (Цеха, Карта) */}
-            <div 
-              ref={campaignRef}
-              className="relative"
-              onMouseEnter={() => setCampaignOpen(true)}
-              onMouseLeave={() => setCampaignOpen(false)}
-            >
-              <button
-                onClick={() => setCampaignOpen(!campaignOpen)}
-                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[11px] sm:text-xs font-bold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap ${
-                  view === 'campaign'
-                    ? 'text-[#f97316] bg-[#1e232e]' 
-                    : 'text-gray-300 hover:text-white hover:bg-[#1a1e27]'
-                }`}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                </svg>
-                <span>ПЛАН КАМПАНИИ</span>
-                <span className="text-[10px] ml-0.5 opacity-70">▾</span>
-              </button>
+                  <div className="my-1.5 border-t border-[#2a2e39]" />
 
-              {campaignOpen && (
-                <div className="absolute left-0 mt-0.5 w-56 bg-[#161920] border border-[#2a2e39] rounded-md shadow-2xl py-1.5 z-50">
+                  <div className="px-3 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    План кампании
+                  </div>
                   <button
+                    type="button"
                     onClick={() => {
                       handleSetView('campaign');
                       setCampaignMode('detail');
-                      setCampaignOpen(false);
                     }}
                     className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
                       view === 'campaign' && campaignMode === 'detail' ? 'bg-[#242b38] text-[#f97316] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
@@ -199,10 +206,10 @@ function App() {
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => {
                       handleSetView('campaign');
                       setCampaignMode('macro');
-                      setCampaignOpen(false);
                     }}
                     className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
                       view === 'campaign' && campaignMode === 'macro' ? 'bg-[#242b38] text-[#3b82f6] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
@@ -218,10 +225,10 @@ function App() {
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => {
                       handleSetView('campaign');
                       setCampaignMode('elevator');
-                      setCampaignOpen(false);
                     }}
                     className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer border-t border-[#2a2e39]/60 ${
                       view === 'campaign' && campaignMode === 'elevator' ? 'bg-[#242b38] text-[#f59e0b] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
@@ -235,35 +242,14 @@ function App() {
                       <div className="text-[10px] text-gray-400 font-normal">Космический Лифт (5 фаз)</div>
                     </div>
                   </button>
-                </div>
-              )}
-            </div>
 
-            {/* Дропдаун ВЕРСТАК (Балансировщики) */}
-            <div 
-              ref={workbenchRef}
-              className="relative"
-              onMouseEnter={() => setWorkbenchOpen(true)}
-              onMouseLeave={() => setWorkbenchOpen(false)}
-            >
-              <button
-                onClick={() => setWorkbenchOpen(!workbenchOpen)}
-                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[11px] sm:text-xs font-bold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap ${
-                  isWorkbenchActive
-                    ? 'text-[#f97316] bg-[#1e232e]' 
-                    : 'text-gray-300 hover:text-white hover:bg-[#1a1e27]'
-                }`}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
-                </svg>
-                <span>ВЕРСТАК</span>
-                <span className="text-[10px] ml-0.5 opacity-70">▾</span>
-              </button>
+                  <div className="my-1.5 border-t border-[#2a2e39]" />
 
-              {workbenchOpen && (
-                <div className="absolute left-0 mt-0.5 w-56 bg-[#161920] border border-[#2a2e39] rounded-md shadow-2xl py-1.5 z-50">
+                  <div className="px-3 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    Верстак
+                  </div>
                   <button
+                    type="button"
                     onClick={() => handleSetView('balancer')}
                     className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
                       view === 'balancer' ? 'bg-[#242b38] text-[#f97316] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
@@ -277,6 +263,218 @@ function App() {
                       <div className="text-[10px] text-gray-400 font-normal">Схемы балансировки конвейеров</div>
                     </div>
                   </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Горизонтальное меню SCIM (экраны >= 640px) */}
+          <nav className="hidden sm:flex items-center gap-1 sm:gap-1.5 py-0.5">
+            {/* Дропдаун PLANNERS (Производство, Электропитание) */}
+            <div 
+              ref={plannersRef}
+              className="relative"
+              onMouseEnter={() => handleMenuHover('planners')}
+              onMouseLeave={handleMenuLeave}
+            >
+              <button
+                type="button"
+                onClick={(e) => handleMenuClick(e, 'planners', () => {
+                  if (activePresetId) resetToFreeMode();
+                  handleSetView('calculator');
+                })}
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[11px] sm:text-xs font-bold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap ${
+                  isPlannerActive
+                    ? 'text-[#f97316] bg-[#1e232e]' 
+                    : 'text-gray-300 hover:text-white hover:bg-[#1a1e27]'
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>ПЛАНИРОВЩИКИ</span>
+                <span className={`text-[10px] ml-0.5 opacity-70 transition-transform ${openMenu === 'planners' ? 'rotate-180' : ''}`}>▾</span>
+              </button>
+
+              {openMenu === 'planners' && (
+                <div className="absolute left-0 top-full pt-1 z-50">
+                  <div className="w-60 bg-[#161920] border border-[#2a2e39] rounded-md shadow-2xl py-1.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activePresetId) {
+                          resetToFreeMode();
+                        }
+                        handleSetView('calculator');
+                      }}
+                      className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
+                        view === 'calculator' && !activePresetId ? 'bg-[#242b38] text-[#f97316] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
+                      }`}
+                    >
+                      <svg className="w-4 h-4 opacity-80 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <div>
+                        <div className="text-xs font-bold">Производство</div>
+                        <div className="text-[10px] text-gray-400 font-normal">Калькулятор фабрик и станков</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleSetView('power')}
+                      className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
+                        view === 'power' ? 'bg-[#242b38] text-[#3b82f6] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
+                      }`}
+                    >
+                      <svg className="w-4 h-4 opacity-80 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      <div>
+                        <div className="text-xs font-bold">Электропитание</div>
+                        <div className="text-[10px] text-gray-400 font-normal">Расчёт электростанций</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Дропдаун ПЛАН КАМПАНИИ (Цеха, Карта) */}
+            <div 
+              ref={campaignRef}
+              className="relative"
+              onMouseEnter={() => handleMenuHover('campaign')}
+              onMouseLeave={handleMenuLeave}
+            >
+              <button
+                type="button"
+                onClick={(e) => handleMenuClick(e, 'campaign', () => {
+                  handleSetView('campaign');
+                  setCampaignMode('detail');
+                })}
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[11px] sm:text-xs font-bold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap ${
+                  view === 'campaign'
+                    ? 'text-[#f97316] bg-[#1e232e]' 
+                    : 'text-gray-300 hover:text-white hover:bg-[#1a1e27]'
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <span>ПЛАН КАМПАНИИ</span>
+                <span className={`text-[10px] ml-0.5 opacity-70 transition-transform ${openMenu === 'campaign' ? 'rotate-180' : ''}`}>▾</span>
+              </button>
+
+              {openMenu === 'campaign' && (
+                <div className="absolute left-0 top-full pt-1 z-50">
+                  <div className="w-56 bg-[#161920] border border-[#2a2e39] rounded-md shadow-2xl py-1.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleSetView('campaign');
+                        setCampaignMode('detail');
+                      }}
+                      className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
+                        view === 'campaign' && campaignMode === 'detail' ? 'bg-[#242b38] text-[#f97316] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
+                      }`}
+                    >
+                      <svg className="w-4 h-4 opacity-80 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                      <div>
+                        <div className="text-xs font-bold">Цеха</div>
+                        <div className="text-[10px] text-gray-400 font-normal">Детальные фабрики этапов</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleSetView('campaign');
+                        setCampaignMode('macro');
+                      }}
+                      className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
+                        view === 'campaign' && campaignMode === 'macro' ? 'bg-[#242b38] text-[#3b82f6] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
+                      }`}
+                    >
+                      <svg className="w-4 h-4 opacity-80 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                      </svg>
+                      <div>
+                        <div className="text-xs font-bold">Карта</div>
+                        <div className="text-[10px] text-gray-400 font-normal">Макро-карта кампании</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleSetView('campaign');
+                        setCampaignMode('elevator');
+                      }}
+                      className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer border-t border-[#2a2e39]/60 ${
+                        view === 'campaign' && campaignMode === 'elevator' ? 'bg-[#242b38] text-[#f59e0b] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
+                      }`}
+                    >
+                      <svg className="w-4 h-4 opacity-80 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.63 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.58-5.84a14.927 14.927 0 00-2.58 5.84" />
+                      </svg>
+                      <div>
+                        <div className="text-xs font-bold text-[#f59e0b]">Проект «Сборка»</div>
+                        <div className="text-[10px] text-gray-400 font-normal">Космический Лифт (5 фаз)</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Дропдаун ВЕРСТАК (Балансировщики) */}
+            <div 
+              ref={workbenchRef}
+              className="relative"
+              onMouseEnter={() => handleMenuHover('workbench')}
+              onMouseLeave={handleMenuLeave}
+            >
+              <button
+                type="button"
+                onClick={(e) => handleMenuClick(e, 'workbench', () => {
+                  handleSetView('balancer');
+                })}
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[11px] sm:text-xs font-bold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap ${
+                  isWorkbenchActive
+                    ? 'text-[#f97316] bg-[#1e232e]' 
+                    : 'text-gray-300 hover:text-white hover:bg-[#1a1e27]'
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
+                </svg>
+                <span>ВЕРСТАК</span>
+                <span className={`text-[10px] ml-0.5 opacity-70 transition-transform ${openMenu === 'workbench' ? 'rotate-180' : ''}`}>▾</span>
+              </button>
+
+              {openMenu === 'workbench' && (
+                <div className="absolute left-0 top-full pt-1 z-50">
+                  <div className="w-56 bg-[#161920] border border-[#2a2e39] rounded-md shadow-2xl py-1.5">
+                    <button
+                      type="button"
+                      onClick={() => handleSetView('balancer')}
+                      className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
+                        view === 'balancer' ? 'bg-[#242b38] text-[#f97316] font-bold' : 'text-gray-200 hover:bg-[#1f242f]'
+                      }`}
+                    >
+                      <svg className="w-4 h-4 opacity-80 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                      </svg>
+                      <div>
+                        <div className="text-xs font-bold">Балансировщики</div>
+                        <div className="text-[10px] text-gray-400 font-normal">Схемы балансировки конвейеров</div>
+                      </div>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
