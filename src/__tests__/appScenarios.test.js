@@ -168,5 +168,17 @@ describe('App End-to-End Scenarios Verification', () => {
     expect(isAmp1).toBe(false);
     expect(Object.is(isAmp1, isAmp2)).toBe(true);
   });
+
+  it('Scenario 9: all lazy views (BalancerViewer, PowerPlanner, MacroView, SpaceElevatorView) are valid React components', async () => {
+    const balancerModule = await import('../modules/balancer/BalancerViewer');
+    const powerModule = await import('../modules/power/PowerPlanner');
+    const macroModule = await import('../components/canvas/MacroView');
+    const elevatorModule = await import('../components/canvas/SpaceElevatorView');
+
+    expect(typeof balancerModule.default).toBe('function');
+    expect(typeof powerModule.default).toBe('function');
+    expect(typeof macroModule.default).toBe('function');
+    expect(typeof elevatorModule.default).toBe('function');
+  });
 });
 
