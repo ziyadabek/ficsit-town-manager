@@ -662,6 +662,33 @@
     ]
   },
   {
+    "id": "electrode_aluminum_scrap",
+    "name": "Электродный алюминиевый лом",
+    "buildingId": "refinery",
+    "isAlternate": true,
+    "duration": 4,
+    "inputs": [
+      {
+        "itemId": "alumina_solution",
+        "rate": 180
+      },
+      {
+        "itemId": "petroleum_coke",
+        "rate": 60
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "aluminum_scrap",
+        "rate": 300
+      },
+      {
+        "itemId": "water",
+        "rate": 105
+      }
+    ]
+  },
+  {
     "id": "aluminum_ingot",
     "name": "Алюминиевый слиток",
     "buildingId": "foundry",

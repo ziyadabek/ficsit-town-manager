@@ -257,25 +257,137 @@ export function exportBackupJSON(stages, builtNodes = {}) {
 }
 
 /**
+ * Валидирует и очищает структуру данных резервной копии.
+ * Защищает от Prototype Pollution и поврежденных данных.
+ * @param {any} rawData
+ * @returns {{ stages: Record<string, any>, builtNodes: Record<string, Record<string, boolean>> }}
+ */
+export function validateBackupData(rawData) {
+  if (!rawData || typeof rawData !== 'object' || Array.isArray(rawData)) {
+    throw new Error('Файл резервной копии должен содержать JSON-объект');
+  }
+
+  // Защита от Prototype Pollution
+  const sanitize = (val, depth = 0) => {
+    if (depth > 15 || val === null || typeof val !== 'object') return val;
+    if (Array.isArray(val)) return val.map(v => sanitize(v, depth + 1));
+    const clean = {};
+    for (const key of Object.keys(val)) {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
+      clean[key] = sanitize(val[key], depth + 1);
+    }
+    return clean;
+  };
+
+  const cleanData = sanitize(rawData);
+  const rawStages = cleanData.stages || (cleanData && !cleanData.stages && !cleanData.builtNodes ? cleanData : {});
+  const rawBuiltNodes = cleanData.builtNodes || {};
+
+  if (!rawStages || typeof rawStages !== 'object' || Array.isArray(rawStages)) {
+    throw new Error('Некорректная структура цехов (stages)');
+  }
+
+  // Валидируем stages
+  const validatedStages = {};
+  for (const [stageId, stage] of Object.entries(rawStages)) {
+    if (typeof stageId !== 'string' || !stage || typeof stage !== 'object' || Array.isArray(stage)) {
+      continue;
+    }
+    
+    // Проверка targets если заданы
+    const validTargets = [];
+    if (Array.isArray(stage.targets)) {
+      for (const t of stage.targets) {
+        if (t && typeof t.itemId === 'string' && typeof t.rate === 'number' && !isNaN(t.rate) && t.rate >= 0) {
+          validTargets.push({
+            id: String(t.id || `target_${Date.now()}_${Math.random()}`),
+            itemId: t.itemId,
+            rate: t.rate,
+            ...(t.recipeId ? { recipeId: String(t.recipeId) } : {})
+          });
+        }
+      }
+    }
+
+    // Проверка inputsLimit если заданы
+    const validInputs = [];
+    if (Array.isArray(stage.inputsLimit)) {
+      for (const inp of stage.inputsLimit) {
+        if (inp && typeof inp.itemId === 'string' && typeof inp.rate === 'number' && !isNaN(inp.rate) && inp.rate >= 0) {
+          validInputs.push({
+            id: String(inp.id || `inp_${Date.now()}_${Math.random()}`),
+            itemId: inp.itemId,
+            rate: inp.rate
+          });
+        }
+      }
+    }
+
+    // Проверка snapshot если задан
+    let validSnapshot = undefined;
+    if (stage.snapshot && typeof stage.snapshot === 'object') {
+      validSnapshot = {
+        nodes: Array.isArray(stage.snapshot.nodes) ? stage.snapshot.nodes : [],
+        edges: Array.isArray(stage.snapshot.edges) ? stage.snapshot.edges : [],
+        outputs: Array.isArray(stage.snapshot.outputs) ? stage.snapshot.outputs : [],
+        summary: stage.snapshot.summary && typeof stage.snapshot.summary === 'object' ? stage.snapshot.summary : {}
+      };
+    }
+
+    validatedStages[stageId] = {
+      isFrozen: Boolean(stage.isFrozen),
+      frozenAt: stage.frozenAt ? String(stage.frozenAt) : new Date().toISOString(),
+      targets: validTargets,
+      inputsLimit: validInputs,
+      options: stage.options && typeof stage.options === 'object' ? stage.options : {},
+      layoutDirection: ['LR', 'TB'].includes(stage.layoutDirection) ? stage.layoutDirection : 'LR',
+      schematicMode: ['simple', 'realistic'].includes(stage.schematicMode) ? stage.schematicMode : 'simple',
+      ...(validSnapshot ? { snapshot: validSnapshot } : {})
+    };
+  }
+
+  // Валидируем builtNodes
+  const validatedBuiltNodes = {};
+  if (rawBuiltNodes && typeof rawBuiltNodes === 'object' && !Array.isArray(rawBuiltNodes)) {
+    for (const [stageKey, nodeMap] of Object.entries(rawBuiltNodes)) {
+      if (typeof stageKey !== 'string' || !nodeMap || typeof nodeMap !== 'object' || Array.isArray(nodeMap)) {
+        continue;
+      }
+      const cleanMap = {};
+      for (const [nodeId, isBuilt] of Object.entries(nodeMap)) {
+        if (typeof nodeId === 'string' && typeof isBuilt === 'boolean') {
+          cleanMap[nodeId] = isBuilt;
+        }
+      }
+      validatedBuiltNodes[stageKey] = cleanMap;
+    }
+  }
+
+  return {
+    stages: validatedStages,
+    builtNodes: validatedBuiltNodes
+  };
+}
+
+/**
  * Импортирует и валидирует файл резервной копии .json.
  * @param {File} file
  * @returns {Promise<{ stages: Record<string, any>, builtNodes: Record<string, any> }>}
  */
 export function importBackupJSON(file) {
   return new Promise((resolve, reject) => {
-    if (!file) return reject(new Error('No file selected'));
+    if (!file) return reject(new Error('Файл не выбран'));
+    if (file.size && file.size > 50 * 1024 * 1024) {
+      return reject(new Error('Файл превышает допустимый размер 50 МБ'));
+    }
 
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const text = e.target.result;
         const parsed = JSON.parse(text);
-        const stages = parsed.stages || (parsed && !parsed.stages && !parsed.builtNodes ? parsed : {});
-        const builtNodes = parsed.builtNodes || {};
-        if (typeof stages !== 'object' || stages === null) {
-          throw new Error('Некорректный формат файла сохранения');
-        }
-        resolve({ stages, builtNodes });
+        const validated = validateBackupData(parsed);
+        resolve(validated);
       } catch (err) {
         reject(err);
       }

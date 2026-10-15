@@ -1,6 +1,5 @@
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { getItemIcon, getBuildingIcon } from '../../database/assets';
 import buildings from '../../database/buildings.json';
 import items from '../../database/items.json';
 import { useFactoryStore } from '../../store/useFactoryStore';

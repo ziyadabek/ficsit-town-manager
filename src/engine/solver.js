@@ -46,6 +46,32 @@ export const PURITY_MULTIPLIERS = {
 };
 
 export function solveProductionGraph(targets, inputsLimit, options = {}) {
+  // Валидация целей (targets): игнорируем некорректные, бесконечные, NaN или неположительные значения
+  const validTargets = (targets || []).filter(t => t && t.itemId && Number.isFinite(t.rate) && t.rate > 0);
+  
+  if (validTargets.length === 0) {
+    return { feasible: true, nodes: [], edges: [], summary: { items: [], buildings: [], recipes: [], totalPower: 0 } };
+  }
+
+  // Консолидация и дедупликация inputsLimit по itemId для исключения дублирующихся узлов import_*
+  const consolidatedInputs = [];
+  const inputsByItem = new Map();
+  (inputsLimit || []).forEach(inp => {
+    if (!inp || !inp.itemId) return;
+    const rate = Number.isFinite(inp.rate) && inp.rate >= 0 ? inp.rate : 0;
+    const existing = inputsByItem.get(inp.itemId);
+    if (existing) {
+      existing.rate += rate;
+      if (inp.isTransit) existing.isTransit = true;
+      if (inp.sourceStageName) existing.sourceStageName = inp.sourceStageName;
+      if (inp.deficit) existing.deficit = (existing.deficit || 0) + (inp.deficit || 0);
+    } else {
+      const copy = { ...inp, rate };
+      inputsByItem.set(inp.itemId, copy);
+      consolidatedInputs.push(copy);
+    }
+  });
+
   const model = {
     optimize: 'cost',
     opType: 'min',
@@ -54,7 +80,7 @@ export function solveProductionGraph(targets, inputsLimit, options = {}) {
   };
 
   // 1. Outputs (Targets)
-  targets.forEach(t => {
+  validTargets.forEach(t => {
     if (model.constraints[t.itemId]) {
       model.constraints[t.itemId].equal += t.rate;
     } else {
@@ -63,11 +89,11 @@ export function solveProductionGraph(targets, inputsLimit, options = {}) {
   });
 
   const allItems = new Set();
-  targets.forEach(t => allItems.add(t.itemId));
+  validTargets.forEach(t => allItems.add(t.itemId));
 
   // 2. Filter Recipes based on options and explicit target recipe choices
   const forcedRecipesByItem = {};
-  targets.forEach(t => {
+  validTargets.forEach(t => {
     if (t.recipeId) {
       forcedRecipesByItem[t.itemId] = t.recipeId;
     }
@@ -140,7 +166,7 @@ export function solveProductionGraph(targets, inputsLimit, options = {}) {
   });
   
   // 5. Constraints for Inputs Limits (and enabling intermediate imports)
-  inputsLimit.forEach(inp => {
+  consolidatedInputs.forEach(inp => {
     if (model.variables[`mine_${inp.itemId}`]) {
       model.constraints[`limit_${inp.itemId}`] = { max: inp.rate };
       model.variables[`mine_${inp.itemId}`][`limit_${inp.itemId}`] = 1;
@@ -175,7 +201,7 @@ export function solveProductionGraph(targets, inputsLimit, options = {}) {
 
   const usedRecipes = activeRecipes.filter(r => solution[r.id] && solution[r.id] > 0.0001);
   const minedInputs = RAW_MATERIALS.filter(raw => solution[`mine_${raw}`] && solution[`mine_${raw}`] > 0.0001);
-  const importedInputs = inputsLimit.filter(inp => solution[`import_${inp.itemId}`] && solution[`import_${inp.itemId}`] > 0.0001);
+  const importedInputs = consolidatedInputs.filter(inp => solution[`import_${inp.itemId}`] && solution[`import_${inp.itemId}`] > 0.0001);
 
   const recipeNodes = {};
   let totalPowerUsage = 0;

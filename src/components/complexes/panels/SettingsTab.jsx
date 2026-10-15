@@ -179,7 +179,10 @@ export default function SettingsTab({
         <div className="text-[#f97316] font-bold text-sm mb-2">Разгон станков (Экспериментально)</div>
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-gray-200">Доступные энергомодули</span>
+            <div>
+              <span className="text-gray-200">Доступные энергомодули</span>
+              <div className="text-[10px] text-gray-400">Справочно (разгон задаётся на станках)</div>
+            </div>
             <input 
               type="number" 
               min="0"
@@ -190,7 +193,15 @@ export default function SettingsTab({
           </div>
 
           <div className="flex items-center justify-between gap-3">
-            <span className="text-gray-200">Доступные Петлевики</span>
+            <div>
+              <span className="text-gray-200">Доступные Петлевики (лимит)</span>
+              <div className="text-[10px] text-gray-400">
+                Активно в цехах: {options.somersloopRecipes?.length || 0}
+                {options.somersloops > 0 && (options.somersloopRecipes?.length || 0) > options.somersloops && (
+                  <span className="text-red-400 ml-1 font-semibold">(Превышен лимит!)</span>
+                )}
+              </div>
+            </div>
             <input 
               type="number" 
               min="0"
@@ -201,7 +212,10 @@ export default function SettingsTab({
           </div>
 
           <div className="flex items-center justify-between gap-3">
-            <span className="text-gray-200">Применять строения повторно при возможности</span>
+            <div>
+              <span className="text-gray-200">Применять строения повторно</span>
+              <div className="text-[10px] text-gray-400">Зарезервировано (не влияет на LP-солвер)</div>
+            </div>
             <select 
               value={options.reuseBuildings !== false ? 'yes' : 'no'}
               onChange={e => onSetOption('reuseBuildings', e.target.value === 'yes')}

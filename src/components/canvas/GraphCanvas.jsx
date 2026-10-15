@@ -41,7 +41,12 @@ const nodeTypes = {
 const edgeTypes = { default: FlowEdge };
 
 const GraphCanvasInner = forwardRef(function GraphCanvasInner(_props, ref) {
-  const { nodes: storeNodes, edges: storeEdges, recalculateGraph, layoutDirection, schematicMode } = useFactoryStore();
+  const storeNodes = useFactoryStore(s => s.nodes);
+  const storeEdges = useFactoryStore(s => s.edges);
+  const recalculateGraph = useFactoryStore(s => s.recalculateGraph);
+  const layoutDirection = useFactoryStore(s => s.layoutDirection);
+  const schematicMode = useFactoryStore(s => s.schematicMode);
+  const isCalculatingLayout = useFactoryStore(s => s.isCalculatingLayout);
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -81,7 +86,16 @@ const GraphCanvasInner = forwardRef(function GraphCanvasInner(_props, ref) {
   }, [storeNodes, storeEdges, layoutDirection, schematicMode, setNodes, setEdges, fitView]);
 
   return (
-    <div ref={containerRef} className="w-full h-full scim-grid overflow-hidden">
+    <div ref={containerRef} className="w-full h-full scim-grid overflow-hidden relative">
+      {isCalculatingLayout && (
+        <div className="absolute top-3 right-3 z-50 bg-[#1e232d]/90 backdrop-blur border border-[#f97316]/50 text-white text-xs px-3 py-1.5 rounded-full shadow-xl flex items-center gap-2 pointer-events-none animate-pulse">
+          <svg className="w-3.5 h-3.5 text-[#f97316] animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          <span className="font-mono text-[11px] text-gray-200">Расчёт топологии графа...</span>
+        </div>
+      )}
       <ReactFlow
         nodes={nodes}
         edges={edges}

@@ -90,11 +90,16 @@ export default function ExportImageButton({
       const dataUrl = await exportFn();
       const filename = generateFilename('FICSIT_Vector_Blueprint', makeTag(), 'svg');
       
-      // Скачивание SVG
+      // Скачивание SVG (добавление в DOM для гарантированной совместимости с Firefox)
       const link = document.createElement('a');
       link.download = filename;
       link.href = dataUrl;
+      link.style.display = 'none';
+      document.body.appendChild(link);
       link.click();
+      setTimeout(() => {
+        if (link.parentNode) document.body.removeChild(link);
+      }, 300);
       
       finishOk();
     } catch (err) {

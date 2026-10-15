@@ -213,9 +213,9 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
     });
   });
 
-  // Выходы сырья / импорта
+  // Выходы сырья, импорта и специальных VIP узлов
   abstractNodes.forEach(node => {
-    if (node.data?.isInput) {
+    if (node.data?.isInput || node.data?.isVIP) {
       const itemId = node.data.itemId;
       recipeItemOutputs[node.id] = {
         [itemId]: { nodeId: node.id, handleId: `out-${itemId}`, rate: node.data.rate }
@@ -337,6 +337,49 @@ export function expandToRealisticGraph(abstractNodes, abstractEdges, options = {
         data: { rate: feedRoot.rate, itemId }
       });
     });
+  });
+
+  // 5.1 Входы в специальные VIP-узлы (например, VIP Junction контур рециркуляции воды)
+  abstractNodes.filter(n => n.data?.isVIP).forEach(vipNode => {
+    const itemId = vipNode.data?.itemId || 'water';
+    const feeds = incomingFlowsByTargetItem[vipNode.id]?.[itemId] || [];
+    if (feeds.length === 0) return;
+
+    if (feeds.length === 1 || !useSplitters) {
+      feeds.forEach((feed, idx) => {
+        const srcInfo = feed.sourceInfo;
+        const srcNodeId = srcInfo.isDirect && srcInfo.machines ? srcInfo.machines[0].id : srcInfo.nodeId;
+        const srcHandle = srcInfo.isDirect && srcInfo.machines ? `out-${itemId}` : srcInfo.handleId;
+        realEdges.push({
+          id: `edge_${srcNodeId}_${vipNode.id}_${itemId}_${idx}`,
+          source: srcNodeId,
+          sourceHandle: srcHandle,
+          target: vipNode.id,
+          targetHandle: idx === 0 ? 'in' : `in-${idx}`,
+          data: { rate: feed.rate, itemId }
+        });
+      });
+    } else {
+      const feedSources = feeds.map(f => ({
+        nodeId: f.sourceInfo.isDirect && f.sourceInfo.machines ? f.sourceInfo.machines[0].id : f.sourceInfo.nodeId,
+        handle: f.sourceInfo.isDirect && f.sourceInfo.machines ? `out-${itemId}` : f.sourceInfo.handleId,
+        rate: f.rate
+      }));
+      const feedRoot = buildMergerTree(
+        feedSources, `feed_mrg_${vipNode.id}_${itemId}`, itemId, layoutDirection,
+        realNodes, realEdges, 'Подпитка'
+      );
+      if (feedRoot) {
+        realEdges.push({
+          id: `edge_${feedRoot.nodeId}_${vipNode.id}_${itemId}_vip_in`,
+          source: feedRoot.nodeId,
+          sourceHandle: feedRoot.handle,
+          target: vipNode.id,
+          targetHandle: 'in',
+          data: { rate: feedRoot.rate, itemId }
+        });
+      }
+    }
   });
 
   // 6. Конечные продукты

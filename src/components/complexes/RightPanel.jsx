@@ -7,28 +7,26 @@ import SettingsTab from './panels/SettingsTab';
 export default function RightPanel() {
   const [tab, setTab] = useState('targets'); // 'targets' | 'inputs' | 'options'
   
-  const { 
-    targets, 
-    inputsLimit, 
-    options, 
-    layoutDirection,
-    schematicMode,
-    addTarget, 
-    updateTarget, 
-    removeTarget, 
-    addInputLimit, 
-    updateInputLimit, 
-    removeInputLimit, 
-    toggleAltRecipe, 
-    setOptimizeMode,
-    setLayoutDirection,
-    setSchematicMode,
-    setOption,
-    activePresetId,
-    frozenStages,
-    unfreezeStage,
-    resetToFreeMode
-  } = useFactoryStore();
+  const targets = useFactoryStore(s => s.targets);
+  const inputsLimit = useFactoryStore(s => s.inputsLimit);
+  const options = useFactoryStore(s => s.options);
+  const layoutDirection = useFactoryStore(s => s.layoutDirection);
+  const schematicMode = useFactoryStore(s => s.schematicMode);
+  const activePresetId = useFactoryStore(s => s.activePresetId);
+  const frozenStages = useFactoryStore(s => s.frozenStages);
+  const addTarget = useFactoryStore(s => s.addTarget);
+  const updateTarget = useFactoryStore(s => s.updateTarget);
+  const removeTarget = useFactoryStore(s => s.removeTarget);
+  const addInputLimit = useFactoryStore(s => s.addInputLimit);
+  const updateInputLimit = useFactoryStore(s => s.updateInputLimit);
+  const removeInputLimit = useFactoryStore(s => s.removeInputLimit);
+  const toggleAltRecipe = useFactoryStore(s => s.toggleAltRecipe);
+  const setOptimizeMode = useFactoryStore(s => s.setOptimizeMode);
+  const setLayoutDirection = useFactoryStore(s => s.setLayoutDirection);
+  const setSchematicMode = useFactoryStore(s => s.setSchematicMode);
+  const setOption = useFactoryStore(s => s.setOption);
+  const unfreezeStage = useFactoryStore(s => s.unfreezeStage);
+  const resetToFreeMode = useFactoryStore(s => s.resetToFreeMode);
 
   const isStageFrozen = Boolean(activePresetId && frozenStages[activePresetId]?.isFrozen);
 

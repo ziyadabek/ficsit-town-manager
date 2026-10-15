@@ -10,8 +10,8 @@ export default function PowerPlanner({ isPresetMode }) {
   const [generatorId, setGeneratorId] = useState('coal');
   const [fuelId, setFuelId] = useState('coal');
   const [safetyBuffer, setSafetyBuffer] = useState(1.0);
-
-  const { powerConfig, summary } = useFactoryStore();
+  const powerConfig = useFactoryStore(s => s.powerConfig);
+  const summary = useFactoryStore(s => s.summary);
 
   useEffect(() => {
     if (isPresetMode && powerConfig) {

@@ -92,7 +92,6 @@ function ItemsTable({ summary, tableRef }) {
 
 // ─── LogisticsTable ────────────────────────────────────────────────────────────
 function LogisticsTable({ summary, tableRef }) {
-  const { inputsLimit } = useFactoryStore();
   if (!summary || !summary.items)
     return <div className="p-8 text-gray-500">Нет данных для отображения.</div>;
 
@@ -250,22 +249,20 @@ function BuildingsTable({ summary, tableRef }) {
 
 // ─── MainView ──────────────────────────────────────────────────────────────────
 export default function MainView() {
-  const {
-    activeTab,
-    setActiveTab,
-    summary,
-    recalculateGraph,
-    targets,
-    activePresetId,
-    frozenStages,
-    freezeCurrentStage,
-    unfreezeStage,
-    addTarget,
-    nodes,
-    builtNodes,
-    markAllNodesBuilt,
-    resetBuiltNodes
-  } = useFactoryStore();
+  const activeTab = useFactoryStore(s => s.activeTab);
+  const setActiveTab = useFactoryStore(s => s.setActiveTab);
+  const summary = useFactoryStore(s => s.summary);
+  const recalculateGraph = useFactoryStore(s => s.recalculateGraph);
+  const targets = useFactoryStore(s => s.targets);
+  const activePresetId = useFactoryStore(s => s.activePresetId);
+  const frozenStages = useFactoryStore(s => s.frozenStages);
+  const freezeCurrentStage = useFactoryStore(s => s.freezeCurrentStage);
+  const unfreezeStage = useFactoryStore(s => s.unfreezeStage);
+  const addTarget = useFactoryStore(s => s.addTarget);
+  const nodes = useFactoryStore(s => s.nodes);
+  const builtNodes = useFactoryStore(s => s.builtNodes);
+  const markAllNodesBuilt = useFactoryStore(s => s.markAllNodesBuilt);
+  const resetBuiltNodes = useFactoryStore(s => s.resetBuiltNodes);
 
   const stageKey = activePresetId || 'free_mode';
   const stageBuilt = builtNodes?.[stageKey] || {};

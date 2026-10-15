@@ -97,4 +97,56 @@ describe('LP Solver Engine', () => {
     const result = solveProductionGraph(targets, inputsLimit, options);
     expect(result.feasible).toBe(false);
   });
+
+  it('handles duplicate inputsLimit without producing duplicate node IDs', () => {
+    const targets = [{ id: 't1', itemId: 'reinforced_iron_plate', rate: 10 }];
+    const inputsLimit = [
+      { id: 'inp1', itemId: 'iron_plate', rate: 30 },
+      { id: 'inp2', itemId: 'iron_plate', rate: 30 }
+    ];
+    const options = { optimize: 'raw', altRecipes: [] };
+
+    const result = solveProductionGraph(targets, inputsLimit, options);
+    expect(result.feasible).toBe(true);
+
+    const importPlateNodes = result.nodes.filter(n => n.id === 'import_iron_plate');
+    expect(importPlateNodes.length).toBe(1);
+    expect(importPlateNodes[0].data.rate).toBeCloseTo(60, 2);
+  });
+
+  it('solves electrode_aluminum_scrap using petroleum coke and verifies VIP junction in realistic mode', async () => {
+    const { expandToRealisticGraph } = await import('../engine/realisticGraphEngine');
+
+    // Stage 8 targets: aluminum_sheet
+    const targets = [{ id: 't1', itemId: 'aluminum_sheet', rate: 200 }];
+    const inputsLimit = [{ id: 'inp1', itemId: 'petroleum_coke', rate: 300 }];
+    const options = {
+      optimize: 'power',
+      altRecipes: ['electrode_aluminum_scrap', 'alt_heat_exchanger']
+    };
+
+    const result = solveProductionGraph(targets, inputsLimit, options);
+    expect(result.feasible).toBe(true);
+
+    // Electrode scrap recipe should be used
+    const scrapNode = result.nodes.find(n => n.data?.recipeId === 'electrode_aluminum_scrap');
+    expect(scrapNode).toBeDefined();
+
+    // Petroleum coke import should be used
+    const cokeNode = result.nodes.find(n => n.id === 'import_petroleum_coke');
+    expect(cokeNode).toBeDefined();
+
+    // VIP Water junction should exist in abstract graph
+    const vipNode = result.nodes.find(n => n.data?.isVIP);
+    expect(vipNode).toBeDefined();
+
+    // In realistic mode, incoming edges into VIP water must be preserved!
+    const realistic = expandToRealisticGraph(result.nodes, result.edges, {
+      layoutDirection: 'LR',
+      useSplitters: true
+    });
+
+    const realVipEdges = realistic.edges.filter(e => e.target === 'vip_water');
+    expect(realVipEdges.length).toBeGreaterThan(0);
+  });
 });

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { solveProductionGraph } from '../engine/solver';
 import { calculateAllTransits } from '../engine/campaignTransitEngine';
 import { expandToRealisticGraph } from '../engine/realisticGraphEngine';
-import dagre from 'dagre';
+import { calculateGraphLayout, calculateGraphLayoutSync } from '../engine/layoutService';
 import recipesDB from '../database/recipes.json';
 import items from '../database/items.json';
 import presets from '../database/campaignPresets.json';
@@ -63,6 +63,49 @@ function saveBuiltNodesState(builtNodes) {
   return true;
 }
 
+export function mergeFrozenStagesWithIdb(idbStages = {}, memoryStages = {}) {
+  const result = { ...idbStages };
+  for (const [key, memStage] of Object.entries(memoryStages || {})) {
+    const idbStage = idbStages[key];
+    if (!idbStage) {
+      result[key] = memStage;
+      continue;
+    }
+    const memHasNodes = Array.isArray(memStage?.snapshot?.nodes) && memStage.snapshot.nodes.length > 0;
+    const idbHasNodes = Array.isArray(idbStage?.snapshot?.nodes) && idbStage.snapshot.nodes.length > 0;
+    const memTime = memStage?.frozenAt ? new Date(memStage.frozenAt).getTime() : 0;
+    const idbTime = idbStage?.frozenAt ? new Date(idbStage.frozenAt).getTime() : 0;
+
+    if (memTime > idbTime && memHasNodes) {
+      result[key] = memStage;
+    } else if (idbHasNodes) {
+      result[key] = {
+        ...memStage,
+        ...idbStage,
+        snapshot: idbStage.snapshot
+      };
+    } else {
+      result[key] = {
+        ...idbStage,
+        ...memStage
+      };
+    }
+  }
+  return result;
+}
+
+export function mergeBuiltNodesWithIdb(idbBuilt = {}, memoryBuilt = {}) {
+  const result = {};
+  const allKeys = new Set([...Object.keys(idbBuilt || {}), ...Object.keys(memoryBuilt || {})]);
+  for (const k of allKeys) {
+    result[k] = {
+      ...(idbBuilt[k] || {}),
+      ...(memoryBuilt[k] || {})
+    };
+  }
+  return result;
+}
+
 export const useFactoryStore = create((set, get) => ({
   // Graph state
   nodes: [],
@@ -94,6 +137,8 @@ export const useFactoryStore = create((set, get) => ({
   activePresetId: null,
   layoutDirection: 'LR', // 'LR' (Вправо) | 'TB' (Вниз)
   schematicMode: 'simple', // 'simple' (Компактный SCIM) | 'realistic' (Реалистичный цех SCIM)
+  isCalculatingLayout: false,
+  layoutGeneration: 0,
   
   // Campaign Stages State
   campaignStagesState: initialCampaignStates,
@@ -250,9 +295,9 @@ export const useFactoryStore = create((set, get) => ({
       }
 
       if (stages && typeof stages === 'object' && Object.keys(stages).length > 0) {
-        // Объединяем с текущими frozenStages (если пользователь успел что-то заморозить в первые миллисекунды)
+        // Интеллектуальное слияние: данные из IDB с полными графами не затираются легковесным кэшем localStorage
         const currentFrozen = get().frozenStages || {};
-        const mergedStages = { ...stages, ...currentFrozen };
+        const mergedStages = mergeFrozenStagesWithIdb(stages, currentFrozen);
         set({ frozenStages: mergedStages });
         const { activePresetId } = get();
         if (activePresetId && mergedStages[activePresetId]) {
@@ -262,7 +307,7 @@ export const useFactoryStore = create((set, get) => ({
       }
       if (built && typeof built === 'object' && Object.keys(built).length > 0) {
         const currentBuilt = get().builtNodes || {};
-        const mergedBuilt = { ...built, ...currentBuilt };
+        const mergedBuilt = mergeBuiltNodesWithIdb(built, currentBuilt);
         set({ builtNodes: mergedBuilt });
       }
     } catch (e) {
@@ -754,235 +799,6 @@ export const useFactoryStore = create((set, get) => ({
         }
       }
 
-      const dagreGraph = new dagre.graphlib.Graph();
-      dagreGraph.setDefaultEdgeLabel(() => ({}));
-      
-      const isRealistic = schematicMode === 'realistic';
-      const nodeSep = 80;
-      const rankSep = layoutDirection === 'LR' ? 220 : 180;
-
-      // 1. Конфигурация Dagre Graph
-      dagreGraph.setGraph({ 
-        rankdir: layoutDirection,
-        align: undefined,
-        nodesep: nodeSep,
-        ranksep: rankSep,
-        ranker: 'network-simplex',
-        marginx: 60,
-        marginy: 60
-      });
-
-      // Функция определения размеров ноды для Dagre (единый SCIM стандарт высоты 130px для идеального выравнивания портов)
-      const getNodeDimensions = (node) => {
-        if (node.type === 'splitter' || node.type === 'merger') {
-          return { width: 140, height: 130 };
-        }
-        if (node.type === 'output' || node.type === 'productItem') {
-          return { width: 80, height: 130 };
-        }
-        return { width: 150, height: 130 };
-      };
-
-      // Добавляем ноды с индивидуальными габаритами
-      activeNodes.forEach(node => {
-        const { width, height } = getNodeDimensions(node);
-        dagreGraph.setNode(node.id, { width, height });
-      });
-
-      // 3. Группировка по производственным слоям (Ранжирование)
-      // Определение обратных рёбер и циклов рециркуляции (например, темная материя, возврат воды в VIP гидроконтур)
-      const fullAdj = {};
-      activeEdges.forEach(e => {
-        fullAdj[e.source] = fullAdj[e.source] || [];
-        fullAdj[e.source].push(e);
-      });
-
-      const cycleEdgeIds = new Set();
-      const dfsVisited = {};
-      const onStack = {};
-
-      // Итеративный DFS для предотвращения переполнения стека вызовов (Stack Overflow)
-      function detectCyclesIterative(startNodeId) {
-        if (dfsVisited[startNodeId]) return;
-
-        const stack = [{ node: startNodeId, edgeIndex: 0 }];
-        dfsVisited[startNodeId] = true;
-        onStack[startNodeId] = true;
-
-        while (stack.length > 0) {
-          const current = stack[stack.length - 1];
-          const neighbors = fullAdj[current.node] || [];
-
-          if (current.edgeIndex < neighbors.length) {
-            const edge = neighbors[current.edgeIndex];
-            current.edgeIndex++;
-
-            const targetId = edge.target;
-            if (!dfsVisited[targetId]) {
-              dfsVisited[targetId] = true;
-              onStack[targetId] = true;
-              stack.push({ node: targetId, edgeIndex: 0 });
-            } else if (onStack[targetId]) {
-              cycleEdgeIds.add(edge.id);
-            }
-          } else {
-            onStack[current.node] = false;
-            stack.pop();
-          }
-        }
-      }
-
-      // Обходим граф, начиная со входных узлов (шахты, транзит), затем остальные
-      activeNodes.filter(n => n.data?.isInput).forEach(n => {
-        if (!dfsVisited[n.id]) detectCyclesIterative(n.id);
-      });
-      activeNodes.forEach(n => {
-        if (!dfsVisited[n.id]) detectCyclesIterative(n.id);
-      });
-
-      const isRecycleEdge = (edge) => {
-        // 1. Побочные продукты замкнутых циклов (например, остаток темной материи из суперпозиционного осциллятора)
-        if (edge.data?.itemId === 'dark_matter_residue') {
-          return true;
-        }
-        // 2. Возврат побочной воды в VIP гидроконтур
-        const tgtNode = activeNodes.find(n => n.id === edge.target);
-        if (tgtNode?.data?.isVIP && !edge.source.startsWith('mine_') && !edge.source.startsWith('import_')) {
-          return true;
-        }
-        // 3. Обратные ребра циклов, обнаруженные DFS
-        if (cycleEdgeIds.has(edge.id)) {
-          return true;
-        }
-        return false;
-      };
-
-      const forwardEdges = activeEdges.filter(e => !isRecycleEdge(e));
-
-      // 4. Оптимизированное вычисление глубин узлов (DAG Toposort за O(V + E) без блокирующих O(V*E) циклов)
-      const forwardAdj = {};
-      const inDegree = {};
-      activeNodes.forEach(n => {
-        forwardAdj[n.id] = [];
-        inDegree[n.id] = 0;
-      });
-
-      forwardEdges.forEach(e => {
-        if (forwardAdj[e.source]) forwardAdj[e.source].push(e.target);
-        if (inDegree[e.target] !== undefined) inDegree[e.target]++;
-      });
-
-      const nodeDepth = {};
-      const queue = [];
-
-      activeNodes.forEach(n => {
-        nodeDepth[n.id] = 0;
-        if (inDegree[n.id] === 0) {
-          queue.push(n.id);
-        }
-      });
-
-      let qHead = 0;
-      while (qHead < queue.length) {
-        const u = queue[qHead++];
-        const curDepth = nodeDepth[u] || 0;
-        const targets = forwardAdj[u] || [];
-
-        for (let i = 0; i < targets.length; i++) {
-          const v = targets[i];
-          if (curDepth + 1 > (nodeDepth[v] || 0)) {
-            nodeDepth[v] = curDepth + 1;
-          }
-          inDegree[v]--;
-          if (inDegree[v] === 0) {
-            queue.push(v);
-          }
-        }
-      }
-
-      // Подстраховка для оставшихся неразрешенных связей (если в forwardEdges остался редкий остаточный микроцикл)
-      if (queue.length < activeNodes.length) {
-        forwardEdges.forEach(e => {
-          const sD = nodeDepth[e.source] || 0;
-          if (sD + 1 > (nodeDepth[e.target] || 0)) {
-            nodeDepth[e.target] = sD + 1;
-          }
-        });
-      }
-
-      // 2. Веса и минимальная длина рёбер
-      activeEdges.forEach(edge => {
-        const recycle = isRecycleEdge(edge);
-        if (recycle) {
-          // Обратное ребро рециркуляции направляется назад с минимальным весом
-          dagreGraph.setEdge(edge.source, edge.target, {
-            weight: 0.1,
-            minlen: 1
-          });
-          return;
-        }
-
-        const srcDepth = nodeDepth[edge.source] || 0;
-        const tgtDepth = nodeDepth[edge.target] || 0;
-        const depthDiff = Math.max(1, tgtDepth - srcDepth);
-        const isLongTransit = depthDiff > 1; 
-        
-        // Для сырьевых шахт (mine_) minlen фиксирует их слева (не более 1-2 рангов)
-        // Для импорта/транзита (import_) minlen = 1 позволяет разместить узел ближе к целевому цеху
-        const isRawMine = edge.source.startsWith('mine_');
-        const minlen = isRawMine ? Math.min(depthDiff, 2) : 1;
-
-        dagreGraph.setEdge(edge.source, edge.target, {
-          weight: isRawMine ? 3 : (isLongTransit ? 1 : (isRealistic ? 2 : 3)),
-          minlen
-        });
-      });
-
-      dagre.layout(dagreGraph);
-
-      // В реалистичном режиме выравниваем разветвители и трубные перекрестки,
-      // соединенные по прямой линии (out-1 -> in), а также входные шахты,
-      // чтобы две главные линии шли строго по середине без перекосов
-      if (schematicMode === 'realistic') {
-        activeEdges.forEach(edge => {
-          if (edge.sourceHandle === 'out-1' && edge.targetHandle === 'in') {
-            const srcNode = dagreGraph.node(edge.source);
-            const tgtNode = dagreGraph.node(edge.target);
-            if (srcNode && tgtNode) {
-              srcNode.y = tgtNode.y;
-            }
-          }
-        });
-
-        // Выравниваем входные узлы (шахты, вода) по целевым узлам
-        activeEdges.forEach(edge => {
-          const src = activeNodes.find(n => n.id === edge.source);
-          if (src?.data?.isInput) {
-            const srcNode = dagreGraph.node(edge.source);
-            const tgtNode = dagreGraph.node(edge.target);
-            if (srcNode && tgtNode) {
-              srcNode.y = tgtNode.y;
-            }
-          }
-        });
-      }
-
-      const layoutedNodes = activeNodes.map(node => {
-        const nodeWithPosition = dagreGraph.node(node.id) || { x: 0, y: 0 };
-        const { width, height } = getNodeDimensions(node);
-        return {
-          ...node,
-          data: {
-            ...node.data,
-            layoutDirection
-          },
-          position: {
-            x: nodeWithPosition.x - (width / 2),
-            y: nodeWithPosition.y - (height / 2)
-          }
-        };
-      });
-
       const styledEdges = activeEdges.map(edge => {
         const isFluid = edge.data?.itemId === 'water' || edge.data?.itemId?.includes('oil') || edge.data?.itemId?.includes('fuel');
         return {
@@ -997,7 +813,50 @@ export const useFactoryStore = create((set, get) => ({
         };
       });
 
-      set({ nodes: layoutedNodes, edges: styledEdges, summary: result.summary });
+      const applyPositions = (positions) => {
+        const layoutedNodes = activeNodes.map(node => {
+          const pos = positions[node.id] || { x: 0, y: 0 };
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              layoutDirection
+            },
+            position: {
+              x: pos.x,
+              y: pos.y
+            }
+          };
+        });
+
+        set({
+          nodes: layoutedNodes,
+          edges: styledEdges,
+          summary: result.summary,
+          isCalculatingLayout: false
+        });
+      };
+
+      const generation = (get().layoutGeneration || 0) + 1;
+      set({ layoutGeneration: generation });
+
+      if (typeof Worker === 'undefined') {
+        const positions = calculateGraphLayoutSync(activeNodes, activeEdges, { layoutDirection, schematicMode });
+        applyPositions(positions);
+      } else {
+        set({ isCalculatingLayout: true });
+        calculateGraphLayout(activeNodes, activeEdges, { layoutDirection, schematicMode })
+          .then(positions => {
+            if (get().layoutGeneration !== generation) return; // Stale layout discarded
+            applyPositions(positions);
+          })
+          .catch(err => {
+            console.warn('[useFactoryStore] Worker layout failed, using sync fallback:', err);
+            if (get().layoutGeneration !== generation) return;
+            const positions = calculateGraphLayoutSync(activeNodes, activeEdges, { layoutDirection, schematicMode });
+            applyPositions(positions);
+          });
+      }
     } else {
       console.warn("Graph is infeasible");
       set({ summary: null }); 

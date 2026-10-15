@@ -11,7 +11,12 @@ const BalancerViewer = lazy(() => import('./modules/balancer/BalancerViewer'))
 const SpaceElevatorView = lazy(() => import('./components/canvas/SpaceElevatorView'))
 
 function App() {
-  const { loadPreset, resetToFreeMode, campaignStagesState, activePresetId, frozenStages, initStorage } = useFactoryStore();
+  const loadPreset = useFactoryStore(s => s.loadPreset);
+  const resetToFreeMode = useFactoryStore(s => s.resetToFreeMode);
+  const campaignStagesState = useFactoryStore(s => s.campaignStagesState);
+  const activePresetId = useFactoryStore(s => s.activePresetId);
+  const frozenStages = useFactoryStore(s => s.frozenStages);
+  const initStorage = useFactoryStore(s => s.initStorage);
   const [view, setView] = useState('calculator');
   const [campaignMode, setCampaignMode] = useState('detail');
   const [plannersOpen, setPlannersOpen] = useState(false);
@@ -366,7 +371,8 @@ function App() {
       </div>
       )}
 
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex overflow-hidden relative">
+        <DeficitAlerts />
         <Suspense fallback={
           <div className="flex-1 flex items-center justify-center bg-[#0b0d10] text-gray-400 font-mono text-sm">
             Загрузка модуля...

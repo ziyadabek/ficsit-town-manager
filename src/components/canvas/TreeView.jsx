@@ -78,7 +78,8 @@ function TreeNode({ nodeData, level = 0 }) {
 }
 
 export default function TreeView() {
-  const { targets, nodes: graphNodes } = useFactoryStore();
+  const targets = useFactoryStore(s => s.targets);
+  const graphNodes = useFactoryStore(s => s.nodes);
   
   // Find which recipes were actually used by the LP solver
   const activeRecipeIds = new Set(
