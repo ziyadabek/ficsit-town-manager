@@ -11,7 +11,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useFactoryStore } from '../../store/useFactoryStore';
 import GraphCanvas from './GraphCanvas';
 import TreeView from './TreeView';
@@ -252,7 +252,6 @@ export default function MainView() {
   const activeTab = useFactoryStore(s => s.activeTab);
   const setActiveTab = useFactoryStore(s => s.setActiveTab);
   const summary = useFactoryStore(s => s.summary);
-  const recalculateGraph = useFactoryStore(s => s.recalculateGraph);
   const targets = useFactoryStore(s => s.targets);
   const activePresetId = useFactoryStore(s => s.activePresetId);
   const frozenStages = useFactoryStore(s => s.frozenStages);
@@ -290,12 +289,6 @@ export default function MainView() {
 
   // Суммарная мощность из summary (для брендированной карточки)
   const totalPower = summary?.totalPower ?? null;
-
-  useEffect(() => {
-    if (!summary && targets.length > 0) {
-      recalculateGraph();
-    }
-  }, [summary, targets.length, recalculateGraph]);
 
   // ── Tab button helper ──────────────────────────────────────────────────────
   const TabBtn = ({ id, label, accent = false }) => (

@@ -14,7 +14,9 @@ export default function MachineNode({ id, data }) {
   );
   const toggleNodeBuilt = useFactoryStore(state => state.toggleNodeBuilt);
 
-  const somersloopRecipes = useFactoryStore(state => state.options.somersloopRecipes) || [];
+  const isAmplified = useFactoryStore(state => 
+    Boolean(state.options?.somersloopRecipes?.includes(data.recipeId))
+  );
   const toggleSomersloop = useFactoryStore(state => state.toggleSomersloop);
   const storeDirection = useFactoryStore(state => state.layoutDirection);
   const layoutDirection = data.layoutDirection || storeDirection || 'LR';
@@ -376,8 +378,6 @@ export default function MachineNode({ id, data }) {
   }
 
   const supportsSomersloop = building?.somersloopSlots > 0;
-  const isAmplified = somersloopRecipes.includes(data.recipeId);
-
   const ringColor = isBuilt ? '#22c55e' : (isAmplified ? '#a855f7' : '#f97316');
   const machineCountStr = data.machines ? ` (${data.machines.toFixed(1)} шт)` : '';
 

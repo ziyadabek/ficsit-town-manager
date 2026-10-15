@@ -58,6 +58,10 @@ const GraphCanvasInner = forwardRef(function GraphCanvasInner(_props, ref) {
   // Хуки экспорта SVG и контроля камеры
   const { exportSvgBlueprint } = useGraphExport(containerRef);
   const { fitView } = useReactFlow();
+  const fitViewRef = useRef(fitView);
+  useEffect(() => {
+    fitViewRef.current = fitView;
+  });
 
   // Пробрасываем метод экспорта наружу
   useImperativeHandle(ref, () => ({
@@ -74,38 +78,38 @@ const GraphCanvasInner = forwardRef(function GraphCanvasInner(_props, ref) {
     const validNodes = Array.isArray(storeNodes) ? storeNodes : [];
     const validEdges = Array.isArray(storeEdges) ? storeEdges : [];
     setNodes(validNodes);
-    setEdges(validEdges.map(e => ({ ...e, type: 'default' })));
+    setEdges(validEdges);
     
     // Синхронизируем вызов центрирования: даем React Flow время 
     // отрендерить новые узлы после Dagre, прежде чем вписывать камеру
     if (storeNodes.length > 0) {
       const timer = setTimeout(() => {
-        fitView({ padding: 0.1, minZoom: 0.01, duration: 400 });
+        fitViewRef.current?.({ padding: 0.1, minZoom: 0.01, duration: 400 });
       }, 50);
       return () => clearTimeout(timer);
     }
-  }, [storeNodes, storeEdges, layoutDirection, schematicMode, setNodes, setEdges, fitView]);
+  }, [storeNodes, storeEdges, layoutDirection, schematicMode, setNodes, setEdges]);
 
   // Автоцентрирование при открытии/закрытии боковой панели
   useEffect(() => {
     if (storeNodes.length > 0) {
       const timer = setTimeout(() => {
-        fitView({ padding: 0.1, minZoom: 0.01, duration: 300 });
+        fitViewRef.current?.({ padding: 0.1, minZoom: 0.01, duration: 300 });
       }, 150);
       return () => clearTimeout(timer);
     }
-  }, [isRightPanelOpen, fitView]);
+  }, [isRightPanelOpen, storeNodes.length]);
 
   // Обработка изменения размера окна
   useEffect(() => {
     const handleResize = () => {
       if (storeNodes.length > 0) {
-        fitView({ padding: 0.1, minZoom: 0.01, duration: 200 });
+        fitViewRef.current?.({ padding: 0.1, minZoom: 0.01, duration: 200 });
       }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [storeNodes.length, fitView]);
+  }, [storeNodes.length]);
 
   return (
     <div ref={containerRef} className="w-full h-full scim-grid overflow-hidden relative flex-1 min-w-0 min-h-0">

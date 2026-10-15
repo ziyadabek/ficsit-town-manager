@@ -4,8 +4,10 @@ import items from '../../database/items.json';
 import { getAssetUrl } from '../../database/assets';
 
 
+const EMPTY_INPUTS = [];
+
 export default function DeficitAlerts() {
-  const effectiveInputs = useFactoryStore(state => state.summary?.effectiveInputs || []);
+  const effectiveInputs = useFactoryStore(state => state.summary?.effectiveInputs) || EMPTY_INPUTS;
   const deficits = effectiveInputs.filter(inp => inp && inp.deficit && inp.deficit > 0.001);
 
   if (deficits.length === 0) return null;

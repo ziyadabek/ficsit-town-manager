@@ -40,6 +40,10 @@ const edgeTypes = {
 function BalancerViewerInner() {
   const [selectedId, setSelectedId] = useState('1to2');
   const { fitView } = useReactFlow();
+  const fitViewRef = useRef(fitView);
+  useEffect(() => {
+    fitViewRef.current = fitView;
+  });
 
   const currentBalancer = useMemo(() => {
     return BALANCERS.find(b => b.id === selectedId) || BALANCERS[0];
@@ -64,11 +68,11 @@ function BalancerViewerInner() {
     if (currentBalancer) {
       loadPreset(currentBalancer);
       const timer = setTimeout(() => {
-        fitView({ padding: 0.2, duration: 400 });
+        fitViewRef.current?.({ padding: 0.2, duration: 400 });
       }, 60);
       return () => clearTimeout(timer);
     }
-  }, [currentBalancer, loadPreset, fitView]);
+  }, [currentBalancer, loadPreset]);
 
   return (
     <div className="flex-1 min-w-0 min-h-0 flex flex-col h-full bg-[#0b0d10] text-[#e1e1e6] overflow-hidden select-none">

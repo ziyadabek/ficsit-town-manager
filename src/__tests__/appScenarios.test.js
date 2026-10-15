@@ -147,4 +147,26 @@ describe('App End-to-End Scenarios Verification', () => {
     expect(emptyState.edges).toEqual([]);
     expect(emptyState.summary.items).toEqual([]);
   });
+
+  it('Scenario 8: ensures selector stability to prevent React Error #185 infinite loops', () => {
+    // Reset store with summary null
+    useFactoryStore.setState({ summary: null, options: { ...useFactoryStore.getState().options, somersloopRecipes: [] } });
+
+    // Selector pattern used in DeficitAlerts
+    const EMPTY_INPUTS = [];
+    const selectInputs = (state) => state.summary?.effectiveInputs || EMPTY_INPUTS;
+    
+    const snap1 = selectInputs(useFactoryStore.getState());
+    const snap2 = selectInputs(useFactoryStore.getState());
+    // Must be strictly identical references to prevent useSyncExternalStore re-render loop
+    expect(Object.is(snap1, snap2)).toBe(true);
+
+    // Selector pattern used in MachineNode
+    const selectAmplified = (recipeId) => (state) => Boolean(state.options?.somersloopRecipes?.includes(recipeId));
+    const isAmp1 = selectAmplified('recipe_reinforced_iron_plate')(useFactoryStore.getState());
+    const isAmp2 = selectAmplified('recipe_reinforced_iron_plate')(useFactoryStore.getState());
+    expect(isAmp1).toBe(false);
+    expect(Object.is(isAmp1, isAmp2)).toBe(true);
+  });
 });
+
