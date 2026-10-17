@@ -558,7 +558,7 @@
     "duration": 4,
     "inputs": [
       {
-        "itemId": "copper_ore",
+        "itemId": "copper_ingot",
         "rate": 15
       }
     ],
@@ -3632,6 +3632,48 @@
       {
         "itemId": "motor",
         "rate": 7.5
+      }
+    ]
+  },
+  {
+    "id": "alt_caterium_wire",
+    "name": "Катерийная проволока",
+    "buildingId": "constructor",
+    "isAlternate": true,
+    "duration": 4,
+    "inputs": [
+      {
+        "itemId": "caterium_ingot",
+        "rate": 15
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "wire",
+        "rate": 120
+      }
+    ]
+  },
+  {
+    "id": "alt_fused_wire",
+    "name": "Сплавленная проволока",
+    "buildingId": "assembler",
+    "isAlternate": true,
+    "duration": 20,
+    "inputs": [
+      {
+        "itemId": "copper_ingot",
+        "rate": 12
+      },
+      {
+        "itemId": "caterium_ingot",
+        "rate": 3
+      }
+    ],
+    "outputs": [
+      {
+        "itemId": "wire",
+        "rate": 90
       }
     ]
   }

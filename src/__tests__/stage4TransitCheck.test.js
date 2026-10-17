@@ -1,12 +1,11 @@
-import { describe, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import campaignPresets from '../database/campaignPresets.json';
 import { solveProductionGraph } from '../engine/solver.js';
 import { calculateAllTransits } from '../engine/campaignTransitEngine.js';
 
 describe('Stage 4 Transit Check', () => {
-  it('inspects Stage 4 inputs and transit usage', () => {
+  it('inspects Stage 4 inputs, transit usage, and copper smelting chain for wire', () => {
     const p = campaignPresets.find((x) => x.id === 'complex_3');
-    console.log('Stage 4 preset:', JSON.stringify(p, null, 2));
 
     const stagesState = campaignPresets.reduce((acc, stage) => {
       acc[stage.id] = { enabled: true, scale: 1.0 };
@@ -15,7 +14,6 @@ describe('Stage 4 Transit Check', () => {
 
     const allTransits = calculateAllTransits(stagesState);
     const stageTransits = allTransits['complex_3'] || [];
-    console.log('Stage 4 transits from engine:', stageTransits);
 
     const effectiveInputs = stageTransits.map((t) => ({
       itemId: t.itemId,
@@ -40,27 +38,34 @@ describe('Stage 4 Transit Check', () => {
       }
     });
 
-    console.log('Effective inputs:', effectiveInputs);
-
     const result = solveProductionGraph(p.targets, effectiveInputs, p.options || {});
-    console.log('Feasible:', result.feasible);
-    console.log('Import iron plate in solution:', result.nodes.find(n => n.id === 'import_iron_plate'));
-    console.log('Nodes count:', result.nodes.length);
-    result.nodes.forEach(n => {
-      if (n.data?.isInput || n.data?.isImport) {
-        console.log('Input node:', n.id, n.data?.itemId, n.data?.rate);
-      }
-    });
-    const edgesFromImport = result.edges.filter(e => e.source === 'import_iron_plate');
-    console.log('Edges from import_iron_plate:', edgesFromImport);
+    expect(result.feasible).toBe(true);
 
-    const edgesFromRecipePlates = result.edges.filter(e => e.source === 'recipe_iron_plate');
-    console.log('Edges from recipe_iron_plate:', edgesFromRecipePlates);
+    // Проверка цепочки меди: Медная руда -> Плавильня (Медный слиток) -> Конструктор (Проволока)
+    const copperSmelterNode = result.nodes.find(n => n.id === 'recipe_copper_ingot');
+    const wireConstructorNode = result.nodes.find(n => n.id === 'recipe_wire');
+    expect(copperSmelterNode).toBeDefined();
+    expect(copperSmelterNode.data.buildingId).toBe('smelter');
+    expect(wireConstructorNode).toBeDefined();
+    expect(wireConstructorNode.data.buildingId).toBe('constructor');
 
-    const recipeIronPlate = result.nodes.find(n => n.id === 'recipe_iron_plate');
-    console.log('Recipe iron plate machine:', recipeIronPlate);
+    // Убеждаемся, что медная руда НЕ поступает напрямую в конструктор проволоки
+    const directOreToWireEdge = result.edges.find(
+      e => e.source === 'mine_copper_ore' && e.target === 'recipe_wire'
+    );
+    expect(directOreToWireEdge).toBeUndefined();
 
-    const usedRecipes = result.summary.recipes;
-    console.log('Used recipes in Stage 4:', usedRecipes.map(r => r.id));
+    // Медная руда поступает в плавильню медных слитков, а медные слитки — в конструктор проволоки
+    const oreToSmelterEdge = result.edges.find(
+      e => e.source === 'mine_copper_ore' && e.target === 'recipe_copper_ingot'
+    );
+    const ingotToWireEdge = result.edges.find(
+      e => e.source === 'recipe_copper_ingot' && e.target === 'recipe_wire'
+    );
+    expect(oreToSmelterEdge).toBeDefined();
+    expect(oreToSmelterEdge.data.itemId).toBe('copper_ore');
+    expect(ingotToWireEdge).toBeDefined();
+    expect(ingotToWireEdge.data.itemId).toBe('copper_ingot');
   });
 });
+
