@@ -124,7 +124,8 @@
         "alt_stitched_iron_plate",
         "alt_iron_wire",
         "alt_heat_fused_frame",
-        "alt_steel_rotor"
+        "steel_rotor",
+        "alt_copper_alloy_ingot"
       ]
     }
   },
@@ -212,11 +213,6 @@
         "id": "inp1",
         "itemId": "plastic",
         "rate": 160
-      },
-      {
-        "id": "inp2",
-        "itemId": "screws",
-        "rate": 208
       }
     ],
     "targets": [

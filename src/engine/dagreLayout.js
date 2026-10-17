@@ -55,9 +55,23 @@ export function computeDagrePositions(activeNodes, activeEdges, options = {}) {
   });
 
   // 2. Группировка по производственным слоям (Ранжирование)
-  // Определение обратных рёбер и циклов рециркуляции (например, темная материя, возврат воды в VIP гидроконтур)
+  // Определение известных возвратных рёбер побочных продуктов (темная материя от квантовых кодеров, возврат воды в VIP гидроконтур)
+  const isKnownRecycleEdge = (edge) => {
+    // 1. Побочный остаток темной материи (кроме прямого производства в конвертере dark_matter_residue_converter)
+    if (edge.data?.itemId === 'dark_matter_residue' && !edge.source.includes('dark_matter_residue_converter')) {
+      return true;
+    }
+    // 2. Возврат побочной воды в VIP гидроконтур
+    const tgtNode = activeNodes.find(n => n.id === edge.target);
+    if (tgtNode?.data?.isVIP && !edge.source.startsWith('mine_') && !edge.source.startsWith('import_')) {
+      return true;
+    }
+    return false;
+  };
+
   const fullAdj = {};
   activeEdges.forEach(e => {
+    if (isKnownRecycleEdge(e)) return;
     fullAdj[e.source] = fullAdj[e.source] || [];
     fullAdj[e.source].push(e);
   });
@@ -106,16 +120,9 @@ export function computeDagrePositions(activeNodes, activeEdges, options = {}) {
   });
 
   const isRecycleEdge = (edge) => {
-    // 1. Побочные продукты замкнутых циклов
-    if (edge.data?.itemId === 'dark_matter_residue') {
+    if (isKnownRecycleEdge(edge)) {
       return true;
     }
-    // 2. Возврат побочной воды в VIP гидроконтур
-    const tgtNode = activeNodes.find(n => n.id === edge.target);
-    if (tgtNode?.data?.isVIP && !edge.source.startsWith('mine_') && !edge.source.startsWith('import_')) {
-      return true;
-    }
-    // 3. Обратные ребра циклов, обнаруженные DFS
     if (cycleEdgeIds.has(edge.id)) {
       return true;
     }
@@ -179,10 +186,12 @@ export function computeDagrePositions(activeNodes, activeEdges, options = {}) {
   activeEdges.forEach(edge => {
     const recycle = isRecycleEdge(edge);
     if (recycle) {
-      dagreGraph.setEdge(edge.source, edge.target, {
-        weight: 0.1,
-        minlen: 1
-      });
+      if (edge.source !== edge.target) {
+        dagreGraph.setEdge(edge.target, edge.source, {
+          weight: 1,
+          minlen: 1
+        });
+      }
       return;
     }
 

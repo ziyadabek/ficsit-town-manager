@@ -41,11 +41,11 @@ describe('Stage 4 Transit Check', () => {
     const result = solveProductionGraph(p.targets, effectiveInputs, p.options || {});
     expect(result.feasible).toBe(true);
 
-    // Проверка цепочки меди: Медная руда -> Плавильня (Медный слиток) -> Конструктор (Проволока)
-    const copperSmelterNode = result.nodes.find(n => n.id === 'recipe_copper_ingot');
+    // Проверка цепочки меди: Медная руда + Железная руда -> Литейная (Слиток медного сплава) -> Конструктор (Проволока)
+    const copperFoundryNode = result.nodes.find(n => n.id === 'recipe_alt_copper_alloy_ingot');
     const wireConstructorNode = result.nodes.find(n => n.id === 'recipe_wire');
-    expect(copperSmelterNode).toBeDefined();
-    expect(copperSmelterNode.data.buildingId).toBe('smelter');
+    expect(copperFoundryNode).toBeDefined();
+    expect(copperFoundryNode.data.buildingId).toBe('foundry');
     expect(wireConstructorNode).toBeDefined();
     expect(wireConstructorNode.data.buildingId).toBe('constructor');
 
@@ -55,15 +55,15 @@ describe('Stage 4 Transit Check', () => {
     );
     expect(directOreToWireEdge).toBeUndefined();
 
-    // Медная руда поступает в плавильню медных слитков, а медные слитки — в конструктор проволоки
-    const oreToSmelterEdge = result.edges.find(
-      e => e.source === 'mine_copper_ore' && e.target === 'recipe_copper_ingot'
+    // Медная руда поступает в литейную медного сплава, а медные слитки — в конструктор проволоки
+    const oreToFoundryEdge = result.edges.find(
+      e => e.source === 'mine_copper_ore' && e.target === 'recipe_alt_copper_alloy_ingot'
     );
     const ingotToWireEdge = result.edges.find(
-      e => e.source === 'recipe_copper_ingot' && e.target === 'recipe_wire'
+      e => e.source === 'recipe_alt_copper_alloy_ingot' && e.target === 'recipe_wire'
     );
-    expect(oreToSmelterEdge).toBeDefined();
-    expect(oreToSmelterEdge.data.itemId).toBe('copper_ore');
+    expect(oreToFoundryEdge).toBeDefined();
+    expect(oreToFoundryEdge.data.itemId).toBe('copper_ore');
     expect(ingotToWireEdge).toBeDefined();
     expect(ingotToWireEdge.data.itemId).toBe('copper_ingot');
   });

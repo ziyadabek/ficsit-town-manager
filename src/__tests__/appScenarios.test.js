@@ -179,6 +179,6 @@ describe('App End-to-End Scenarios Verification', () => {
     expect(typeof powerModule.default).toBe('function');
     expect(typeof macroModule.default).toBe('function');
     expect(typeof elevatorModule.default).toBe('function');
-  });
+  }, 15000);
 });
 

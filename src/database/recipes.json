@@ -417,7 +417,7 @@
       },
       {
         "itemId": "concrete",
-        "rate": 18
+        "rate": 20
       }
     ],
     "outputs": [
@@ -504,11 +504,11 @@
     "duration": 24,
     "inputs": [
       {
-        "itemId": "silica",
+        "itemId": "copper_sheet",
         "rate": 27.5
       },
       {
-        "itemId": "plastic",
+        "itemId": "silica",
         "rate": 27.5
       }
     ],
@@ -532,15 +532,11 @@
       },
       {
         "itemId": "cable",
-        "rate": 18
+        "rate": 20
       },
       {
         "itemId": "plastic",
-        "rate": 18
-      },
-      {
-        "itemId": "screws",
-        "rate": 52
+        "rate": 40
       }
     ],
     "outputs": [
@@ -1365,17 +1361,17 @@
     "inputs": [
       {
         "itemId": "modular_frame",
-        "rate": 1
+        "rate": 2.5
       },
       {
         "itemId": "steel_beam",
-        "rate": 12
+        "rate": 30
       }
     ],
     "outputs": [
       {
         "itemId": "versatile_framework",
-        "rate": 2.5
+        "rate": 5
       }
     ]
   },
@@ -1566,14 +1562,14 @@
   },
   {
     "id": "reanimated_sam",
-    "name": "Реанированная СИМ",
+    "name": "Реанимированная СИМ",
     "buildingId": "constructor",
     "isAlternate": false,
     "duration": 2,
     "inputs": [
       {
         "itemId": "sam_ore",
-        "rate": 30
+        "rate": 120
       }
     ],
     "outputs": [
@@ -1586,9 +1582,9 @@
   {
     "id": "diamonds",
     "name": "Алмазы",
-    "buildingId": "constructor",
+    "buildingId": "particle_accelerator",
     "isAlternate": false,
-    "duration": 6,
+    "duration": 2,
     "inputs": [
       {
         "itemId": "coal",
@@ -1598,7 +1594,7 @@
     "outputs": [
       {
         "itemId": "diamonds",
-        "rate": 10
+        "rate": 30
       }
     ]
   },
@@ -1628,30 +1624,26 @@
   {
     "id": "time_crystal",
     "name": "Кристалл времени",
-    "buildingId": "manufacturer",
+    "buildingId": "converter",
     "isAlternate": false,
-    "duration": 6,
+    "duration": 10,
     "inputs": [
       {
         "itemId": "diamonds",
-        "rate": 10
-      },
-      {
-        "itemId": "dark_energy",
-        "rate": 10
+        "rate": 12
       }
     ],
     "outputs": [
       {
         "itemId": "time_crystal",
-        "rate": 10
+        "rate": 6
       }
     ]
   },
   {
     "id": "singularity_cell",
     "name": "Сингулярная ячейка",
-    "buildingId": "quantum_encoder",
+    "buildingId": "manufacturer",
     "isAlternate": false,
     "duration": 60,
     "inputs": [
@@ -1660,8 +1652,8 @@
         "rate": 1
       },
       {
-        "itemId": "dark_energy",
-        "rate": 5
+        "itemId": "dark_matter_crystal",
+        "rate": 20
       },
       {
         "itemId": "iron_plate",
@@ -1675,7 +1667,7 @@
     "outputs": [
       {
         "itemId": "singularity_cell",
-        "rate": 1
+        "rate": 10
       }
     ]
   },
@@ -1845,16 +1837,21 @@
   {
     "id": "sam_fluctuator",
     "name": "Флуктуатор СИМ",
-    "buildingId": "assembler",
+    "buildingId": "manufacturer",
     "isAlternate": false,
+    "duration": 6,
     "inputs": [
       {
         "itemId": "reanimated_sam",
-        "rate": 30
+        "rate": 60
       },
       {
         "itemId": "wire",
         "rate": 50
+      },
+      {
+        "itemId": "steel_pipe",
+        "rate": 30
       }
     ],
     "outputs": [
@@ -1891,16 +1888,17 @@
     "name": "Тригон Фиксита",
     "buildingId": "constructor",
     "isAlternate": false,
+    "duration": 6,
     "inputs": [
       {
         "itemId": "ficsite_ingot",
-        "rate": 15
+        "rate": 10
       }
     ],
     "outputs": [
       {
         "itemId": "ficsite_trigon",
-        "rate": 10
+        "rate": 30
       }
     ]
   },
@@ -1909,14 +1907,15 @@
     "name": "Кристалл темной материи",
     "buildingId": "particle_accelerator",
     "isAlternate": false,
+    "duration": 2,
     "inputs": [
       {
         "itemId": "dark_matter_residue",
-        "rate": 30
+        "rate": 150
       },
       {
         "itemId": "diamonds",
-        "rate": 10
+        "rate": 30
       }
     ],
     "outputs": [
@@ -1931,10 +1930,11 @@
     "name": "Суперпозиционный осциллятор",
     "buildingId": "quantum_encoder",
     "isAlternate": false,
+    "duration": 12,
     "inputs": [
       {
         "itemId": "dark_matter_crystal",
-        "rate": 5
+        "rate": 30
       },
       {
         "itemId": "crystal_oscillator",
@@ -1942,11 +1942,11 @@
       },
       {
         "itemId": "aluminum_sheet",
-        "rate": 10
+        "rate": 45
       },
       {
         "itemId": "excited_photonic_matter",
-        "rate": 25
+        "rate": 125
       }
     ],
     "outputs": [
@@ -1956,7 +1956,7 @@
       },
       {
         "itemId": "dark_matter_residue",
-        "rate": 25
+        "rate": 125
       }
     ]
   },
@@ -2300,24 +2300,6 @@
       {
         "itemId": "caterium_ore",
         "rate": 120
-      }
-    ]
-  },
-  {
-    "id": "time_crystal_converter",
-    "name": "Кристалл времени",
-    "buildingId": "converter",
-    "isAlternate": true,
-    "inputs": [
-      {
-        "itemId": "diamonds",
-        "rate": 12
-      }
-    ],
-    "outputs": [
-      {
-        "itemId": "time_crystal",
-        "rate": 6
       }
     ]
   },
@@ -2900,28 +2882,6 @@
     ]
   },
   {
-    "id": "alt_encased_industrial_pipe",
-    "name": "Железобетонная труба",
-    "buildingId": "assembler",
-    "isAlternate": true,
-    "inputs": [
-      {
-        "itemId": "steel_pipe",
-        "rate": 28
-      },
-      {
-        "itemId": "concrete",
-        "rate": 20
-      }
-    ],
-    "outputs": [
-      {
-        "itemId": "encased_industrial_beam",
-        "rate": 4
-      }
-    ]
-  },
-  {
     "id": "alt_heat_fused_frame",
     "name": "Закалённый каркас",
     "buildingId": "assembler",
@@ -3244,28 +3204,6 @@
     ]
   },
   {
-    "id": "alt_solid_steel_ingot",
-    "name": "Прочный стальной слиток",
-    "buildingId": "foundry",
-    "isAlternate": true,
-    "inputs": [
-      {
-        "itemId": "iron_ingot",
-        "rate": 40
-      },
-      {
-        "itemId": "coal",
-        "rate": 40
-      }
-    ],
-    "outputs": [
-      {
-        "itemId": "steel_ingot",
-        "rate": 60
-      }
-    ]
-  },
-  {
     "id": "alt_stitched_iron_plate",
     "name": "Прошитая железная пластина",
     "buildingId": "assembler",
@@ -3478,28 +3416,6 @@
       {
         "itemId": "quickwire",
         "rate": 90
-      }
-    ]
-  },
-  {
-    "id": "alt_steel_rotor",
-    "name": "Стальной ротор",
-    "buildingId": "assembler",
-    "isAlternate": true,
-    "inputs": [
-      {
-        "itemId": "steel_pipe",
-        "rate": 10
-      },
-      {
-        "itemId": "wire",
-        "rate": 30
-      }
-    ],
-    "outputs": [
-      {
-        "itemId": "rotor",
-        "rate": 5
       }
     ]
   },
